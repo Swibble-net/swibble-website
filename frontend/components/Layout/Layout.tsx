@@ -1,3 +1,4 @@
+import Footer from "./Footer";
 import Header from "./Header";
 
 interface Props {
@@ -9,9 +10,10 @@ const Layout = ({ children, ...props }: Props) => {
     //Set for all pages height and width to full screen
     <div className="h-screen w-screen">
       <Header />
-      <main className="px-4 lg:px-[5%]" {...props}>
+      <main className="px-4 lg:px-[5%] pt-28 pb-10" {...props}>
         {children}
       </main>
+      <Footer />
     </div>
   );
 };
