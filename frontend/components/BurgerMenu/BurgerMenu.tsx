@@ -19,7 +19,7 @@ const BurgerMenu = ({ menu, handleOnClick }: IMenu) => {
         )}
       </button>
       <div
-        className={`fixed bg-[#F5FFFE] w-full top-0 right-0 px-4 ${
+        className={`fixed bg-[#FDF5FF] w-full top-0 right-0 px-4 ${
           menu ? "translate-y-1/2" : "-translate-y-[150%]"
         } transition ease-in-out shadow-lg`}
       >
