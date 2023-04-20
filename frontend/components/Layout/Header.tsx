@@ -17,9 +17,7 @@ const Header = () => {
 
   return (
     <header
-      className={`w-full fixed top-0 flex justify-between items-center ${
-        menu ? "bg-[#F5FFFE]" : "bg-[#FDF5FF]"
-      } px-4 py-7 transition-all ease-in-out ${
+      className={`w-full fixed top-0 flex justify-between items-center bg-[#FDF5FF] px-4 py-7 transition-all ease-in-out ${
         scrollPosition > 0 ? "shadow-lg" : "shadow-none"
       }`}
     >
