@@ -3,7 +3,8 @@ import LandingImage from "@/public/SwibbleLandingPageImage.png";
 
 const LandingPart = () => {
   return (
-    <div className="w-full flex flex-col justify-between  gap-12 lg:flex-row lg:justify-around lg:items-center">
+    <div className="relative w-full flex flex-col justify-between gap-12 lg:flex-row lg:justify-around lg:items-center">
+      <div className="bg-[#FDF5FF] bg-cover absolute top-0 bottom-0 right-0 left-0 -z-10 w-screen -mx-4 lg:-mx-20"></div>
       <div className="flex flex-col gap-5">
         <h2 className="text-[#000D36] font-bold text-2xl">
           Biete deinen Kunden ein digitales Unternehmen
