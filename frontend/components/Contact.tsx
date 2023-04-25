@@ -21,39 +21,48 @@ const Contact = () => {
   };
 
   return (
-    <div className="w-full flex flex-col gap-5">
-      <div className="text-[#000D36]">
-        <h2 className="font-bold text-2xl mb-5">Let&apos;s stay connected</h2>
-        <p className="text-base font-normal">
-          Erfahre in deinem ganz persönlichen Erstgespräch wie Swibble deinem
-          Unternehmen weiterhelfen kann.
-        </p>
-      </div>
-      <div className="rounded-[14px]">
-        <Image
-          src={AachenMap}
-          alt="map"
-          width={343}
-          height={202}
-          className="w-full"
-        />
-      </div>
-      <div className="w-full flex justify-between items-start">
-        <div>
-          <h3 className="font-bold text-base text-[#2A3342]">Anschrift</h3>
-          <p className="text-sm text-[#556987]">
-            Königsstraße 30, <br />
-            52064 Aachen
+    <div className="w-full flex flex-col gap-y-5 lg:flex-row lg:justify-between lg:items-center lg:gap-x-24">
+      <div className="flex flex-col gap-y-5 w-full lg:w-7/12 lg:gap-y-20">
+        <div className="text-[#000D36]">
+          <h2 className="font-bold text-2xl mb-5 lg:text-5xl">
+            Let&apos;s stay connected
+          </h2>
+          <p className="text-base font-normal lg:text-xl">
+            Erfahre in deinem ganz persönlichen Erstgespräch wie Swibble deinem
+            Unternehmen weiterhelfen kann.
           </p>
         </div>
-        <div>
-          <h3 className="font-bold text-base text-[#2A3342]">E-mail</h3>
-          <p className="text-sm text-[#556987]">
-            <a href="mailto:contact@swibble.net">contact@swibble.net</a>
-          </p>
+        <div className="rounded-[14px] flex flex-col gap-5 w-full lg:w-8/12 md:w-8/12">
+          <Image
+            src={AachenMap}
+            alt="map"
+            width={0}
+            height={0}
+            className="w-full"
+          />
+          <div className="w-full flex flex-row justify-between lg:flex-row-reverse lg:justify-around items-start">
+            <div className="relative pl-2">
+              <h3 className="font-bold text-base text-[#2A3342]">Anschrift</h3>
+              <p className="text-sm text-[#556987]">
+                Königsstraße 30, <br />
+                52064 Aachen
+              </p>
+              <div className="none lg:absolute lg:w-[0.188rem] lg:h-20 lg:bg-[#B718EC] lg:rounded-b-full lg:left-0 lg:bottom-1"></div>
+            </div>
+            <div className="relative pl-2">
+              <h3 className="font-bold text-base text-[#2A3342]">E-mail</h3>
+              <p className="text-sm text-[#556987]">
+                <a href="mailto:contact@swibble.net">contact@swibble.net</a>
+              </p>
+              <div className="none lg:absolute lg:w-[0.188rem] lg:h-16 lg:-z-10 lg:bg-[#B718EC] lg:rounded-b-full lg:left-0 lg:bottom-1"></div>
+            </div>
+          </div>
         </div>
       </div>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-4 w-full lg:w-5/12"
+      >
         <div>
           <label htmlFor="email">E-Mail*</label>
           <br />
@@ -95,7 +104,7 @@ const Contact = () => {
         </div>
         <button
           type="submit"
-          className="w-44 text-center text-sm font-medium bg-[#B718EC] text-[#F0FDF4] py-[0.781rem] px-5 rounded-[10px] hover:scale-95 transition duration-200"
+          className="w-44 lg:self-center text-center text-sm font-medium bg-[#B718EC] text-[#F0FDF4] py-[0.781rem] px-5 rounded-[10px] hover:scale-95 transition duration-200"
         >
           Konstenlos Starten
         </button>
