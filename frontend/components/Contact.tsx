@@ -18,6 +18,9 @@ const Contact = () => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    updateEvent({ email: "" });
+    updateEvent({ number: "" });
+    updateEvent({ message: "" });
   };
 
   return (
