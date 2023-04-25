@@ -1,14 +1,18 @@
+// Importing necessary React components
 import Image from "next/image";
 import AachenMap from "@/public/map_aachen.png";
 import { FormEvent, useReducer } from "react";
 
+// Defining expected input properties for `updateEvent` reducer
 interface Input {
   email: string;
   message: string;
   number: string;
 }
 
+// Defining the main component
 const Contact = () => {
+  // Creating state and updating function using `useReducer`
   const [event, updateEvent] = useReducer(
     (prev: Input, next: Partial<Input>) => {
       return { ...prev, ...next };
@@ -16,15 +20,20 @@ const Contact = () => {
     { email: "", message: "", number: "" }
   );
 
+  // Handling submit event for form
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Resetting the `event` state properties back to empty strings on form submission
     updateEvent({ email: "" });
     updateEvent({ number: "" });
     updateEvent({ message: "" });
   };
 
+  // Rendering the component
   return (
     <div className="w-full flex flex-col gap-y-5 lg:flex-row lg:justify-between lg:items-center lg:gap-x-24">
+      {/* Displaying address and contact information */}
       <div className="flex flex-col gap-y-5 w-full lg:w-7/12 lg:gap-y-20">
         <div className="text-[#000D36]">
           <h2 className="font-bold text-2xl mb-5 lg:text-5xl">
@@ -35,14 +44,18 @@ const Contact = () => {
             Unternehmen weiterhelfen kann.
           </p>
         </div>
+
+        {/* Displaying a map and additional contact information */}
         <div className="rounded-[14px] flex flex-col gap-5 w-full lg:w-8/12 md:w-8/12">
           <Image
             src={AachenMap}
             alt="map"
-            width={0}
-            height={0}
+            width={0} // placeholders for `width` and `height`
+            height={0} // since they will be taken from the `src` image
             className="w-full"
           />
+
+          {/* Displaying address and email information */}
           <div className="w-full flex flex-row justify-between lg:flex-row-reverse lg:justify-around items-start">
             <div className="relative pl-2">
               <h3 className="font-bold text-base text-[#2A3342]">Anschrift</h3>
@@ -62,6 +75,8 @@ const Contact = () => {
           </div>
         </div>
       </div>
+
+      {/* Displaying a form for submitting messages */}
       <form
         onSubmit={handleSubmit}
         className="flex flex-col gap-4 w-full lg:w-5/12"
