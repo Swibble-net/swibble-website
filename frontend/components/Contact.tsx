@@ -1,7 +1,8 @@
 // Importing necessary React components
 import Image from "next/image";
 import AachenMap from "@/public/map_aachen.png";
-import { FormEvent, useReducer } from "react";
+import { FormEvent, useReducer, useState } from "react";
+import sendEmail from "@/lib/sendMail";
 
 // Defining expected input properties for `updateEvent` reducer
 interface Input {
@@ -20,9 +21,29 @@ const Contact = () => {
     { email: "", message: "", number: "" }
   );
 
+  const [responseMessage, setResponseMessage] = useState({
+    isSuccessful: false,
+    message: "",
+  });
+
   // Handling submit event for form
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    try {
+      const req = await sendEmail(event.email, event.number, event.message);
+      if (req.status === 250) {
+        setResponseMessage({
+          isSuccessful: true,
+          message: "Thank you for your message.",
+        });
+      }
+    } catch (e) {
+      console.log(e);
+      setResponseMessage({
+        isSuccessful: false,
+        message: "Oops something went wrong. Please try again.",
+      });
+    }
 
     // Resetting the `event` state properties back to empty strings on form submission
     updateEvent({ email: "" });
@@ -101,7 +122,6 @@ const Contact = () => {
             className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:!outline-none pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]"
             type="tel"
             name="Telefonnummer"
-            pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
             placeholder="Deine Telefonnummer"
             value={event.number}
             onChange={(e) => updateEvent({ number: e.target.value })}
@@ -111,9 +131,9 @@ const Contact = () => {
           <label htmlFor="text">Nachricht*</label>
           <br />
           <textarea
-            className="w-full bg-[#F6F6F6] h-24 rounded-lg focus:!outline-none pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]"
+            className="w-full bg-[#F6F6F6] h-24 rounded-lg resize-none focus:!outline-none pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]"
             name="text"
-            maxLength={80}
+            maxLength={200}
             placeholder="Vor welchen Herausforderungen steht dein Unternehmen?"
             required
             value={event.message}
