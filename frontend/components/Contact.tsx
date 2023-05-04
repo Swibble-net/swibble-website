@@ -33,7 +33,7 @@ const Contact = () => {
     e.preventDefault();
     try {
       const req = await sendEmail(event.email, event.number, event.message);
-      if (req.status === 250) {
+      if (req.status === 200) {
         setResponseMessage({
           isSuccessful: true,
           alertMessage: "Abgeschickt!",
