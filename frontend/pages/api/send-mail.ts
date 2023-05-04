@@ -1,7 +1,10 @@
 import nodemailer from "nodemailer";
-import { Request, Response } from "express";
+import { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(req: Request, res: Response) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const message = {
     from: `${req.body.email}`,
     to: process.env.SMTP_USER,
