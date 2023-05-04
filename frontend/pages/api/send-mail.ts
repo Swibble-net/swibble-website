@@ -5,12 +5,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const message = {
-    from: `${req.body.email}`,
-    to: process.env.SMTP_USER,
-    subject: `Message from ${req.body.email}. ${req.body.number}`,
-    text: req.body.message,
-  };
+  // const message = {
+  //   from: `${req.body.email}`,
+  //   to: process.env.SMTP_USER,
+  //   subject: `Message from ${req.body.email}. ${req.body.number}`,
+  //   text: req.body.message,
+  // };
 
   const transporter = nodemailer.createTransport({
     host: String(process.env.SMTP_HOST),
@@ -33,19 +33,28 @@ export default async function handler(
       }
     });
   });
-
-  await new Promise((resolve, reject) => {
-    // send mail
-    transporter.sendMail(message, (err, info) => {
-      if (err) {
-        console.error(err);
-        reject(err);
-      } else {
-        console.log(info);
-        resolve(info);
-      }
+  try {
+    await transporter.sendMail({
+      from: `${req.body.email}`,
+      to: process.env.SMTP_USER,
+      subject: `Message from ${req.body.email}. ${req.body.number}`,
+      text: req.body.message,
     });
-  });
-
-  res.status(200).json({ status: "OK" });
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+  return res.status(200).json({ error: "" });
+  // await new Promise((resolve, reject) => {
+  //   // send mail
+  //   transporter.sendMail(message, (err, info) => {
+  //     if (err) {
+  //       console.error(err);
+  //       reject(err);
+  //     } else {
+  //       console.log(info);
+  //       resolve(info);
+  //       res.status(200).json({ status: "OK" });
+  //     }
+  //   });
+  // });
 }
