@@ -4,7 +4,7 @@ import LandingImage from "@/public/SwibbleLandingPageImage.png";
 const LandingPart = () => {
   return (
     <div className="relative w-full flex flex-col justify-between gap-12 py-10 mb-28 lg:flex-row lg:justify-around lg:items-center lg:mb-24 lg:py-28">
-      <div className="bg-[#FDF5FF] bg-cover absolute top-0 bottom-0 right-0 left-0 -z-10 w-screen -mx-4 lg:-mx-20"></div>
+      <div className="bg-[#FDF5FF] bg-cover absolute top-0 bottom-0 right-0 left-0 -z-10 w-screen -mt-20 -mx-4 lg:-mx-20"></div>
       <div className="flex flex-col gap-5">
         <h2 className="text-[#000D36] font-bold text-2xl">
           Biete deinen Kunden ein digitales Unternehmen
@@ -16,7 +16,7 @@ const LandingPart = () => {
         </p>
         <a
           href={"https://meet.swibble.net"}
-          className="tracking-normal hover:tracking-[1px] transition-all duration-500 ease-in-out"
+          className="w-fit tracking-normal hover:tracking-[1px] transition-all duration-500 ease-in-out"
         >
           <p className="text-[#B718EC]">Jetzt Erstgespräch sichern {">"}</p>
         </a>
