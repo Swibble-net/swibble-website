@@ -18,17 +18,31 @@ export default async function handler(req: Request, res: Response) {
     },
   });
 
-  if (req.method === "POST") {
-    transporter.sendMail(message, (err, info) => {
-      if (err) {
-        res.status(404).json({
-          error: `Connection refused at ${err}`,
-        });
+  await new Promise((resolve, reject) => {
+    // verify connection configuration
+    transporter.verify(function (error, success) {
+      if (error) {
+        console.log(error);
+        reject(error);
       } else {
-        res.status(250).json({
-          success: `Message delivered to ${info.accepted}`,
-        });
+        console.log("Server is ready to take our messages");
+        resolve(success);
       }
     });
-  }
+  });
+
+  await new Promise((resolve, reject) => {
+    // send mail
+    transporter.sendMail(message, (err, info) => {
+      if (err) {
+        console.error(err);
+        reject(err);
+      } else {
+        console.log(info);
+        resolve(info);
+      }
+    });
+  });
+
+  res.status(200).json({ status: "OK" });
 }
