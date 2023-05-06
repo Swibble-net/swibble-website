@@ -1,7 +1,10 @@
 import nodemailer from "nodemailer";
 import { NextApiRequest, NextApiResponse } from "next";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const message = {
     from: `${req.body.email}`,
     to: process.env.SMTP_USER,
@@ -18,23 +21,31 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  // verify connection configuration
-  transporter.verify(function (error, success) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log("Server is ready to take our messages");
-    }
+  await new Promise((resolve, reject) => {
+    // verify connection configuration
+    transporter.verify(function (error, success) {
+      if (error) {
+        console.log(error);
+        reject(error);
+      } else {
+        console.log("Server is ready to take our messages");
+        resolve(success);
+      }
+    });
   });
 
-  // send mail
-  transporter.sendMail(message, (err, info) => {
-    if (err) {
-      console.error(err);
-    } else {
-      console.log(info);
-    }
+  await new Promise((resolve, reject) => {
+    // send mail
+    transporter.sendMail(message, (err, info) => {
+      if (err) {
+        console.error(err);
+        reject(err);
+      } else {
+        console.log(info);
+        resolve(info);
+      }
+    });
+    return res.status(200).json({ status: "OK" });
   });
-
-  res.status(200);
+  return res.status(200);
 }
