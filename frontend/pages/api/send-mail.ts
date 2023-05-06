@@ -45,7 +45,6 @@ export default async function handler(
         resolve(info);
       }
     });
-    return res.status(200).json({ status: "OK" });
   });
   return res.status(200);
 }
