@@ -20,31 +20,19 @@ export default async function handler(
       pass: process.env.SMTP_PASSWORD,
     },
   });
+  if ((req.method = "POST")) {
+    const data = req.body;
+    if (!data.email || !data.message) {
+      res.status(400).json({ message: "Bad request" });
+    }
+    try {
+      await transporter.sendMail(message);
+      res.status(200).json({ success: true });
+    } catch (error: any) {
+      console.log(error);
+      res.status(400).json({ message: error.message });
+    }
+  }
 
-  await new Promise((resolve, reject) => {
-    // verify connection configuration
-    transporter.verify(function (error, success) {
-      if (error) {
-        console.log(error);
-        reject(error);
-      } else {
-        console.log("Server is ready to take our messages");
-        resolve(success);
-      }
-    });
-  });
-
-  await new Promise((resolve, reject) => {
-    // send mail
-    transporter.sendMail(message, (err, info) => {
-      if (err) {
-        console.error(err);
-        reject(err);
-      } else {
-        console.log(info);
-        resolve(info);
-      }
-    });
-  });
-  return res.status(200);
+  res.status(400).json({ message: "Bad request" });
 }

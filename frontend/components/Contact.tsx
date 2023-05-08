@@ -6,7 +6,7 @@ import sendEmail from "@/lib/sendMail";
 import ContactAlert from "./ContactAlert";
 
 // Defining expected input properties for `updateEvent` reducer
-interface Input {
+export interface MailInput {
   email: string;
   message: string;
   number: string;
@@ -17,7 +17,7 @@ interface Input {
 const Contact = () => {
   // Creating state and updating function using `useReducer`
   const [event, updateEvent] = useReducer(
-    (prev: Input, next: Partial<Input>) => {
+    (prev: MailInput, next: Partial<MailInput>) => {
       return { ...prev, ...next };
     },
     { email: "", message: "", number: "", alert: false }
@@ -32,7 +32,7 @@ const Contact = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const req = await sendEmail(event.email, event.number, event.message);
+      const req = await sendEmail(event);
       if (req.status === 200) {
         setResponseMessage({
           isSuccessful: true,
