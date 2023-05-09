@@ -23,27 +23,33 @@ const Contact = () => {
     { email: "", message: "", number: "", alert: false }
   );
 
+  // Creating a state for response message after submitting the contact form
   const [responseMessage, setResponseMessage] = useState({
-    isSuccessful: false,
+    backgroundColor: "",
     alertMessage: "",
+    fillColor: "",
   });
 
   // Handling submit event for form
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    // Prevent to refresh the page
     e.preventDefault();
+    // async function to send filled form
     try {
       const req = await sendEmail(event.email, event.number, event.message);
       if (req.status === 200) {
         setResponseMessage({
-          isSuccessful: true,
           alertMessage: "Abgeschickt!",
+          backgroundColor: "bg-[#B718EC]",
+          fillColor: "bg-[#e7a1ff]",
         });
       }
     } catch (e) {
       console.log(e);
       setResponseMessage({
-        isSuccessful: false,
-        alertMessage: "Versuchen Sie bitte noch Mal!",
+        alertMessage: "Fehlgeschlagen",
+        backgroundColor: "bg-red-500",
+        fillColor: "bg-red-300",
       });
     }
 
@@ -54,7 +60,10 @@ const Contact = () => {
     updateEvent({ alert: true });
   };
 
+  // Setting variables for alert message props
   const alertMessage: string = responseMessage.alertMessage;
+  const backgroundColor: string = responseMessage.backgroundColor;
+  const fillColor: string = responseMessage.fillColor;
 
   //useEffect with timer for closing alert message wich react on "alert" state
   useEffect(() => {
@@ -163,7 +172,16 @@ const Contact = () => {
           </button>
         </form>
       </div>
-      {event.alert ? <ContactAlert alertMessage={alertMessage} /> : ""}
+      {/* Dispalying alert message depending on event.alert state */}
+      {event.alert ? (
+        <ContactAlert
+          alertMessage={alertMessage}
+          background={backgroundColor}
+          fill={fillColor}
+        />
+      ) : (
+        ""
+      )}
     </>
   );
 };
