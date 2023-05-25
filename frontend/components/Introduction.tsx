@@ -49,8 +49,8 @@ const Introduction = () => {
         <Image
           src={Intro}
           alt="intro"
-          width={0}
-          height={0}
+          width={1}
+          height={1}
           className={styles.image}
         />
       </div>

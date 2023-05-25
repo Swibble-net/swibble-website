@@ -1,0 +1,332 @@
+
+.button {
+    text-align: center;
+    width: fit-content;
+    background-color: #B718EC;
+    color: #F0FDF4;
+    padding-top: 0.781rem/* 12.5px */;
+    padding-bottom: 0.781rem/* 12.5px */;
+    padding-left: 1.25rem/* 20px */;
+    padding-right: 1.25rem/* 20px */;
+    border-radius: 0.625rem/* 10px */;
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+}
+
+.button:hover {
+    --tw-scale-x: .95;
+    --tw-scale-y: .95;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.description {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    row-gap: 0.875rem;
+    h1 {
+        font-weight: 700;
+        font-size: 1.5rem;
+        line-height: 2.25rem;
+        color: #000D36;
+  
+      }
+
+      p {
+        font-weight: 400;
+        font-size: 1rem;
+        line-height: 1.75rem;
+        color: #000D36;
+    }
+}
+
+.list {
+    width: 100%;
+   display: flex;
+   flex-direction: row;
+   flex-wrap: wrap;
+   justify-content: center;
+   align-items: stretch;
+   gap: 1rem;
+   margin-top: 3rem;
+   margin-bottom: 3rem;
+   @media screen and (min-width: 1024px) {
+    gap: 2rem;
+   }
+}
+
+.list_container1 {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 2;
+    flex-basis: 46%;
+    flex-shrink: 1;
+    gap: 1rem;
+.item1 {
+    width: 100%;
+    height: 16.25rem;
+    background-image: url("../public/projects_photo/swibble.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 0.625rem;
+    padding-left: 0.625rem;
+    padding-top: 0.938rem;
+    h3{
+        font-weight: 400;
+        font-size: 0.875rem;
+        line-height: 1.313rem;
+        color: white;
+        text-align: left;
+        @media screen and (min-width: 1024px) {
+            font-size: 1.125rem;
+            line-height: 2rem;
+        }
+    }
+    h2 {
+        font-weight: 600;
+        font-size: 1.125rem;
+        line-height: 1.688rem;
+        color: white;
+        text-align: left;
+        @media screen and (min-width: 1024px) {
+            font-weight: 500;
+            font-size: 1.75rem;
+            line-height: 2rem;
+        }
+    }
+    @media screen and (min-width: 1024px) {
+        height: 34.375rem;
+    }
+}
+.item2 {
+    width: 100%;
+    height: 12.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background-image: url("../public/projects_photo/konrat.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 0.625rem;
+    padding-left: 0.625rem;
+    padding-bottom: 0.938rem;
+    h3{
+        font-weight: 400;
+        font-size: 0.875rem;
+        line-height: 1.313rem;
+        color: white;
+        text-align: left;
+        @media screen and (min-width: 1024px) {
+            font-size: 1.125rem;
+            line-height: 2rem;
+        }
+    }
+    h2 {
+        font-weight: 600;
+        font-size: 1.125rem;
+        line-height: 1.688rem;
+        color: white;
+        text-align: left;
+        @media screen and (min-width: 1024px) {
+            font-weight: 500;
+            font-size: 1.75rem;
+            line-height: 2rem;
+        }
+    }
+    @media screen and (min-width: 1024px) {
+        height: 25rem;
+    }
+}
+@media screen and (min-width: 1024px) {
+    flex-grow: 3;
+    flex-basis: 30%;
+    gap: 2rem;
+}
+}
+.list_container2 {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 2;
+    flex-basis: 46%;
+    flex-shrink: 1;
+    gap: 1rem;
+.item3 {
+    width: 100%;
+    height: 12.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background-image: url("../public/projects_photo/goethe.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 0.625rem;
+    padding-left: 0.625rem;
+    padding-bottom: 0.938rem;
+    h3{
+        font-weight: 400;
+        font-size: 0.875rem;
+        line-height: 1.313rem;
+        color: white;
+        text-align: left;
+        @media screen and (min-width: 1024px) {
+            font-size: 1.125rem;
+            line-height: 2rem;
+        }
+    }
+    h2 {
+        font-weight: 600;
+        font-size: 1.125rem;
+        line-height: 1.688rem;
+        color: white;
+        text-align: left;
+        @media screen and (min-width: 1024px) {
+            font-weight: 500;
+            font-size: 1.75rem;
+            line-height: 2rem;
+        }
+    }
+    @media screen and (min-width: 1024px) {
+        height: 26.25rem;
+    }
+}
+.item4 {
+    width: 100%;
+    height: 16.25rem;
+    background-image: url("../public/projects_photo/aachen.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 0.625rem;
+    padding-left: 0.625rem;
+    padding-top: 0.938rem;
+    h3{
+        font-weight: 400;
+        font-size: 0.875rem;
+        line-height: 1.313rem;
+        color: white;
+        text-align: left;
+        @media screen and (min-width: 1024px) {
+            font-size: 1.125rem;
+            line-height: 2rem;
+        }
+    }
+    h2 {
+        font-weight: 600;
+        font-size: 1.125rem;
+        line-height: 1.688rem;
+        color: white;
+        text-align: left;
+        @media screen and (min-width: 1024px) {
+            font-weight: 500;
+            font-size: 1.75rem;
+            line-height: 2rem;
+        }
+    }
+    @media screen and (min-width: 1024px) {
+        height: 33.125rem;
+    }
+}
+@media screen and (min-width: 1024px) {
+    flex-grow: 3;
+    flex-basis: 30%;
+    gap: 2rem;
+}
+}
+.list_container3 {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 2;
+    flex-basis: 46%;
+    flex-shrink: 1;
+    gap: 1rem;
+.item5 {
+    width: 100%;
+    height: 13.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background-image: url("../public/projects_photo/ryde.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 0.625rem;
+    padding-left: 0.625rem;
+    padding-bottom: 0.938rem;
+    h3{
+        font-weight: 400;
+        font-size: 0.875rem;
+        line-height: 1.313rem;
+        color: white;
+        text-align: left;
+        @media screen and (min-width: 1024px) {
+            font-size: 1.125rem;
+            line-height: 2rem;
+        }
+    }
+    h2 {
+        font-weight: 600;
+        font-size: 1.125rem;
+        line-height: 1.688rem;
+        color: white;
+        text-align: left;
+        @media screen and (min-width: 1024px) {
+            font-weight: 500;
+            font-size: 1.75rem;
+            line-height: 2rem;
+        }
+    }
+    @media screen and (min-width: 1024px) {
+        height: 28.125rem;
+    }
+}
+.item6 {
+    width: 100%;
+    height: 13.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background-image: url("../public/projects_photo/square.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius: 0.625rem;
+    padding-left: 0.625rem;
+    padding-bottom: 0.938rem;
+    h3{
+        font-weight: 400;
+        font-size: 0.875rem;
+        line-height: 1.313rem;
+        color: white;
+        text-align: left;
+        @media screen and (min-width: 1024px) {
+            font-size: 1.125rem;
+            line-height: 2rem;
+        }
+    }
+    h2 {
+        font-weight: 600;
+        font-size: 1.125rem;
+        line-height: 1.688rem;
+        color: white;
+        text-align: left;
+        @media screen and (min-width: 1024px) {
+            font-weight: 500;
+            font-size: 1.75rem;
+            line-height: 2rem;
+        }
+    }
+    @media screen and (min-width: 1024px) {
+        height: 31.25rem;
+    }
+}
+@media screen and (min-width: 1024px) {
+    flex-direction: column;
+    flex-grow: 3;
+    flex-basis: 30%;
+    gap: 2rem;
+}
+}

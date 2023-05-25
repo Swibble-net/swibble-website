@@ -37,17 +37,17 @@ const Tasks = () => {
         </div>
         <div className={styles.card2}>
           <Image src={MonitorIcon} alt="monitor" width={32} height={32} />
-          <h2 style={{ color: "#5F3BC4" }}>Design</h2>
+          <h2 style={{ color: "#5F3BC4" }}>Development</h2>
           <p>Entwicklung persönlicher Softwarelösungen.</p>
         </div>
         <div className={styles.card3}>
           <Image src={StonksIcon} alt="stonks" width={32} height={32} />
-          <h2 style={{ color: "#3ABD9E" }}>Design</h2>
+          <h2 style={{ color: "#3ABD9E" }}>Beratung</h2>
           <p>Verhältnis von Kunden & Unternehmen stärken.</p>
         </div>
         <div className={styles.card4}>
           <Image src={SecurityIcon} alt="monitor" width={32} height={32} />
-          <h2 style={{ color: "#C43B7D" }}>Design</h2>
+          <h2 style={{ color: "#C43B7D" }}>Qualitätskontrolle</h2>
           <p>Sicherheit & Funktionalität deiner Software im Überblick.</p>
         </div>
       </div>

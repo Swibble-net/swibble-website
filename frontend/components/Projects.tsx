@@ -1,0 +1,49 @@
+import styles from "@/styles/projects.module.scss";
+const Projects = () => {
+  return (
+    <div>
+      <div className={styles.description}>
+        <h1>Hier könnte dein Projekt stehen</h1>
+        <p>
+          Viele Unternehmen vertrauen Swibble bereits! Klicke dich einfach durch
+          ein paar unserer Lieblingsprojekte durch und lass dich inspirieren.
+        </p>
+        <button className={styles.button}>Alle ansehen {">"}</button>
+      </div>
+      <div className={styles.list}>
+        <div className={styles.list_container1}>
+          <div className={styles.item1}>
+            <h3>App & Website</h3>
+            <h2>Swibble App</h2>
+          </div>
+          <div className={styles.item2}>
+            <h3>App & Web app</h3>
+            <h2>Konrat’s Welt</h2>
+          </div>
+        </div>
+        <div className={styles.list_container2}>
+          <div className={styles.item3}>
+            <h3>Website</h3>
+            <h2>Goethe Institut</h2>
+          </div>
+          <div className={styles.item4}>
+            <h3>App & Website</h3>
+            <h2>Aachen App</h2>
+          </div>
+        </div>
+        <div className={styles.list_container3}>
+          <div className={styles.item5}>
+            <h3>App</h3>
+            <h2>RydeUp</h2>
+          </div>
+          <div className={styles.item6}>
+            <h3>Qualitätssicherung</h3>
+            <h2>Square</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Projects;
