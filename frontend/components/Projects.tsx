@@ -3,11 +3,15 @@ const Projects = () => {
   return (
     <div>
       <div className={styles.description}>
-        <h1>Hier könnte dein Projekt stehen</h1>
-        <p>
-          Viele Unternehmen vertrauen Swibble bereits! Klicke dich einfach durch
-          ein paar unserer Lieblingsprojekte durch und lass dich inspirieren.
-        </p>
+        <div className={styles.text_description}>
+          <h1>Hier könnte dein Projekt stehen</h1>
+          <br />
+          <p>
+            Viele Unternehmen vertrauen Swibble bereits! Klicke dich einfach
+            durch ein paar unserer Lieblingsprojekte durch und lass dich
+            inspirieren.
+          </p>
+        </div>
         <button className={styles.button}>Alle ansehen {">"}</button>
       </div>
       <div className={styles.list}>

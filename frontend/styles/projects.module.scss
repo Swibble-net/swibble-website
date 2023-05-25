@@ -24,20 +24,32 @@
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
+    justify-content: none;
+    align-items: none;
     row-gap: 0.875rem;
+    .text_description {
+        width: 100%;
+        @media screen and (min-width: 1024px) {
+            width: 70%;
+        }
+    }
     h1 {
         font-weight: 700;
         font-size: 1.5rem;
         line-height: 2.25rem;
         color: #000D36;
-  
       }
-
       p {
         font-weight: 400;
         font-size: 1rem;
         line-height: 1.75rem;
         color: #000D36;
+    }
+    @media screen and (min-width: 1024px) {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: center;
     }
 }
 
