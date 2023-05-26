@@ -24,9 +24,9 @@ const LandingPart = () => {
       <div className="w-full flex justify-center">
         <Image src={LandingImage} alt="landing_mage" width={509} height={515} />
       </div>
-      <div className="absolute -bottom-20 left-0 overflow-hidden leading-[0] -mx-4 lg:-mx-20 w-screen">
+      <div className="absolute -bottom-12 left-0 overflow-hidden leading-[0] -mx-4 lg:-mx-20 lg:-bottom-20 w-screen">
         <svg
-          className="relative block rotate-180 w-[137%] h-20"
+          className="relative block rotate-180 w-[137%] h-12 lg:h-20"
           data-name="Layer 1"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1200 120"

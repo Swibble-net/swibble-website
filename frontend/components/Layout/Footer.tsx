@@ -7,7 +7,7 @@ const Footer = () => {
     <div className="w-full bg-[#000D36] sticky top-full pt-12 pb-7 px-4 text-[#FAFAFA]">
       <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0]">
         <svg
-          className="relative block w-[136%] h-[39px]"
+          className="relative block w-[136%] h-4 lg:h-[39px]"
           data-name="Layer 1"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1200 120"

@@ -212,7 +212,7 @@
 .wave_bottom {
     position: absolute;
     width: 100vw;
-    bottom: -5rem;
+    bottom: -3rem;
     left: 0;
     overflow: hidden;
     line-height: 0;
@@ -224,19 +224,23 @@
         display: block;
         transform: rotate(180deg);
         width: 137%;
-        height: 5rem;
+        height: 3rem;
+        @media screen and (min-width: 1024px) {
+            height: 5rem;
+        }
     }
 
     @media screen and (min-width: 1024px) {
         margin-left: -5rem;
         margin-right: -5rem;
+        bottom: -5rem;
     }
 }
 
 .wave_top {
     position: absolute;
     width: 100vw;
-    top: -6rem;
+    top: -3rem;
     left: 0;
     overflow: hidden;
     line-height: 0;
@@ -248,12 +252,16 @@
     display: block;
     transform: rotate(180deg);
     width: calc(159% + 1.3px);
-    height: 6rem;
+    height: 3rem;
+    @media screen and (min-width: 1024px) {
+        height: 6rem;
+    }
     }
 
     @media screen and (min-width: 1024px) {
         margin-left: -5rem;
         margin-right: -5rem;
+        top: -6rem;
     }
 }
 
