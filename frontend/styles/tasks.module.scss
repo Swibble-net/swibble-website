@@ -14,6 +14,23 @@
     text-align: center;
 }
 
+@mixin card_wireframe {
+    display: flex;
+    flex-grow: 2;
+    flex-shrink: 1;
+    flex-basis: 45%;
+    height: auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    row-gap: 1rem;
+    margin-bottom: 0;
+    padding: 1.5rem 0.5rem 1.25rem 0.5rem;
+    border-radius: 0.625rem;
+    background-color: white;
+    box-shadow: 0 25px 100px rgba(76, 64, 247, 8%);
+}
+
 .container {
     width: 100%;
     position: relative;
@@ -82,6 +99,8 @@
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
+    align-items: stretch;
+    align-content: stretch;
     justify-content: center;
     row-gap: 1rem;
     column-gap: 1rem;
@@ -95,18 +114,7 @@
     }
 }
 .card1 {
-    display: flex;
-    width: 45%;
-    height: auto;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    row-gap: 1rem;
-    padding: 1.5rem 0.5rem 1.25rem 0.5rem;
-    border-radius: 0.625rem;
-    background-color: white;
-    margin-bottom: 0;
-    box-shadow: 0 25px 100px rgba(76, 64, 247, 8%);
+    @include card_wireframe;
 
     h2 {
         @include card_header
@@ -124,19 +132,7 @@
     }
 }
 .card2 {
-    display: flex;
-    width: 45%;
-    height: auto;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    row-gap: 1rem;
-    padding: 1.5rem 0.5rem 1.25rem 0.5rem;
-    border-radius: 0.625rem;
-    background-color: white;
-    margin-top: 0;
-    box-shadow: 0 25px 100px rgba(76, 64, 247, 8%);
-    
+    @include card_wireframe;
 
     h2 {
         @include card_header
@@ -153,18 +149,7 @@
     }
 }
 .card3 {
-    display: flex;
-    width: 45%;
-    height: auto;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    row-gap: 1rem;
-    padding: 1.5rem 0.5rem 1.25rem 0.5rem;
-    border-radius: 0.625rem;
-    background-color: white;
-    margin-bottom: 0;
-    box-shadow: 0 25px 100px rgba(76, 64, 247, 8%);
+    @include card_wireframe;
 
     h2 {
         @include card_header
@@ -181,18 +166,7 @@
     }
 }
 .card4 {
-    display: flex;
-    width: 45%;
-    height: auto;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    row-gap: 1rem;
-    padding: 1.5rem 0.5rem 1.25rem 0.5rem;
-    border-radius: 0.625rem;
-    background-color: white;
-    margin-top: 0;
-    box-shadow: 0 25px 100px rgba(76, 64, 247, 8%);
+    @include card_wireframe;
 
     h2 {
         @include card_header

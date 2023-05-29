@@ -1,12 +1,15 @@
+// Import all required modules
 import styles from "@/styles/tasks.module.scss";
 import Image from "next/image";
 import BrushIcon from "@/public/icons/icon_brush.svg";
 import MonitorIcon from "@/public/icons/icon_monitor.svg";
 import StonksIcon from "@/public/icons/icon_stonks.svg";
 import SecurityIcon from "@/public/icons/icon_security.svg";
+// Render rthe component
 const Tasks = () => {
   return (
     <div className={styles.container}>
+      {/*Adding the "wave" on top of the component*/}
       <div className={styles.wave_top}>
         <svg
           data-name="Layer 1"
@@ -20,6 +23,7 @@ const Tasks = () => {
           ></path>
         </svg>
       </div>
+      {/*Adding the background ignoring the paddings of layout */}
       <div className={styles.background}></div>
       <div className={styles.description}>
         <h1>Womit hilft Swibble mir?</h1>
@@ -29,6 +33,7 @@ const Tasks = () => {
           Welt zu erreichen.
         </p>
       </div>
+      {/* Render the container with cards */}
       <div className={styles.card_container}>
         <div className={styles.card1}>
           <Image src={BrushIcon} alt="brush" width={32} height={32} />
@@ -51,6 +56,7 @@ const Tasks = () => {
           <p>Sicherheit & Funktionalität deiner Software im Überblick.</p>
         </div>
       </div>
+      {/*Adding the "wave" in the bottom of the component*/}
       <div className={styles.wave_bottom}>
         <svg
           data-name="Layer 1"

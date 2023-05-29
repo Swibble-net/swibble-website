@@ -1,4 +1,7 @@
 import styles from "@/styles/projects.module.scss";
+{
+  /*Render the component*/
+}
 const Projects = () => {
   return (
     <div>
@@ -14,6 +17,7 @@ const Projects = () => {
         </div>
         <button className={styles.button}>Alle ansehen {">"}</button>
       </div>
+      {/*Render the list of projects*/}
       <div className={styles.list}>
         <div className={styles.list_container1}>
           <div className={styles.item1}>

@@ -3,7 +3,7 @@ import Image from "next/image";
 import AachenMap from "@/public/map_aachen.png";
 import { FormEvent, useEffect, useReducer, useState } from "react";
 import sendEmail from "@/lib/sendMail";
-import ContactAlert from "./ContactAlert";
+import ContactResponseMessage from "./ContactResponseMessage";
 
 // Defining expected input properties for `updateEvent` reducer
 interface Input {
@@ -14,7 +14,7 @@ interface Input {
 }
 
 // Defining the main component
-const Contact = () => {
+const ContactForm = () => {
   // Creating state and updating function using `useReducer`
   const [event, updateEvent] = useReducer(
     (prev: Input, next: Partial<Input>) => {
@@ -174,7 +174,7 @@ const Contact = () => {
       </div>
       {/* Dispalying alert message depending on event.alert state */}
       {event.alert ? (
-        <ContactAlert
+        <ContactResponseMessage
           alertMessage={alertMessage}
           background={backgroundColor}
           fill={fillColor}
@@ -186,4 +186,4 @@ const Contact = () => {
   );
 };
 
-export default Contact;
+export default ContactForm;

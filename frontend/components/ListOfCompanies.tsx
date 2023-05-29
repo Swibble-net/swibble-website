@@ -1,13 +1,17 @@
+// Import all required modules
 import styles from "@/styles/companies.module.scss";
 import Image from "next/image";
-import AachenLogo from "@/public/companies_logo/aachen.png";
-import KellerLogo from "@/public/companies_logo/keller.png";
-import RydeLogo from "@/public/companies_logo/ryde.png";
-import SquareLogo from "@/public/companies_logo/square.png";
-import WorldLogo from "@/public/companies_logo/little_world.png";
-const Comapnies = () => {
+import AachenLogo from "@/public/companies_logos/aachen.png";
+import KellerLogo from "@/public/companies_logos/keller.png";
+import RydeLogo from "@/public/companies_logos/ryde.png";
+import SquareLogo from "@/public/companies_logos/square.svg";
+import WorldLogo from "@/public/companies_logos/world.png";
+
+// Render rthe component
+const ListOfCompanies = () => {
   return (
     <div className={styles.container}>
+      {/*Adding the "wave" on top of the component*/}
       <div className={styles.wave_top}>
         <svg
           data-name="Layer 1"
@@ -21,17 +25,31 @@ const Comapnies = () => {
           ></path>
         </svg>
       </div>
+      {/*Adding the background ignoring the paddings of layout */}
       <div className={styles.background}></div>
       <div className={styles.description}>
         <p>Diese Unternehmen vertrauen Swibble bereits</p>
       </div>
+
+      {/*Render list of companies */}
       <div className={styles.list}>
-        <Image src={KellerLogo} alt="keller" width={90} height={37} />
-        <Image src={RydeLogo} alt="ryde" width={53} height={29} />
-        <Image src={SquareLogo} alt="square" width={34} height={34} />
-        <Image src={WorldLogo} alt="world" width={34} height={34} />
-        <Image src={AachenLogo} alt="aachen" width={34} height={34} />
+        <div>
+          <Image src={KellerLogo} alt="keller" width={0} height={0} />
+        </div>
+        <div>
+          <Image src={RydeLogo} alt="ryde" width={0} height={0} />
+        </div>
+        <div>
+          <Image src={SquareLogo} alt="square" width={0} height={0} />
+        </div>
+        <div>
+          <Image src={WorldLogo} alt="world" width={0} height={0} />
+        </div>
+        <div>
+          <Image src={AachenLogo} alt="aachen" width={0} height={0} />
+        </div>
       </div>
+      {/*Adding the "wave" in bottom of the component*/}
       <div className={styles.wave_bottom}>
         <svg
           data-name="Layer 1"
@@ -49,4 +67,4 @@ const Comapnies = () => {
   );
 };
 
-export default Comapnies;
+export default ListOfCompanies;

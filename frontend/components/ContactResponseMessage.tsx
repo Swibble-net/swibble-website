@@ -1,4 +1,4 @@
-const ContactAlert = ({
+const ContactResponseMessage = ({
   alertMessage,
   background,
   fill,
@@ -21,4 +21,4 @@ const ContactAlert = ({
   );
 };
 
-export default ContactAlert;
+export default ContactResponseMessage;
