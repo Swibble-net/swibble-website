@@ -25,7 +25,7 @@ const Header = () => {
         }`}
       >
         <div>
-          <Link href={"/"} onClick={handleOnClick}>
+          <Link href={"/"}>
             <div className="w-full flex items-center hover:scale-95 transition duration-200">
               <Image src={Logo} alt="logo" width={35} height={35} />
               <Image src={LogoText} alt="logo" width={90} height={30} />
