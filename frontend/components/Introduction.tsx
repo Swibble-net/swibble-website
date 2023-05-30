@@ -2,7 +2,7 @@ import Image from "next/image";
 import worldIcon from "@/public/icons/swibble_icon_world.svg";
 import softIcon from "@/public/icons/swibble_icon_soft.svg";
 import bagIcon from "@/public/icons/swibble_icon_bag.svg";
-import Intro from "@/public/introduction_image.svg";
+import IntroImage from "@/public/introduction_image.svg";
 import styles from "@/styles/introduction.module.scss";
 
 const Introduction = () => {
@@ -47,8 +47,8 @@ const Introduction = () => {
           </div>
         </div>
         <Image
-          src={Intro}
-          alt="intro"
+          src={IntroImage}
+          alt="Background"
           width={1}
           height={1}
           className={styles.image}

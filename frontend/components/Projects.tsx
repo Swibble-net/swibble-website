@@ -15,24 +15,23 @@ const Projects = () => {
             inspirieren.
           </p>
         </div>
-        <button className={styles.button}>Alle ansehen {">"}</button>
       </div>
       {/*Render the list of projects*/}
       <div className={styles.list}>
         <div className={styles.list_container1}>
           <div className={styles.item1}>
-            <h3>App & Website</h3>
-            <h2>Swibble App</h2>
+            <h3>Dein Projekt</h3>
+            <h2>Starter mit Swibble!</h2>
           </div>
           <div className={styles.item2}>
-            <h3>App & Web app</h3>
+            <h3>App & Web-App</h3>
             <h2>Konrat’s Welt</h2>
           </div>
         </div>
         <div className={styles.list_container2}>
           <div className={styles.item3}>
-            <h3>Website</h3>
-            <h2>Goethe Institut</h2>
+            <h3>Web App</h3>
+            <h2>Little World</h2>
           </div>
           <div className={styles.item4}>
             <h3>App & Website</h3>
