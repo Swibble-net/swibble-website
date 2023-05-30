@@ -1,10 +1,12 @@
 import nodemailer from "nodemailer";
 import { NextApiRequest, NextApiResponse } from "next";
 
+// Setting an async function to send a message via nodemailer
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  // setting a body of message
   const message = {
     from: `${req.body.email}`,
     to: process.env.SMTP_USER,
@@ -12,6 +14,7 @@ export default async function handler(
     text: req.body.message,
   };
 
+  // setting a properties for nodemailer
   const transporter = nodemailer.createTransport({
     host: String(process.env.SMTP_HOST),
     port: Number(process.env.SMTP_PORT),
@@ -21,31 +24,22 @@ export default async function handler(
     },
   });
 
+  // Condition to check content of message
+
   if (req.method === "POST") {
     if (!req.body.email || !req.body.message) {
       return res.status(400).json({ message: "Bad request!" });
     }
+    // defining an async function to send a message
     try {
       await transporter.sendMail(message);
       return res.status(200).json({ success: true });
+      //gandling an error
     } catch (error: any) {
       console.log(error);
       res.status(400).json({ message: error.message });
     }
   }
-
-  // await new Promise((resolve, reject) => {
-  //   transporter.sendMail(message, (err, info) => {
-  //     if (err) {
-  //       console.error(err);
-  //       reject(err);
-  //       res.status(400).json({ message: err.message });
-  //     } else {
-  //       res.status(200).json({ message: "Success!" });
-  //       console.log(info);
-  //       resolve(info);
-  //     }
-  //   });
-  // });
+  // Returning a http status
   return res.status(400).json({ message: "Bad request!" });
 }
