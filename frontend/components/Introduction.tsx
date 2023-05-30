@@ -40,8 +40,8 @@ const Introduction = () => {
             <div className={styles.item_text}>
               <h3>Optimiertes Business</h3>
               <p>
-                Mit Kunden & auch Mitarbeitern einfacher in Kontakt bleiben, das
-                eigene Markenimage pflegen und den Umsatz zu steigern.
+                Mit Kunden & auch Mitarbeitern einfach in Kontakt bleiben, das
+                eigene Markenimage pflegen und den Umsatz steigern.
               </p>
             </div>
           </div>

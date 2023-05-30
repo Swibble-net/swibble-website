@@ -21,7 +21,7 @@ const Projects = () => {
         <div className={styles.list_container1}>
           <div className={styles.item1}>
             <h3>Dein Projekt</h3>
-            <h2>Starter mit Swibble!</h2>
+            <h2>Starte mit Swibble!</h2>
           </div>
           <div className={styles.item2}>
             <h3>App & Web-App</h3>
