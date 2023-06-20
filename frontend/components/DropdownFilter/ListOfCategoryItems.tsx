@@ -35,7 +35,7 @@ const ListOfCategoryItems = ({
     <>
       <button
         // Button style
-        className="w-[40%] lg:w-80 h-12 bg-white border border-[#C4C4C4] text-[#2A3342] relative flex flex-col justify-center rounded-xl"
+        className="w-full lg:w-80 h-12 bg-white border border-[#C4C4C4] text-[#2A3342] relative flex flex-col justify-center rounded-xl"
         // Toggle dropdown visibility on button click
         onClick={(): void => toggleDropDown()}
         // Handle focus lost event

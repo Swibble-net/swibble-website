@@ -2,10 +2,11 @@ import styles from "@/styles/blog_card.module.scss";
 import Image from "next/image";
 import MockupPhoto from "@/public/projects_photo/LittleWorld_Image.png";
 import Clock from "@/public/blog/clock.svg";
+import Link from "next/link";
 
 const BlogCard = () => {
   return (
-    <div className={styles.container}>
+    <Link href={"/blog/id"} className={styles.container}>
       <div className={styles.blog_image_container}>
         <Image
           className={styles.blog_image}
@@ -30,7 +31,8 @@ const BlogCard = () => {
         />
         4 days ago
       </div>
-    </div>
+      <div className={styles.bottom_line}></div>
+    </Link>
   );
 };
 

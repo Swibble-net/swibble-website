@@ -15,7 +15,7 @@
     background-color: #FDF5FF;
 
     .text {
-        padding: 0 4rem /*64px*/;
+        padding: 0 0rem;
         width: 100%;
         h1 {
             font-weight: 700;
@@ -46,6 +46,7 @@
     
         @media screen and (min-width: 1024px) {
             width: 60%;
+            padding: 0 4rem /*64px*/;
         }
     }
 

@@ -16,7 +16,7 @@ const Blog = () => {
   };
 
   // declaring list of items, which will be displayed in DropdownList component (category filter)
-  const listOfItems = ["vom neusten zu ältesten", "vom ältesten zu neusten"];
+  const listOfItems = ["Neueste zuerst", "Älteste zuerst"];
 
   return (
     <div className={styles.container}>
