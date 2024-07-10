@@ -113,7 +113,7 @@ const ContactForm = () => {
               <div className="relative pl-2">
                 <h3 className="font-bold text-base text-[#2A3342]">E-mail</h3>
                 <p className="text-sm text-[#556987]">
-                  <a href="mailto:contact@swibble.net">contact@swibble.net</a>
+                  <a href="mailto:info@swibble.net">info@swibble.net</a>
                 </p>
                 <div className="none lg:absolute lg:w-[0.188rem] lg:h-16 lg:-z-10 lg:bg-[#B718EC] lg:rounded-b-full lg:left-0 lg:bottom-1"></div>
               </div>

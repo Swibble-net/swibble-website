@@ -25,10 +25,10 @@ const Impressum = () => {
           <br />
           Mail{" "}
           <a
-            href="mailto:contact@swibble.net"
+            href="mailto:info@swibble.net"
             className="underline text-[#0000EE]"
           >
-            contact@swibble.net
+            info@swibble.net
           </a>
         </p>
       </div>
