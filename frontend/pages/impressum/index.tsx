@@ -18,12 +18,12 @@ const Impressum = () => {
       <div className="my-5">
         <h4 className="font-bold text-base mt-[0.6rem] mb-[0.4rem]">Kontakt</h4>
         <p>
-          Mail{" "}
+          Phone{" "}
           <a href="tel:491782632310" className="underline text-[#0000EE]">
             +49 178 2632310
           </a>
           <br />
-          Phone{" "}
+          Mail{" "}
           <a
             href="mailto:contact@swibble.net"
             className="underline text-[#0000EE]"
