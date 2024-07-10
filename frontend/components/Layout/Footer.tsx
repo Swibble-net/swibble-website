@@ -38,7 +38,7 @@ const Footer = () => {
               </li>
             </Link>
             <li>
-              <p className="text-[#ADADAD]">All Rights Reserved @2022</p>
+              <p className="text-[#ADADAD]">All Rights Reserved @2024</p>
             </li>
           </ul>
         </div>
