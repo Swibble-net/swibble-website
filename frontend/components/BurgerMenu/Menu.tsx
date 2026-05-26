@@ -5,6 +5,13 @@ export default function Menu({ handleOnClick }: any) {
     <>
       <div className="flex flex-col text-sm text-[#556987] gap-y-6 my-6 font-medium">
         <Link
+          href={"/blog"}
+          onClick={handleOnClick}
+          className="tracking-normal hover:tracking-[1px] transition-all duration-500 ease-in-out"
+        >
+          Blog
+        </Link>
+        <Link
           href={"/impressum"}
           onClick={handleOnClick}
           className="tracking-normal hover:tracking-[1px] transition-all duration-500 ease-in-out"

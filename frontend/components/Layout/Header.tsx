@@ -32,6 +32,9 @@ const Header = () => {
             </div>
           </Link>
         </div>
+        <div className="hidden lg:flex lg:gap-12 lg:items-center lg:flex-row  font-medium text-base text-[#556987] ">
+          <Link href={"/blog"}>Blog</Link>
+        </div>
         <div className="hidden lg:block">
           <a href={"https://meet.swibble.net"}>
             <button className="text-center w-full bg-[#B718EC] text-[#F0FDF4] py-3 px-5 rounded-2xl hover:scale-95 transition duration-200">
