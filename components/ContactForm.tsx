@@ -79,7 +79,7 @@ const ContactForm = () => {
 	// Rendering the component
 	return (
 		<>
-			<div className="w-full flex flex-col gap-y-5 lg:flex-row lg:justify-between lg:items-center lg:gap-x-24">
+			<section id="kontakt" className="scroll-mt-28 lg:scroll-mt-32 w-full flex flex-col gap-y-5 lg:flex-row lg:justify-between lg:items-center lg:gap-x-24">
 				{/* Displaying address and contact information */}
 				<div className="flex flex-col gap-y-5 w-full lg:w-7/12 lg:gap-y-20">
 					<div className="text-[#000D36]">
@@ -133,7 +133,7 @@ const ContactForm = () => {
 						Konstenlos Starten
 					</button>
 				</form>
-			</div>
+			</section>
 			{/* Dispalying alert message depending on event.alert state */}
 			{event.alert ? <ContactResponseMessage alertMessage={alertMessage} background={backgroundColor} fill={fillColor} /> : ""}
 		</>

@@ -17,7 +17,7 @@ const BurgerMenu = ({ menu, handleOnClick }: IMenu) => {
           menu ? "translate-y-1/2" : "-translate-y-[150%]"
         } transition ease-in-out shadow-lg`}
       >
-        <Menu handleOnClick={handleOnClick} menu={menu} />
+        <Menu handleOnClick={handleOnClick} />
       </div>
     </>
   );

@@ -3,10 +3,14 @@ import Image from "next/image";
 import BurgerMenu from "../BurgerMenu/BurgerMenu";
 import Logo from "@/public/logo/SwibbleLogo.svg";
 import LogoText from "@/public/logo/SwibbleTextLogo.svg";
+import { NAV_LINKS } from "@/lib/navLinks";
 import { useState } from "react";
 import { useScrollPosition } from "@/hooks/useScrollPostion";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { IoClose } from "react-icons/io5";
+
+const navLinkClass =
+  "text-sm font-medium text-[#556987] tracking-normal hover:text-[#B718EC] hover:tracking-[1px] transition-all duration-300 ease-in-out";
 
 const Header = () => {
   const [menu, setMenu] = useState<boolean>(false);
@@ -32,6 +36,13 @@ const Header = () => {
             </div>
           </Link>
         </div>
+        <nav className="hidden lg:flex items-center gap-8" aria-label="Hauptnavigation">
+          {NAV_LINKS.map(({ href, label }) => (
+            <Link key={href} href={href} className={navLinkClass}>
+              {label}
+            </Link>
+          ))}
+        </nav>
         <div className="hidden lg:block">
           <a href={"https://meet.swibble.net"}>
             <button className="text-center w-full bg-[#B718EC] text-[#F0FDF4] py-3 px-5 rounded-2xl hover:scale-95 transition duration-200">
@@ -40,7 +51,6 @@ const Header = () => {
           </a>
         </div>
         <div className="block lg:hidden">
-          {/* The hamburger button that toggles the menu */}
           <button type="button" onClick={(): void => handleOnClick()}>
             {menu ? (
               <IoClose className="text-black w-8 h-8" />
@@ -50,7 +60,6 @@ const Header = () => {
           </button>
         </div>
       </header>
-      {/* The menu component */}
       <BurgerMenu menu={menu} handleOnClick={handleOnClick} />
     </>
   );
