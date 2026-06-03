@@ -1,5 +1,14 @@
+import SEO from "@/components/SEO";
+
 const Impressum = () => {
   return (
+    <>
+      <SEO
+        title="Impressum – Swibble"
+        description="Impressum der Swibble UG (haftungsbeschränkt), Königstraße 30, 52064 Aachen. Kontakt: contact@swibble.net"
+        canonical="/impressum"
+        noIndex={true}
+      />
     <div className="w-full  lg:px-44">
       <h1 className="m-auto text-[#b718ec] text-center font-bold text-3xl">
         Swibble Impressum
@@ -138,6 +147,7 @@ const Impressum = () => {
         </p>
       </div>
     </div>
+    </>
   );
 };
 
