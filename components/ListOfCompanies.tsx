@@ -34,19 +34,49 @@ const ListOfCompanies = () => {
       {/*Render list of companies */}
       <div className={styles.list}>
         <div>
-          <Image src={KellerLogo} alt="keller" width={0} height={0} />
+          <Image
+            src={KellerLogo}
+            alt="keller"
+            width={120}
+            height={48}
+            className="h-auto w-auto max-h-10 object-contain"
+          />
         </div>
         <div>
-          <Image src={RydeLogo} alt="ryde" width={0} height={0} />
+          <Image
+            src={RydeLogo}
+            alt="ryde"
+            width={120}
+            height={48}
+            className="h-auto w-auto max-h-10 object-contain"
+          />
         </div>
         <div>
-          <Image src={SquareLogo} alt="square" width={0} height={0} />
+          <Image
+            src={SquareLogo}
+            alt="square"
+            width={120}
+            height={48}
+            className="h-auto w-auto max-h-10 object-contain"
+          />
         </div>
         <div>
-          <Image src={WorldLogo} alt="world" width={0} height={0} />
+          <Image
+            src={WorldLogo}
+            alt="world"
+            width={120}
+            height={48}
+            className="h-auto w-auto max-h-10 object-contain"
+          />
         </div>
         <div>
-          <Image src={AachenLogo} alt="aachen" width={0} height={0} />
+          <Image
+            src={AachenLogo}
+            alt="aachen"
+            width={120}
+            height={48}
+            className="h-auto w-auto max-h-10 object-contain"
+          />
         </div>
       </div>
       {/*Adding the "wave" in bottom of the component*/}
