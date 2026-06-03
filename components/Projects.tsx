@@ -4,7 +4,7 @@ import styles from "@/styles/projects.module.scss";
 }
 const Projects = () => {
   return (
-    <div>
+    <div id="portfolio" className="scroll-mt-28 lg:scroll-mt-32">
       <div className={styles.description}>
         <div className={styles.text_description}>
           <h1>Hier könnte dein Projekt stehen</h1>

@@ -8,7 +8,7 @@ import SecurityIcon from "@/public/icons/icon_security.svg";
 // Render rthe component
 const Tasks = () => {
   return (
-    <div className={styles.container}>
+    <div id="uber-uns" className={`${styles.container} scroll-mt-28 lg:scroll-mt-32`}>
       {/*Adding the "wave" on top of the component*/}
       <div className={styles.wave_top}>
         <svg
