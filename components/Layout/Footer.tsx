@@ -3,8 +3,10 @@ import Link from "next/link";
 import SwibbleLogoText from "@/public/logo/SwibbleTextLogoWhite.svg";
 
 const Footer = () => {
+  const year = new Date().getFullYear();
+
   return (
-    <div className="w-full bg-[#000D36] sticky top-full pt-12 pb-7 px-4 text-[#FAFAFA]">
+    <div className="relative mt-auto w-full bg-[#000D36] px-4 pb-7 pt-12 text-[#FAFAFA]">
       <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0]">
         <svg
           className="relative block w-[136%] h-4 lg:h-[39px]"
@@ -38,7 +40,7 @@ const Footer = () => {
               </li>
             </Link>
             <li>
-              <p className="text-[#ADADAD]">All Rights Reserved @2024</p>
+              <p className="text-[#ADADAD]">All Rights Reserved @{year}</p>
             </li>
           </ul>
         </div>

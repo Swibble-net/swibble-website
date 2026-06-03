@@ -1,31 +1,8 @@
 
-.button {
-    text-align: center;
-    width: fit-content;
-    background-color: #B718EC;
-    color: #F0FDF4;
-    padding-top: 0.781rem/* 12.5px */;
-    padding-bottom: 0.781rem/* 12.5px */;
-    padding-left: 1.25rem/* 20px */;
-    padding-right: 1.25rem/* 20px */;
-    border-radius: 0.625rem/* 10px */;
-    transition-property: transform;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 200ms;
-}
-
-.button:hover {
-    --tw-scale-x: .95;
-    --tw-scale-y: .95;
-    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-
 .description {
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
-    justify-content: none;
-    align-items: none;
     row-gap: 0.875rem;
     .text_description {
         width: 100%;
