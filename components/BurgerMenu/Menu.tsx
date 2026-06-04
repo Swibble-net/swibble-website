@@ -10,7 +10,7 @@ const navLinkClass =
 
 export default function Menu({ handleOnClick }: MenuProps) {
   return (
-    <div className="flex flex-col text-sm text-[#556987] gap-y-6 my-6 font-medium">
+    <div className="flex flex-col gap-y-4 py-4 text-sm font-medium text-[#556987]">
       {NAV_LINKS.map(({ href, label }) => (
         <Link
           key={href}
