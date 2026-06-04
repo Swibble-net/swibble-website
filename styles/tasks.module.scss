@@ -1,0 +1,242 @@
+@mixin card_header {
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    text-align: center;
+    letter-spacing: 0.025rem;
+}
+
+@mixin card_text {
+    font-weight: 400;
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    color:  #556987;
+    text-align: center;
+}
+
+@mixin card_wireframe {
+    display: flex;
+    flex-grow: 2;
+    flex-shrink: 1;
+    flex-basis: 45%;
+    height: auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    row-gap: 1rem;
+    margin-bottom: 0;
+    padding: 1.5rem 0.5rem 1.25rem 0.5rem;
+    border-radius: 0.625rem;
+    background-color: white;
+    box-shadow: 0 25px 100px rgba(76, 64, 247, 8%);
+}
+
+.container {
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: normal;
+    column-gap: 0rem;
+    margin-top: 4.5rem;
+    margin-bottom: 7.25rem;
+    padding: 2rem 0 2rem 0;
+    @media screen and (min-width: 1024px) {
+        flex-direction: row;
+        align-items: center;
+        column-gap: 5rem;
+    }
+}
+.background {
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: -10;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    background-size: cover;
+    background-color: #FDF5FF;
+    @media screen and (min-width: 1024px) {
+        margin-left: -5rem;
+        margin-right: -5rem;
+    }
+}
+
+.description {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+    h1 {
+        font-weight: 700;
+        font-size: 1.5rem;
+        line-height: 2.25rem;
+        color: #000D36;
+        letter-spacing: 0;
+    }
+    p {
+        font-weight: 400;
+        font-size: 1rem;
+        line-height: 1.75rem;
+        color: #000D36;
+    }
+    @media screen and (min-width: 1024px) {
+        width: fit-content;
+       h1 {
+        font-size: 3rem;
+        line-height: 3.75rem;
+       }
+       p {
+        color: #6B6B6B;
+       }
+    }
+}
+.card_container {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: stretch;
+    align-content: stretch;
+    justify-content: center;
+    row-gap: 1rem;
+    column-gap: 1rem;
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+    
+
+    @media screen and (min-width: 1024px) {
+        column-gap: 2.5rem;
+        row-gap: 5.625rem;
+    }
+}
+.card1 {
+    @include card_wireframe;
+
+    h2 {
+        @include card_header
+    }
+
+    p {
+        @include card_text
+    }
+
+    @media screen and (min-width: 1024px) {
+        height: 18.75rem;
+        margin-bottom: -3.25rem;
+        justify-content: center;
+        width: 40%;
+    }
+}
+.card2 {
+    @include card_wireframe;
+
+    h2 {
+        @include card_header
+    }
+
+    p {
+        @include card_text
+    }
+    @media screen and (min-width: 1024px) {
+        height: 18.75rem;
+        margin-top: -3.25rem;
+        justify-content: center;
+        width: 40%;
+    }
+}
+.card3 {
+    @include card_wireframe;
+
+    h2 {
+        @include card_header
+    }
+
+    p {
+        @include card_text
+    }
+    @media screen and (min-width: 1024px) {
+        height: 18.75rem;
+        margin-bottom: -3.25rem;
+        justify-content: center;
+        width: 40%;
+    }
+}
+.card4 {
+    @include card_wireframe;
+
+    h2 {
+        @include card_header
+    }
+
+    p {
+        @include card_text
+    }
+    @media screen and (min-width: 1024px) {
+        height: 18.75rem;
+        margin-top: -3.25rem;
+        justify-content: center;
+        width: 40%;
+    }
+}
+
+.wave_bottom {
+    position: absolute;
+    width: 100vw;
+    bottom: -3rem;
+    left: 0;
+    overflow: hidden;
+    line-height: 0;
+    margin-left: -1rem;
+    margin-right: -1rem;
+
+    svg {
+        position: relative;
+        display: block;
+        transform: rotate(180deg);
+        width: 137%;
+        height: 3rem;
+        @media screen and (min-width: 1024px) {
+            height: 5rem;
+        }
+    }
+
+    @media screen and (min-width: 1024px) {
+        margin-left: -5rem;
+        margin-right: -5rem;
+        bottom: -5rem;
+    }
+}
+
+.wave_top {
+    position: absolute;
+    width: 100vw;
+    top: -3rem;
+    left: 0;
+    overflow: hidden;
+    line-height: 0;
+    margin-left: -1rem;
+    margin-right: -1rem;
+
+    svg {
+    position: relative;
+    display: block;
+    transform: rotate(180deg);
+    width: calc(159% + 1.3px);
+    height: 3rem;
+    @media screen and (min-width: 1024px) {
+        height: 6rem;
+    }
+    }
+
+    @media screen and (min-width: 1024px) {
+        margin-left: -5rem;
+        margin-right: -5rem;
+        top: -6rem;
+    }
+}
+
+

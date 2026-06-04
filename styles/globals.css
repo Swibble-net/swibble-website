@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@source "../pages/**/*.{js,ts,jsx,tsx}";
+@source "../components/**/*.{js,ts,jsx,tsx}";
+
+@theme {
+  --animate-fill: fill 2s ease-out forwards;
+  --animate-popup: popup 0.5s ease-in-out forwards,
+    popupDelay 0.5s ease-in-out 4s forwards;
+
+  @keyframes fill {
+    0% {
+      width: 0%;
+      border-bottom-right-radius: 0rem;
+    }
+    100% {
+      width: 100%;
+      border-bottom-right-radius: 0.5rem;
+    }
+  }
+
+  @keyframes popup {
+    0% {
+      bottom: -100%;
+    }
+    100% {
+      bottom: 1rem;
+    }
+  }
+
+  @keyframes popupDelay {
+    0% {
+      bottom: 1rem;
+    }
+    100% {
+      bottom: -100%;
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html,
+  body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+}

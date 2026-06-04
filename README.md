@@ -1,12 +1,32 @@
-# template-ts-next-express
+# Swibble Website
 
-Super simple TypeScript monorepo with a frontend app using Next and a backend app using Express.
+Next.js website for Swibble, including API routes for the contact form.
 
-Root of the repo contains the `dev` script and placeholders for potentially useful scripts:
+## Requirements
 
-- `dev`: This runs the `dev` scripts in `./frontend` and `./backend` with fancy formatting and in parallel.
-- `test`: _Placeholder_ for a script to run tests across your packages.
-- `build`: _Placeholder_ for a script build your packages.
-- `start`: _Placeholder_ for a script start your built packages.
+- Node.js 20.9 or newer (see `.nvmrc`)
 
-Once you created your repository from this template make sure to install dependencies with your favorite package manager and you're ready to go! 🚀
+## Getting Started
+
+Install dependencies:
+
+```bash
+pnpm install
+```
+
+Copy `.env.local.sample` to `.env.local` and set your SMTP credentials for the contact form.
+
+Run the development server:
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Scripts
+
+- `dev` — start the development server
+- `build` — create a production build
+- `start` — run the production server
+- `lint` — run ESLint

@@ -1,24 +1,37 @@
 {
   "name": "swibble-website",
-  "version": "1.0.0",
-  "description": "swibble app project",
-  "scripts": {
-    "dev": "concurrently -n backend,frontend -c green,blue -t \"HH:mm:ss\" -p \"[{time} • {name}]\t\" \"npm --prefix ./backend run dev\" \"npm --prefix ./frontend run dev\"",
-    "test": "echo \"Error: no test script, create one to run tests across your packages\" && exit 1",
-    "build": "echo \"Error: build script missing, you can define one to build your packages\" && exit 1",
-    "start": "echo \"Error: start script missing, you can define one to run built packages\" && exit 1"
+  "version": "0.1.0",
+  "private": true,
+  "description": "Swibble company website",
+  "engines": {
+    "node": ">=20.9.0"
   },
-  "keywords": [
-    "start",
-    "scripts",
-    "dev",
-    "script",
-    "concurrently",
-    "fullstack"
-  ],
-  "author": "Yurchenko Vitalii (Bukabuka321)",
-  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "axios": "^1.16.1",
+    "next": "16.2.7",
+    "nodemailer": "^8.0.10",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-icons": "^5.6.0"
+  },
   "devDependencies": {
-    "concurrently": "^8.0.1"
-  }
+    "@tailwindcss/postcss": "^4.3.0",
+    "@types/node": "^22.15.30",
+    "@types/nodemailer": "^8.0.0",
+    "@types/react": "^19.2.16",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.28.0",
+    "eslint-config-next": "16.2.7",
+    "sass": "^1.100.0",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^5.9.3"
+  },
+  "author": "Yurchenko Vitalii (Bukabuka321)",
+  "license": "MIT"
 }
