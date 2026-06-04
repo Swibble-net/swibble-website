@@ -2,6 +2,7 @@
   "name": "swibble-website",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.12.1",
   "description": "Swibble company website",
   "engines": {
     "node": ">=26.3.0"

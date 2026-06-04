@@ -19,12 +19,12 @@ Marketing website for [Swibble](https://swibble.net) — a digital agency based 
 | Framework | [Next.js 16](https://nextjs.org/) (Pages Router) |
 | UI | React 19, Tailwind CSS 4, Sass modules |
 | Email | Nodemailer (SMTP) |
-| Package manager | pnpm |
+| Package manager | pnpm (see `packageManager` in `package.json`) |
 
 ## Requirements
 
 - Node.js **26.3.0** (see `.nvmrc`)
-- pnpm
+- pnpm (via Corepack: `corepack enable`)
 
 ## Getting started
 
