@@ -13,10 +13,10 @@ const CompanyLogoSlide = ({
     <Image
       src={logo.src}
       alt={duplicate ? "" : logo.alt}
-      width={220}
-      height={88}
+      width={184}
+      height={64}
       loading="lazy"
-      sizes="(max-width: 480px) 120px, (max-width: 768px) 160px, (max-width: 1024px) 192px, 220px"
+      sizes="(max-width: 1024px) 152px, 184px"
       className={styles.logo}
     />
   </div>
