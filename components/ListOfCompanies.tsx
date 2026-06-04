@@ -1,17 +1,30 @@
-// Import all required modules
 import styles from "@/styles/companies.module.scss";
 import Image from "next/image";
-import AachenLogo from "@/public/companies_logos/aachen.png";
-import KellerLogo from "@/public/companies_logos/keller.png";
-import RydeLogo from "@/public/companies_logos/ryde.png";
-import SquareLogo from "@/public/companies_logos/square.svg";
-import WorldLogo from "@/public/companies_logos/world.png";
+import { companyLogos } from "@/lib/companiesLogos";
 
-// Render rthe component
+const CompanyLogoSlide = ({
+  logo,
+  duplicate = false,
+}: {
+  logo: (typeof companyLogos)[number];
+  duplicate?: boolean;
+}) => (
+  <div className={styles.slide} aria-hidden={duplicate || undefined}>
+    <Image
+      src={logo.src}
+      alt={duplicate ? "" : logo.alt}
+      width={220}
+      height={88}
+      loading="lazy"
+      sizes="(max-width: 480px) 120px, (max-width: 768px) 160px, (max-width: 1024px) 192px, 220px"
+      className={styles.logo}
+    />
+  </div>
+);
+
 const ListOfCompanies = () => {
   return (
     <div className={styles.container}>
-      {/*Adding the "wave" on top of the component*/}
       <div className={styles.wave_top}>
         <svg
           data-name="Layer 1"
@@ -25,61 +38,22 @@ const ListOfCompanies = () => {
           ></path>
         </svg>
       </div>
-      {/*Adding the background ignoring the paddings of layout */}
       <div className={styles.background}></div>
       <div className={styles.description}>
-        <p>Diese Unternehmen vertrauen Swibble bereits</p>
+        <p className="text-center text-base lg:text-lg font-normal text-[#707070]">Diese Unternehmen vertrauen Swibble bereits</p>
       </div>
 
-      {/*Render list of companies */}
-      <div className={styles.list}>
-        <div>
-          <Image
-            src={KellerLogo}
-            alt="keller"
-            width={120}
-            height={48}
-            className="h-auto w-auto max-h-10 object-contain"
-          />
-        </div>
-        <div>
-          <Image
-            src={RydeLogo}
-            alt="ryde"
-            width={120}
-            height={48}
-            className="h-auto w-auto max-h-10 object-contain"
-          />
-        </div>
-        <div>
-          <Image
-            src={SquareLogo}
-            alt="square"
-            width={120}
-            height={48}
-            className="h-auto w-auto max-h-10 object-contain"
-          />
-        </div>
-        <div>
-          <Image
-            src={WorldLogo}
-            alt="world"
-            width={120}
-            height={48}
-            className="h-auto w-auto max-h-10 object-contain"
-          />
-        </div>
-        <div>
-          <Image
-            src={AachenLogo}
-            alt="aachen"
-            width={120}
-            height={48}
-            className="h-auto w-auto max-h-10 object-contain"
-          />
+      <div className={styles.carousel} aria-label="Partner-Unternehmen">
+        <div className={styles.track}>
+          {companyLogos.map((logo) => (
+            <CompanyLogoSlide key={`a-${logo.alt}`} logo={logo} />
+          ))}
+          {companyLogos.map((logo) => (
+            <CompanyLogoSlide key={`b-${logo.alt}`} logo={logo} duplicate />
+          ))}
         </div>
       </div>
-      {/*Adding the "wave" in bottom of the component*/}
+
       <div className={styles.wave_bottom}>
         <svg
           data-name="Layer 1"

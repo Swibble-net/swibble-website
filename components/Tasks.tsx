@@ -5,6 +5,8 @@ import BrushIcon from "@/public/icons/icon_brush.svg";
 import MonitorIcon from "@/public/icons/icon_monitor.svg";
 import StonksIcon from "@/public/icons/icon_stonks.svg";
 import SecurityIcon from "@/public/icons/icon_security.svg";
+import MobileIcon from "@/public/icons/mobile_icon.svg";
+import UserLocationIcon from "@/public/icons/user_location_icon.svg";
 // Render rthe component
 const Tasks = () => {
   return (
@@ -28,9 +30,8 @@ const Tasks = () => {
       <div className={styles.description}>
         <h1>Womit hilft Swibble mir?</h1>
         <p>
-          Egal ob StartUp oder langjährig etabliert: Swibble berät und hilft
-          deinem Unternehmen dabei, den nächsten Meilenstein in der digitalen
-          Welt zu erreichen.
+          Swibble unterstützt ganzheitlich, egal ob Online oder in Präsenz.
+          Wir repräsentieren deine Marke im besten Licht auf Social Media, auf Events oder im Web!
         </p>
       </div>
       {/* Render the container with cards */}
@@ -46,14 +47,14 @@ const Tasks = () => {
           <p>Entwicklung persönlicher Softwarelösungen.</p>
         </div>
         <div className={styles.card3}>
-          <Image src={StonksIcon} alt="stonks" width={32} height={32} />
-          <h2 style={{ color: "#3ABD9E" }}>Beratung</h2>
-          <p>Verhältnis von Kunden & Unternehmen stärken.</p>
+          <Image src={MobileIcon} alt="stonks" width={32} height={32} />
+          <h2 style={{ color: "#3ABD9E" }}>Social Media</h2>
+          <p>Viraler Content auf deinen Social Media Kanälen.</p>
         </div>
         <div className={styles.card4}>
-          <Image src={SecurityIcon} alt="monitor" width={32} height={32} />
-          <h2 style={{ color: "#C43B7D" }}>Qualitätskontrolle</h2>
-          <p>Sicherheit & Funktionalität deiner Software im Überblick.</p>
+          <Image src={UserLocationIcon} alt="monitor" width={32} height={32} />
+          <h2 style={{ color: "#C43B7D" }}>Live Events</h2>
+          <p>Live Events in deinem Unternehmen, Messen oder Online.</p>
         </div>
       </div>
       {/*Adding the "wave" in the bottom of the component*/}
