@@ -134,42 +134,44 @@
 }
 
 .slide {
+    --logo-width: 7rem;
+    --logo-height: 3rem;
+
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 7.5rem;
-    height: 4rem;
-    padding-inline: 0.25rem;
+    width: var(--logo-width);
+    height: var(--logo-height);
 
     @media screen and (min-width: 480px) {
-        width: 9rem;
-        height: 4.5rem;
+        --logo-width: 8.5rem;
+        --logo-height: 3.25rem;
     }
 
     @media screen and (min-width: 640px) {
-        width: 10.5rem;
-        height: 5rem;
+        --logo-width: 9.5rem;
+        --logo-height: 3.5rem;
     }
 
     @media screen and (min-width: 768px) {
-        width: 12rem;
-        height: 5.5rem;
+        --logo-width: 10.5rem;
+        --logo-height: 3.75rem;
     }
 
     @media screen and (min-width: 1024px) {
-        width: 14rem;
-        height: 6.5rem;
-        padding-inline: 0.5rem;
+        --logo-width: 11.5rem;
+        --logo-height: 4rem;
     }
 }
 
 .logo {
-    height: auto;
-    width: auto;
-    max-height: clamp(2.25rem, 6vw, 4.5rem);
-    max-width: 100%;
+    width: var(--logo-width) !important;
+    height: var(--logo-height) !important;
+    max-width: var(--logo-width);
+    max-height: var(--logo-height);
     object-fit: contain;
+    object-position: center;
 }
 
 @keyframes carousel-scroll {
@@ -205,28 +207,8 @@
     }
 
     .slide {
-        width: calc(50% - 0.75rem);
-        height: 4.5rem;
-
-        @media screen and (min-width: 480px) {
-            width: calc(33.333% - 1rem);
-        }
-
-        @media screen and (min-width: 768px) {
-            width: calc(25% - 1.125rem);
-        }
-
-        @media screen and (min-width: 1024px) {
-            width: calc(20% - 1.2rem);
-        }
-    }
-
-    .logo {
-        max-height: 3rem;
-
-        @media screen and (min-width: 768px) {
-            max-height: 3.75rem;
-        }
+        width: var(--logo-width);
+        height: var(--logo-height);
     }
 }
 
