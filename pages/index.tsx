@@ -10,6 +10,7 @@ import { organizationJsonLd, webSiteJsonLd } from "@/lib/jsonLd";
 export default function Home() {
   return (
     <>
+    {/* test */}
       <SEO
         title="Swibble – Digitalagentur aus Aachen"
         description="Swibble ist deine Digitalagentur aus Aachen. Wir helfen Unternehmen mit Web- & App-Entwicklung, UX/UI-Design, Beratung und Qualitätskontrolle, ihren nächsten digitalen Meilenstein zu erreichen. Jetzt kostenloses Erstgespräch buchen."

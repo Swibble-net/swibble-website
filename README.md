@@ -112,6 +112,13 @@ Add a logo file under `public/companies_logos/` and register it in `lib/companie
 
 Without valid SMTP credentials, the contact form will fail on submit.
 
+## Deploying to Vercel
+
+- Production should track the branch you merge into (usually `main`).
+- `vercel.json` runs `corepack enable && pnpm install --frozen-lockfile` so Vercel uses **pnpm 10.12.1** from `packageManager`.
+- Commit **`pnpm-lock.yaml`** with every dependency change.
+- Set SMTP env vars in the Vercel project settings.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
