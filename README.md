@@ -23,7 +23,7 @@ Marketing website for [Swibble](https://swibble.net) — a digital agency based 
 
 ## Requirements
 
-- Node.js **26.3.0** (see `.nvmrc`)
+- Node.js **24.x** LTS — pinned to **24.16.0** in `.nvmrc` (matches Vercel’s supported runtime)
 - pnpm (via Corepack: `corepack enable`)
 
 ## Getting started
