@@ -36,7 +36,14 @@ export default function SEO({
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
       {canonical && <link rel="canonical" href={`${SITE_URL}${canonical}`} />}
-      {noIndex && <meta name="robots" content="noindex, nofollow" />}
+      <meta
+        name="robots"
+        content={noIndex ? "noindex, nofollow" : "index, follow"}
+      />
+      <meta
+        name="googlebot"
+        content={noIndex ? "noindex, nofollow" : "index, follow"}
+      />
 
       {/* Open Graph */}
       <meta property="og:type" content="website" />

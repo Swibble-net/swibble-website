@@ -4,7 +4,7 @@ import BurgerMenu from "../BurgerMenu/BurgerMenu";
 import Logo from "@/public/logo/SwibbleLogo.svg";
 import LogoText from "@/public/logo/SwibbleTextLogo.svg";
 import { NAV_LINKS } from "@/lib/navLinks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useScrollPosition } from "@/hooks/useScrollPostion";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { IoClose } from "react-icons/io5";
@@ -20,6 +20,13 @@ const Header = () => {
   };
 
   const scrollPosition = useScrollPosition();
+
+  useEffect(() => {
+    document.body.style.overflow = menu ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menu]);
 
   return (
     <>
@@ -50,12 +57,18 @@ const Header = () => {
             </button>
           </a>
         </div>
-        <div className="block lg:hidden">
-          <button type="button" onClick={(): void => handleOnClick()}>
+        <div className="relative z-60 block lg:hidden">
+          <button
+            type="button"
+            aria-label={menu ? "Menü schließen" : "Menü öffnen"}
+            aria-expanded={menu}
+            onClick={handleOnClick}
+            className="flex items-center justify-center p-1"
+          >
             {menu ? (
-              <IoClose className="text-black w-8 h-8" />
+              <IoClose className="h-7 w-7 text-black" />
             ) : (
-              <RxHamburgerMenu className="text-black w-8 h-8" />
+              <RxHamburgerMenu className="h-7 w-7 text-black" />
             )}
           </button>
         </div>

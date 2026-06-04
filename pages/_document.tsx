@@ -6,7 +6,6 @@ export default function Document() {
       <Head>
         <meta charSet="utf-8" />
         <meta name="theme-color" content="#B718EC" />
-        <meta name="robots" content="index, follow" />
         <meta name="author" content="Swibble UG (haftungsbeschränkt)" />
         <meta name="publisher" content="Swibble UG" />
         <meta name="copyright" content="Swibble UG (haftungsbeschränkt)" />

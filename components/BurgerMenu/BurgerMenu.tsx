@@ -1,25 +1,34 @@
-// Importing necessary React components
 import Menu from "./Menu";
 
-// Defining the expected props for the component
 interface IMenu {
-  menu: boolean; // boolean flag to identify menu state (open/closed)
-  handleOnClick: () => void; // function to handle click events on menu button
+  menu: boolean;
+  handleOnClick: () => void;
 }
 
-// Defining the main component
 const BurgerMenu = ({ menu, handleOnClick }: IMenu) => {
   return (
-    <>
-      {/* The menu component */}
-      <div
-        className={`fixed bg-[#FDF5FF] w-full z-10 top-0 right-0 px-4 ${
-          menu ? "translate-y-1/2" : "-translate-y-[150%]"
-        } transition ease-in-out shadow-lg`}
+    <div className="lg:hidden">
+      <button
+        type="button"
+        aria-label="Menü schließen"
+        className={`fixed inset-x-0 bottom-0 top-[5.25rem] z-40 bg-black/20 transition-opacity duration-200 ease-out ${
+          menu ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={handleOnClick}
+        tabIndex={menu ? 0 : -1}
+      />
+      <nav
+        aria-label="Mobile Navigation"
+        aria-hidden={!menu}
+        className={`fixed left-0 right-0 top-[5.25rem] z-40 max-h-[calc(100dvh-5.25rem)] overflow-y-auto bg-[#FDF5FF] px-4 shadow-lg transition-all duration-200 ease-out ${
+          menu
+            ? "visible translate-y-0 opacity-100"
+            : "invisible -translate-y-2 pointer-events-none opacity-0"
+        }`}
       >
         <Menu handleOnClick={handleOnClick} />
-      </div>
-    </>
+      </nav>
+    </div>
   );
 };
 

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /impressum
+Disallow: /blog
+Disallow: /api/
+
+Sitemap: https://swibble.net/sitemap.xml

@@ -109,10 +109,6 @@
     animation: carousel-scroll var(--carousel-duration) linear infinite;
     will-change: transform;
 
-    &:hover {
-        animation-play-state: paused;
-    }
-
     @media screen and (min-width: 480px) {
         --carousel-gap: 2rem;
         --carousel-duration: 32s;
@@ -141,6 +137,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: none;
+    user-select: none;
     width: var(--logo-width);
     height: var(--logo-height);
 
