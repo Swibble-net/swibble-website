@@ -1,5 +1,5 @@
 import Image from "next/image";
-import LandingImage from "@/public/SwibbleLandingPageImage.png";
+import LandingImage from "@/public/Landing_Page_Fynn_Frings.png";
 
 const LandingPart = () => {
   return (
@@ -7,7 +7,7 @@ const LandingPart = () => {
       <div className="bg-[#FDF5FF] bg-cover absolute top-0 bottom-0 right-0 left-0 -z-10 w-screen -mt-20 -mx-4 lg:-mx-20"></div>
       <div className="flex flex-col gap-5">
         <h2 className="text-[#000D36] font-bold text-2xl">
-          Biete deinen Kunden ein digitales Unternehmen
+          Biete deinem Business eine Leinwand!
         </h2>
         <p className="text-[#000D36] text-base font-normal">
           Egal ob StartUp oder langjährig etabliert: Swibble berät und hilft
@@ -22,7 +22,15 @@ const LandingPart = () => {
         </a>
       </div>
       <div className="w-full flex justify-center">
-        <Image src={LandingImage} alt="landing_mage" width={509} height={515} />
+        <Image
+          src={LandingImage}
+          alt="Fynn Frings mit professioneller Kamera vor farbigem Hintergrund"
+          width={1179}
+          height={1191}
+          loading="lazy"
+          sizes="(max-width: 1024px) min(100vw - 2rem, 509px), min(50vw, 640px)"
+          className="h-auto w-full max-w-[509px] lg:max-w-[560px] xl:max-w-[640px]"
+        />
       </div>
       <div className="absolute -bottom-12 left-0 overflow-hidden leading-[0] -mx-4 lg:-mx-20 lg:-bottom-20 w-screen">
         <svg

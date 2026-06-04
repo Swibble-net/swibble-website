@@ -2,7 +2,7 @@ import Image from "next/image";
 import worldIcon from "@/public/icons/swibble_icon_world.svg";
 import softIcon from "@/public/icons/swibble_icon_soft.svg";
 import bagIcon from "@/public/icons/swibble_icon_bag.svg";
-import IntroImage from "@/public/introduction_image.svg";
+import IntroImage from "@/public/Swibble_Window_Mockup.svg";
 import styles from "@/styles/introduction.module.scss";
 
 const Introduction = () => {
@@ -28,7 +28,7 @@ const Introduction = () => {
           <div className={styles.list_item}>
             <Image src={softIcon} alt="world" height={43} width={43} />
             <div className={styles.item_text}>
-              <h3>Eigene Software</h3>
+              <h3>Online Präsenz</h3>
               <p>
                 Personalisierte Apps, Websites & weitere Softwareanwendungen um
                 dein Unternehmen auf das nächste Level zu bringen.
@@ -38,7 +38,7 @@ const Introduction = () => {
           <div className={styles.list_item}>
             <Image src={bagIcon} alt="world" height={43} width={43} />
             <div className={styles.item_text}>
-              <h3>Optimiertes Business</h3>
+              <h3>Digitales Business</h3>
               <p>
                 Mit Kunden & auch Mitarbeitern einfach in Kontakt bleiben, das
                 eigene Markenimage pflegen und den Umsatz steigern.
@@ -48,10 +48,12 @@ const Introduction = () => {
         </div>
         <Image
           src={IntroImage}
-          alt="Background"
-          width={1}
-          height={1}
-          className={styles.image}
+          alt="Swibble Software-Mockup: digitale Produkte in Fenster- und App-Ansicht"
+          width={823}
+          height={669}
+          loading="lazy"
+          sizes="(max-width: 1024px) 0px, min(50vw, 823px)"
+          className={`${styles.image} h-auto w-full`}
         />
       </div>
     </div>

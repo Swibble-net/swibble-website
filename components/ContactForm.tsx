@@ -117,17 +117,17 @@ const ContactForm = () => {
 					<div>
 						<label htmlFor="email">E-Mail*</label>
 						<br />
-						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:!outline-none pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" name="email" type="email" placeholder="Deine E-Mail Adresse" required value={event.email} onChange={(e) => updateEvent({ email: e.target.value })} />
+						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:outline-none! pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" name="email" type="email" placeholder="Deine E-Mail Adresse" required value={event.email} onChange={(e) => updateEvent({ email: e.target.value })} />
 					</div>
 					<div>
 						<label htmlFor="Telefonnummer">Telefonnummer (Optional)</label>
 						<br />
-						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:!outline-none pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" type="tel" name="Telefonnummer" placeholder="Deine Telefonnummer" value={event.number} onChange={(e) => updateEvent({ number: e.target.value })} />
+						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:outline-none! pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" type="tel" name="Telefonnummer" placeholder="Deine Telefonnummer" value={event.number} onChange={(e) => updateEvent({ number: e.target.value })} />
 					</div>
 					<div>
 						<label htmlFor="text">Nachricht*</label>
 						<br />
-						<textarea className="w-full bg-[#F6F6F6] h-24 rounded-lg resize-none focus:!outline-none pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" name="text" maxLength={200} placeholder="Vor welchen Herausforderungen steht dein Unternehmen?" required value={event.message} onChange={(e) => updateEvent({ message: e.target.value })} />
+						<textarea className="w-full bg-[#F6F6F6] h-24 rounded-lg resize-none focus:outline-none! pl-2 pt-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" name="text" maxLength={200} placeholder="Vor welchen Herausforderungen steht dein Unternehmen?" required value={event.message} onChange={(e) => updateEvent({ message: e.target.value })} />
 					</div>
 					<button type="submit" className="w-44 lg:self-center text-center text-sm font-medium bg-[#B718EC] text-[#F0FDF4] py-[0.781rem] px-5 rounded-[10px] hover:scale-95 transition duration-200">
 						Konstenlos Starten
