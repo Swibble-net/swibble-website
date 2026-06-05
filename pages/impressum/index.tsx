@@ -5,7 +5,7 @@ const Impressum = () => {
     <>
       <SEO
         title="Impressum – Swibble"
-        description="Impressum der Swibble UG (haftungsbeschränkt), Königstraße 30, 52064 Aachen. Kontakt: contact@swibble.net"
+        description="Impressum der Swibble UG (haftungsbeschränkt), Königstraße 30, 52064 Aachen. Kontakt: info@swibble.net"
         canonical="/impressum"
         noIndex={true}
       />

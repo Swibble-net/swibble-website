@@ -4,6 +4,7 @@ import AachenMap from "@/public/map_aachen.png";
 import { FormEvent, useEffect, useReducer, useState } from "react";
 import sendEmail from "@/lib/sendMail";
 import ContactResponseMessage from "./ContactResponseMessage";
+import TurnstileWidget from "./TurnstileWidget";
 
 // Defining expected input properties for `updateEvent` reducer
 interface Input {
@@ -23,26 +24,47 @@ const ContactForm = () => {
 		{ email: "", message: "", number: "", alert: false },
 	);
 
-	// Creating a state for response message after submitting the contact form
 	const [responseMessage, setResponseMessage] = useState({
 		backgroundColor: "",
 		alertMessage: "",
 		fillColor: "",
 	});
+	const [turnstileVerified, setTurnstileVerified] = useState(false);
+	const [turnstileKey, setTurnstileKey] = useState(0);
 
-	// Handling submit event for form
+	const resetTurnstile = () => {
+		setTurnstileVerified(false);
+		setTurnstileKey((key) => key + 1);
+	};
+
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-		// Prevent to refresh the page
 		e.preventDefault();
-		// async function to send filled form
+
+		if (!turnstileVerified) {
+			setResponseMessage({
+				alertMessage: "Bitte bestätige, dass du kein Roboter bist.",
+				backgroundColor: "bg-red-500",
+				fillColor: "bg-red-300",
+			});
+			updateEvent({ alert: true });
+			return;
+		}
+
 		try {
-			const req = await sendEmail(event.email, event.number, event.message);
+			const req = await sendEmail(
+				event.email,
+				event.number,
+				event.message,
+			);
 			if (req.status === 200) {
 				setResponseMessage({
 					alertMessage: "Abgeschickt!",
 					backgroundColor: "bg-[#B718EC]",
 					fillColor: "bg-[#e7a1ff]",
 				});
+				updateEvent({ email: "" });
+				updateEvent({ number: "" });
+				updateEvent({ message: "" });
 			}
 		} catch (e) {
 			console.log(e);
@@ -53,10 +75,7 @@ const ContactForm = () => {
 			});
 		}
 
-		// Resetting the `event` state properties back to empty strings on form submission
-		updateEvent({ email: "" });
-		updateEvent({ number: "" });
-		updateEvent({ message: "" });
+		resetTurnstile();
 		updateEvent({ alert: true });
 	};
 
@@ -104,7 +123,7 @@ const ContactForm = () => {
 							<div className="relative pl-2">
 								<h3 className="font-bold text-base text-[#2A3342]">E-mail</h3>
 								<p className="text-sm text-[#556987]">
-									<a href="mailto:contact@swibble.net">contact@swibble.net</a>
+									<a href="mailto:info@swibble.net">info@swibble.net</a>
 								</p>
 								<div className="hidden lg:block lg:absolute lg:bottom-1 lg:left-0 lg:-z-10 lg:h-16 lg:w-[3px] lg:rounded-b-full lg:bg-[#B718EC]" aria-hidden />
 							</div>
@@ -129,7 +148,17 @@ const ContactForm = () => {
 						<br />
 						<textarea className="w-full bg-[#F6F6F6] h-24 rounded-lg resize-none focus:outline-none! pl-2 pt-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" name="text" maxLength={200} placeholder="Vor welchen Herausforderungen steht dein Unternehmen?" required value={event.message} onChange={(e) => updateEvent({ message: e.target.value })} />
 					</div>
-					<button type="submit" className="w-44 lg:self-center text-center text-sm font-medium bg-[#B718EC] text-[#F0FDF4] py-[0.781rem] px-5 rounded-[10px] hover:scale-95 transition duration-200">
+					<TurnstileWidget
+						key={turnstileKey}
+						onVerify={() => setTurnstileVerified(true)}
+						onExpire={() => setTurnstileVerified(false)}
+						onError={() => setTurnstileVerified(false)}
+					/>
+					<button
+						type="submit"
+						disabled={!turnstileVerified}
+						className="w-44 lg:self-center text-center text-sm font-medium bg-[#B718EC] text-[#F0FDF4] py-[0.781rem] px-5 rounded-[10px] hover:scale-95 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50"
+					>
 						Konstenlos Starten
 					</button>
 				</form>

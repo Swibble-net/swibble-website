@@ -36,16 +36,6 @@ const Tasks = () => {
       </div>
       {/* Render the container with cards */}
       <div className={styles.card_container}>
-        <div className={styles.card1}>
-          <Image src={BrushIcon} alt="brush" width={32} height={32} />
-          <h2 style={{ color: "#B718EC" }}>Design</h2>
-          <p>Entwurf des Designs von Software, druckbaren Medien & Werbung.</p>
-        </div>
-        <div className={styles.card2}>
-          <Image src={MonitorIcon} alt="monitor" width={32} height={32} />
-          <h2 style={{ color: "#5F3BC4" }}>Development</h2>
-          <p>Entwicklung persönlicher Softwarelösungen.</p>
-        </div>
         <div className={styles.card3}>
           <Image src={MobileIcon} alt="stonks" width={32} height={32} />
           <h2 style={{ color: "#3ABD9E" }}>Social Media</h2>
@@ -55,6 +45,16 @@ const Tasks = () => {
           <Image src={UserLocationIcon} alt="monitor" width={32} height={32} />
           <h2 style={{ color: "#C43B7D" }}>Live Events</h2>
           <p>Live Events in deinem Unternehmen, Messen oder Online.</p>
+        </div>
+        <div className={styles.card1}>
+          <Image src={BrushIcon} alt="brush" width={32} height={32} />
+          <h2 style={{ color: "#B718EC" }}>Design</h2>
+          <p>Entwurf des Designs von Software, druckbaren Medien & Werbung.</p>
+        </div>
+        <div className={styles.card2}>
+          <Image src={MonitorIcon} alt="monitor" width={32} height={32} />
+          <h2 style={{ color: "#5F3BC4" }}>Development</h2>
+          <p>Entwicklung persönlicher Softwarelösungen.</p>
         </div>
       </div>
       {/*Adding the "wave" in the bottom of the component*/}

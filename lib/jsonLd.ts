@@ -11,7 +11,7 @@ export const organizationJsonLd = {
   image: `${SITE_URL}/og-image.png`,
   description:
     "Swibble ist eine Digitalagentur aus Aachen, die Unternehmen mit Web- & App-Entwicklung, UX/UI-Design, digitaler Beratung und Qualitätskontrolle dabei unterstützt, ihre digitale Präsenz auf das nächste Level zu bringen.",
-  email: "contact@swibble.net",
+  email: "info@swibble.net",
   telephone: "+49-178-2632310",
   foundingDate: "2022",
   address: {

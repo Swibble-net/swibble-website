@@ -1,6 +1,5 @@
 import axios from "axios";
 
-//Setting a function to send post method on /api/send-mail, definig which data should send to api
 const sendEmail = async (email: string, number: string, message: string) => {
   return axios({
     method: "post",
@@ -10,9 +9,9 @@ const sendEmail = async (email: string, number: string, message: string) => {
       "Content-Type": "application/json",
     },
     data: {
-      email: email,
-      number: number,
-      message: message,
+      email,
+      number,
+      message,
     },
   });
 };
