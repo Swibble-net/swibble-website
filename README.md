@@ -109,8 +109,11 @@ Add a logo file under `public/companies_logos/` and register it in `lib/companie
 | `SMTP_PORT` | Yes | SMTP port (e.g. `587`) |
 | `SMTP_USER` | Yes | SMTP username |
 | `SMTP_PASSWORD` | Yes | SMTP password |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Yes (contact form) | Cloudflare Turnstile site key — gates the submit button client-side |
 
 Without valid SMTP credentials, the contact form will fail on submit.
+
+Create a Turnstile site key in the [Cloudflare dashboard](https://dash.cloudflare.com/?to=/:account/turnstile) and add your domain (e.g. `swibble.net`, `localhost` for local dev).
 
 ## Deploying to Vercel
 
