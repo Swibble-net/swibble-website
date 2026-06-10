@@ -33,24 +33,33 @@ const TurnstileWidget = ({
 }: TurnstileWidgetProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
+  const onVerifyRef = useRef(onVerify);
+  const onExpireRef = useRef(onExpire);
+  const onErrorRef = useRef(onError);
   const [scriptReady, setScriptReady] = useState(false);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
-  const renderWidget = useCallback(() => {
-    if (!containerRef.current || !window.turnstile || !siteKey) return;
+  onVerifyRef.current = onVerify;
+  onExpireRef.current = onExpire;
+  onErrorRef.current = onError;
 
-    if (widgetIdRef.current) {
-      window.turnstile.remove(widgetIdRef.current);
-      widgetIdRef.current = null;
+  const renderWidget = useCallback(() => {
+    if (
+      !containerRef.current ||
+      !window.turnstile ||
+      !siteKey ||
+      widgetIdRef.current
+    ) {
+      return;
     }
 
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: siteKey,
-      callback: () => onVerify(),
-      "expired-callback": onExpire,
-      "error-callback": onError,
+      callback: () => onVerifyRef.current(),
+      "expired-callback": () => onExpireRef.current?.(),
+      "error-callback": () => onErrorRef.current?.(),
     });
-  }, [siteKey, onVerify, onExpire, onError]);
+  }, [siteKey]);
 
   useEffect(() => {
     if (scriptReady) renderWidget();
@@ -60,6 +69,7 @@ const TurnstileWidget = ({
     return () => {
       if (widgetIdRef.current && window.turnstile) {
         window.turnstile.remove(widgetIdRef.current);
+        widgetIdRef.current = null;
       }
     };
   }, []);
