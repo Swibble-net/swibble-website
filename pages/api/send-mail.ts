@@ -25,7 +25,8 @@ export default async function handler(
   });
 
   const mail = {
-    from: email,
+    from: process.env.SMTP_USER,      // your Netcup email, e.g. contact@swibble.net
+    replyTo: email,                    // visitor's email goes here
     to: process.env.SMTP_USER,
     subject: `Message from ${email}. ${number ?? ""}`,
     text: message,
