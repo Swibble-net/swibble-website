@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
+import Head from "next/head";
 import { FormEvent, useState } from "react";
 import type { GetServerSideProps } from "next";
-import SEO from "@/components/SEO";
 import { isAuthenticated } from "@/lib/adminAuth";
 
 const AdminLogin = () => {
@@ -34,7 +34,10 @@ const AdminLogin = () => {
 
   return (
     <>
-      <SEO title="Admin Login – Swibble" canonical="/admin/login" noIndex />
+      <Head>
+        <title>Admin Login – Swibble</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Head>
       <div className="mx-auto flex min-h-[calc(100vh-16rem)] w-full max-w-sm flex-col justify-center">
         <h1 className="mb-6 text-center text-2xl font-bold text-[#000D36]">
           CMS Login

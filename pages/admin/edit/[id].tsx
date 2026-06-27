@@ -1,5 +1,5 @@
 import type { GetServerSideProps } from "next";
-import SEO from "@/components/SEO";
+import Head from "next/head";
 import PostEditor from "@/components/blog/PostEditor";
 import { isAuthenticated } from "@/lib/adminAuth";
 import { getPostById } from "@/lib/blog/posts";
@@ -12,11 +12,10 @@ interface Props {
 const EditPost = ({ post }: Props) => {
   return (
     <>
-      <SEO
-        title={`${post.title} bearbeiten – Swibble CMS`}
-        canonical={`/admin/edit/${post.id}`}
-        noIndex
-      />
+      <Head>
+        <title>{`${post.title} bearbeiten – Swibble CMS`}</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Head>
       <PostEditor post={post} />
     </>
   );
