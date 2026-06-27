@@ -1,8 +1,8 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Head from "next/head";
 import { useState } from "react";
 import type { GetServerSideProps } from "next";
-import SEO from "@/components/SEO";
 import { isAuthenticated } from "@/lib/adminAuth";
 import { getAllPosts } from "@/lib/blog/posts";
 import { isFirebaseConfigured } from "@/lib/firebaseAdmin";
@@ -47,7 +47,10 @@ const AdminDashboard = ({ posts, configured }: Props) => {
 
   return (
     <>
-      <SEO title="CMS – Swibble" canonical="/admin" noIndex />
+      <Head>
+        <title>CMS – Swibble</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Head>
 
       <section className="mx-auto w-full max-w-5xl">
         <div className="mb-8 flex items-center justify-between">

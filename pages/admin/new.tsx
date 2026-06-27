@@ -1,12 +1,15 @@
 import type { GetServerSideProps } from "next";
-import SEO from "@/components/SEO";
+import Head from "next/head";
 import PostEditor from "@/components/blog/PostEditor";
 import { isAuthenticated } from "@/lib/adminAuth";
 
 const NewPost = () => {
   return (
     <>
-      <SEO title="Neuer Beitrag – Swibble CMS" canonical="/admin/new" noIndex />
+      <Head>
+        <title>Neuer Beitrag – Swibble CMS</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Head>
       <PostEditor />
     </>
   );
