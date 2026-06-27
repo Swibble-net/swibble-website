@@ -3,5 +3,8 @@ Allow: /
 Disallow: /impressum
 Disallow: /blog
 Disallow: /api/
+Disallow: /admin/
+
+# AI-readable site summary: https://swibble.net/llms.txt
 
 Sitemap: https://swibble.net/sitemap.xml
