@@ -1,0 +1,164 @@
+import { useRouter } from "next/router";
+import Link from "next/link";
+import { useState } from "react";
+import type { GetServerSideProps } from "next";
+import SEO from "@/components/SEO";
+import { isAuthenticated } from "@/lib/adminAuth";
+import { getAllPosts } from "@/lib/blog/posts";
+import { isFirebaseConfigured } from "@/lib/firebaseAdmin";
+import { formatDate } from "@/lib/blog/format";
+import type { BlogPost } from "@/lib/blog/types";
+
+interface Props {
+  posts: BlogPost[];
+  configured: boolean;
+}
+
+const AdminDashboard = ({ posts, configured }: Props) => {
+  const router = useRouter();
+  const [items, setItems] = useState(posts);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const handleLogout = async () => {
+    await fetch("/api/admin/logout", { method: "POST" });
+    router.push("/admin/login");
+  };
+
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`Beitrag „${title}" wirklich löschen?`)) return;
+    setBusyId(id);
+    try {
+      const res = await fetch(`/api/posts/${id}`, { method: "DELETE" });
+      if (res.status === 401) {
+        router.push("/admin/login");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Löschen fehlgeschlagen.");
+      }
+      setItems((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Unbekannter Fehler.");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  return (
+    <>
+      <SEO title="CMS – Swibble" canonical="/admin" noIndex />
+
+      <section className="mx-auto w-full max-w-5xl">
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-[#000D36]">Blog verwalten</h1>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin/new"
+              className="rounded-[10px] bg-[#B718EC] px-4 py-2 text-sm font-medium text-[#F0FDF4] transition duration-200 hover:scale-95"
+            >
+              + Neuer Beitrag
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="text-sm font-medium text-[#556987] hover:text-[#b718ec]"
+            >
+              Abmelden
+            </button>
+          </div>
+        </div>
+
+        {!configured && (
+          <p className="mb-6 rounded-lg bg-amber-50 p-4 text-sm text-amber-700">
+            Firebase ist noch nicht konfiguriert. Lege die FIREBASE_* Variablen in
+            <code className="mx-1">.env.local</code> an, um Beiträge zu speichern.
+          </p>
+        )}
+
+        {items.length === 0 ? (
+          <p className="rounded-xl bg-[#FDF5FF] p-6 text-center text-[#556987]">
+            Noch keine Beiträge. Erstelle deinen ersten Beitrag.
+          </p>
+        ) : (
+          <div className="overflow-hidden rounded-xl border border-[#F0E4F5] bg-white">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-[#FDF5FF] text-[#556987]">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Titel</th>
+                  <th className="hidden px-4 py-3 font-medium sm:table-cell">
+                    Autor
+                  </th>
+                  <th className="hidden px-4 py-3 font-medium md:table-cell">
+                    Veröffentlicht
+                  </th>
+                  <th className="hidden px-4 py-3 font-medium md:table-cell">
+                    Geändert
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium">Aktionen</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((post) => (
+                  <tr
+                    key={post.id}
+                    className="border-t border-[#F0E4F5] text-[#2A3342]"
+                  >
+                    <td className="px-4 py-3 font-medium">{post.title}</td>
+                    <td className="hidden px-4 py-3 sm:table-cell">
+                      {post.author}
+                    </td>
+                    <td className="hidden px-4 py-3 md:table-cell">
+                      {formatDate(post.createdAt)}
+                    </td>
+                    <td className="hidden px-4 py-3 md:table-cell">
+                      {post.updatedAt > post.createdAt
+                        ? formatDate(post.updatedAt)
+                        : "—"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-3">
+                        <Link
+                          href={`/blog/${post.slug}`}
+                          target="_blank"
+                          className="text-[#556987] hover:text-[#b718ec]"
+                        >
+                          Ansehen
+                        </Link>
+                        <Link
+                          href={`/admin/edit/${post.id}`}
+                          className="text-[#b718ec] hover:underline"
+                        >
+                          Bearbeiten
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(post.id, post.title)}
+                          disabled={busyId === post.id}
+                          className="text-red-500 hover:underline disabled:opacity-50"
+                        >
+                          {busyId === post.id ? "…" : "Löschen"}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </>
+  );
+};
+
+export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
+  if (!isAuthenticated(ctx.req)) {
+    return { redirect: { destination: "/admin/login", permanent: false } };
+  }
+
+  const configured = isFirebaseConfigured();
+  const posts = configured ? await getAllPosts("newest") : [];
+
+  return { props: { posts, configured } };
+};
+
+export default AdminDashboard;
