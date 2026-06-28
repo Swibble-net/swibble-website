@@ -11,6 +11,8 @@ export interface BlogPost {
   /** Optional cover image URL (absolute or rooted at /public) */
   coverImage: string | null;
   author: string;
+  /** When false, the post is a draft and hidden from visitors. */
+  published: boolean;
   /** Publish date — epoch milliseconds */
   createdAt: number;
   /** Last change date — epoch milliseconds */
@@ -25,6 +27,7 @@ export interface BlogPostInput {
   contentHtml: string;
   coverImage?: string | null;
   author: string;
+  published?: boolean;
 }
 
 export type SortOrder = "newest" | "oldest";

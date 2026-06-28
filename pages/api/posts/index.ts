@@ -31,6 +31,7 @@ export default async function handler(
         contentHtml: body.contentHtml,
         coverImage: body.coverImage ?? null,
         author: body.author?.trim() || "Swibble",
+        published: body.published,
       });
 
       return res.status(201).json({ post });

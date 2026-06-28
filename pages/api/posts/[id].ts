@@ -1,6 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
-import { deletePost, getPostById, updatePost } from "@/lib/blog/posts";
+import {
+  deletePost,
+  getPostById,
+  setPostPublished,
+  updatePost,
+} from "@/lib/blog/posts";
 import type { BlogPostInput } from "@/lib/blog/types";
 
 export default async function handler(
@@ -36,8 +41,24 @@ export default async function handler(
         contentHtml: body.contentHtml,
         coverImage: body.coverImage ?? null,
         author: body.author?.trim() || "Swibble",
+        published: body.published,
       });
 
+      if (!post) return res.status(404).json({ message: "Nicht gefunden." });
+      return res.status(200).json({ post });
+    }
+
+    if (req.method === "PATCH") {
+      if (!requireAdmin(req, res)) return;
+
+      const { published } = (req.body ?? {}) as { published?: boolean };
+      if (typeof published !== "boolean") {
+        return res
+          .status(400)
+          .json({ message: "`published` muss true oder false sein." });
+      }
+
+      const post = await setPostPublished(id, published);
       if (!post) return res.status(404).json({ message: "Nicht gefunden." });
       return res.status(200).json({ post });
     }
@@ -50,7 +71,7 @@ export default async function handler(
       return res.status(200).json({ success: true });
     }
 
-    res.setHeader("Allow", "GET, PUT, DELETE");
+    res.setHeader("Allow", "GET, PUT, PATCH, DELETE");
     return res.status(405).json({ message: "Method not allowed" });
   } catch (error) {
     console.error(`[/api/posts/${id}]`, error);

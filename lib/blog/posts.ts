@@ -12,6 +12,7 @@ interface PostDocument {
   contentHtml: string;
   coverImage: string | null;
   author: string;
+  published?: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -25,6 +26,8 @@ function toPost(id: string, data: PostDocument): BlogPost {
     contentHtml: data.contentHtml ?? "",
     coverImage: data.coverImage ?? null,
     author: data.author ?? "",
+    // Posts created before drafts existed have no flag and stay visible.
+    published: data.published ?? true,
     createdAt: data.createdAt ?? 0,
     updatedAt: data.updatedAt ?? data.createdAt ?? 0,
   };
@@ -41,11 +44,14 @@ function deriveExcerpt(html: string, max = 160): string {
 }
 
 /**
- * Returns every post sorted by publish date. Falls back to an empty list when
- * Firebase is not configured yet, so the site keeps rendering during setup.
+ * Returns posts sorted by publish date. By default only published posts are
+ * returned (for visitors); pass `includeHidden` from the CMS to also get
+ * drafts. Drafts are filtered in memory to avoid a Firestore composite index.
+ * Falls back to an empty list when Firebase is not configured yet.
  */
 export async function getAllPosts(
   order: SortOrder = "newest",
+  options: { includeHidden?: boolean } = {},
 ): Promise<BlogPost[]> {
   if (!isFirebaseConfigured()) {
     return [];
@@ -56,9 +62,11 @@ export async function getAllPosts(
     .orderBy("createdAt", order === "newest" ? "desc" : "asc")
     .get();
 
-  return snapshot.docs.map((doc) =>
+  const posts = snapshot.docs.map((doc) =>
     toPost(doc.id, doc.data() as PostDocument),
   );
+
+  return options.includeHidden ? posts : posts.filter((p) => p.published);
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
@@ -114,6 +122,8 @@ export async function createPost(input: BlogPostInput): Promise<BlogPost> {
     contentHtml: input.contentHtml,
     coverImage: input.coverImage?.trim() || null,
     author: input.author.trim(),
+    // New posts start as hidden drafts so they can be reviewed first.
+    published: input.published ?? false,
     createdAt: now,
     updatedAt: now,
   };
@@ -148,12 +158,28 @@ export async function updatePost(
     contentHtml: input.contentHtml,
     coverImage: input.coverImage?.trim() || null,
     author: input.author.trim(),
+    published: input.published ?? current.published ?? false,
     createdAt: current.createdAt,
     updatedAt: Date.now(),
   };
 
   await ref.update({ ...data });
   return toPost(id, data);
+}
+
+/** Flips just the visibility flag — used by the dashboard quick toggle. */
+export async function setPostPublished(
+  id: string,
+  published: boolean,
+): Promise<BlogPost | null> {
+  const db = getDb();
+  const ref = db.collection(COLLECTION).doc(id);
+  const existing = await ref.get();
+  if (!existing.exists) return null;
+
+  await ref.update({ published });
+  const updated = await ref.get();
+  return toPost(id, updated.data() as PostDocument);
 }
 
 export async function deletePost(id: string): Promise<boolean> {
