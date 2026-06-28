@@ -50,6 +50,50 @@ const AdminDashboard = ({ posts, configured }: Props) => {
     }
   };
 
+  const renderActions = (post: BlogPost) => (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+      <Link
+        href={`/blog/${post.slug}`}
+        target="_blank"
+        className="text-[#556987] hover:text-[#b718ec]"
+      >
+        Ansehen
+      </Link>
+      <button
+        onClick={() => handleTogglePublished(post.id, !post.published)}
+        disabled={busyId === post.id}
+        className="text-[#556987] hover:text-[#b718ec] disabled:opacity-50"
+      >
+        {post.published ? "Verstecken" : "Anzeigen"}
+      </button>
+      <Link
+        href={`/admin/edit/${post.id}`}
+        className="text-[#b718ec] hover:underline"
+      >
+        Bearbeiten
+      </Link>
+      <button
+        onClick={() => handleDelete(post.id, post.title)}
+        disabled={busyId === post.id}
+        className="text-red-500 hover:underline disabled:opacity-50"
+      >
+        {busyId === post.id ? "…" : "Löschen"}
+      </button>
+    </div>
+  );
+
+  const renderStatus = (post: BlogPost) => (
+    <span
+      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+        post.published
+          ? "bg-green-100 text-green-700"
+          : "bg-amber-100 text-amber-700"
+      }`}
+    >
+      {post.published ? "Sichtbar" : "Versteckt"}
+    </span>
+  );
+
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Beitrag „${title}" wirklich löschen?`)) return;
     setBusyId(id);
@@ -79,9 +123,9 @@ const AdminDashboard = ({ posts, configured }: Props) => {
       </Head>
 
       <section className="mx-auto w-full max-w-5xl">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold text-[#000D36]">Blog verwalten</h1>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-3 sm:justify-end">
             <Link
               href="/admin/new"
               className="rounded-[10px] bg-[#B718EC] px-4 py-2 text-sm font-medium text-[#F0FDF4] transition duration-200 hover:scale-95"
@@ -109,91 +153,82 @@ const AdminDashboard = ({ posts, configured }: Props) => {
             Noch keine Beiträge. Erstelle deinen ersten Beitrag.
           </p>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-[#F0E4F5] bg-white">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-[#FDF5FF] text-[#556987]">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Titel</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                    Autor
-                  </th>
-                  <th className="hidden px-4 py-3 font-medium md:table-cell">
-                    Veröffentlicht
-                  </th>
-                  <th className="hidden px-4 py-3 font-medium md:table-cell">
-                    Geändert
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium">Aktionen</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((post) => (
-                  <tr
-                    key={post.id}
-                    className="border-t border-[#F0E4F5] text-[#2A3342]"
-                  >
-                    <td className="px-4 py-3 font-medium">{post.title}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                          post.published
-                            ? "bg-green-100 text-green-700"
-                            : "bg-amber-100 text-amber-700"
-                        }`}
-                      >
-                        {post.published ? "Sichtbar" : "Versteckt"}
-                      </span>
-                    </td>
-                    <td className="hidden px-4 py-3 sm:table-cell">
-                      {post.author}
-                    </td>
-                    <td className="hidden px-4 py-3 md:table-cell">
-                      {formatDate(post.createdAt)}
-                    </td>
-                    <td className="hidden px-4 py-3 md:table-cell">
-                      {post.updatedAt > post.createdAt
-                        ? formatDate(post.updatedAt)
-                        : "—"}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-3">
-                        <Link
-                          href={`/blog/${post.slug}`}
-                          target="_blank"
-                          className="text-[#556987] hover:text-[#b718ec]"
-                        >
-                          Ansehen
-                        </Link>
-                        <button
-                          onClick={() =>
-                            handleTogglePublished(post.id, !post.published)
-                          }
-                          disabled={busyId === post.id}
-                          className="text-[#556987] hover:text-[#b718ec] disabled:opacity-50"
-                        >
-                          {post.published ? "Verstecken" : "Anzeigen"}
-                        </button>
-                        <Link
-                          href={`/admin/edit/${post.id}`}
-                          className="text-[#b718ec] hover:underline"
-                        >
-                          Bearbeiten
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(post.id, post.title)}
-                          disabled={busyId === post.id}
-                          className="text-red-500 hover:underline disabled:opacity-50"
-                        >
-                          {busyId === post.id ? "…" : "Löschen"}
-                        </button>
-                      </div>
-                    </td>
+          <>
+            {/* Mobile: stacked cards */}
+            <div className="flex flex-col gap-4 sm:hidden">
+              {items.map((post) => (
+                <div
+                  key={post.id}
+                  className="rounded-xl border border-[#F0E4F5] bg-white p-4 text-[#2A3342]"
+                >
+                  <div className="mb-2 flex items-start justify-between gap-3">
+                    <h2 className="font-semibold">{post.title}</h2>
+                    {renderStatus(post)}
+                  </div>
+                  <p className="text-xs text-[#8a7791]">
+                    {post.author} · {formatDate(post.createdAt)}
+                    {post.updatedAt > post.createdAt
+                      ? ` · Geändert ${formatDate(post.updatedAt)}`
+                      : ""}
+                  </p>
+                  <div className="mt-3 border-t border-[#F0E4F5] pt-3 text-sm">
+                    {renderActions(post)}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden overflow-hidden rounded-xl border border-[#F0E4F5] bg-white sm:block">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-[#FDF5FF] text-[#556987]">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Titel</th>
+                    <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="hidden px-4 py-3 font-medium sm:table-cell">
+                      Autor
+                    </th>
+                    <th className="hidden px-4 py-3 font-medium md:table-cell">
+                      Veröffentlicht
+                    </th>
+                    <th className="hidden px-4 py-3 font-medium md:table-cell">
+                      Geändert
+                    </th>
+                    <th className="px-4 py-3 text-right font-medium">
+                      Aktionen
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {items.map((post) => (
+                    <tr
+                      key={post.id}
+                      className="border-t border-[#F0E4F5] text-[#2A3342]"
+                    >
+                      <td className="px-4 py-3 font-medium">{post.title}</td>
+                      <td className="px-4 py-3">{renderStatus(post)}</td>
+                      <td className="hidden px-4 py-3 sm:table-cell">
+                        {post.author}
+                      </td>
+                      <td className="hidden px-4 py-3 md:table-cell">
+                        {formatDate(post.createdAt)}
+                      </td>
+                      <td className="hidden px-4 py-3 md:table-cell">
+                        {post.updatedAt > post.createdAt
+                          ? formatDate(post.updatedAt)
+                          : "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-end">
+                          {renderActions(post)}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </section>
     </>
