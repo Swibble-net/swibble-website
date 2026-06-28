@@ -39,6 +39,11 @@ const Footer = () => {
                 Impressum
               </li>
             </Link>
+            <Link href={"/datenschutz"}>
+              <li className="tracking-normal hover:tracking-[1px] transition-all duration-500 ease-in-out">
+                Datenschutz
+              </li>
+            </Link>
             <li>
               <p className="text-[#ADADAD]">All Rights Reserved @{year}</p>
             </li>
