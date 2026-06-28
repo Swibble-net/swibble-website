@@ -167,8 +167,20 @@ from the test project to the client's project is just a swap of three values —
 The editor (`/admin/new`) takes raw **HTML** for the body with a live preview.
 Cards and post pages render that HTML, styled by the `.blog-content` rules in
 `styles/globals.css`. Each post stores: title, slug (auto-generated if blank),
-author, optional cover image URL, excerpt (auto-derived if blank), publish date
-and last-changed date.
+author, optional cover image URL, excerpt (auto-derived if blank), a
+visibility flag, publish date and last-changed date.
+
+### Drafts (show / hide)
+
+Every post has a **published** flag toggled by a switch in the editor:
+
+- New posts default to **hidden** (draft) so they can be reviewed first.
+- Drafts are excluded from `/blog`, the sitemap, and direct URLs for visitors
+  (they get a 404). A logged-in admin can still open the post URL to preview it
+  (with a "Entwurf-Vorschau" banner).
+- The dashboard shows a **Sichtbar / Versteckt** status and an **Anzeigen /
+  Verstecken** quick toggle (a `PATCH /api/posts/[id]` with `{ published }`).
+- Posts created before this feature existed are treated as visible.
 
 Create a Turnstile site key in the [Cloudflare dashboard](https://dash.cloudflare.com/?to=/:account/turnstile) and add your domain (e.g. `swibble.net`, `localhost` for local dev).
 
