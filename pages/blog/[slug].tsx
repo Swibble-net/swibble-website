@@ -3,6 +3,7 @@ import type { GetServerSideProps } from "next";
 import SEO from "@/components/SEO";
 import { formatDate, toIsoDate } from "@/lib/blog/format";
 import { getPostBySlug } from "@/lib/blog/posts";
+import { isAuthenticated } from "@/lib/adminAuth";
 import type { BlogPost } from "@/lib/blog/types";
 
 interface Props {
@@ -34,9 +35,17 @@ const BlogPostPage = ({ post }: Props) => {
         canonical={`/blog/${post.slug}`}
         ogImage={post.coverImage ?? undefined}
         jsonLd={articleJsonLd}
+        noIndex={!post.published}
       />
 
       <article className="mx-auto w-full max-w-3xl">
+        {!post.published && (
+          <p className="mb-4 rounded-lg bg-amber-100 px-4 py-2 text-sm font-medium text-amber-700">
+            Entwurf-Vorschau – dieser Beitrag ist für Besucher noch nicht
+            sichtbar.
+          </p>
+        )}
+
         <Link
           href="/blog"
           className="text-sm font-medium text-[#b718ec] hover:underline"
@@ -89,6 +98,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
 
   const post = await getPostBySlug(slug);
   if (!post) {
+    return { notFound: true };
+  }
+
+  // Drafts are only viewable by a logged-in admin (for preview).
+  if (!post.published && !isAuthenticated(ctx.req)) {
     return { notFound: true };
   }
 

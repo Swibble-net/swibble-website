@@ -22,6 +22,7 @@ const PostEditor = ({ post }: Props) => {
   const [coverImage, setCoverImage] = useState(post?.coverImage ?? "");
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "");
   const [contentHtml, setContentHtml] = useState(post?.contentHtml ?? "");
+  const [published, setPublished] = useState(post?.published ?? false);
   const [showPreview, setShowPreview] = useState(true);
 
   const [saving, setSaving] = useState(false);
@@ -50,6 +51,7 @@ const PostEditor = ({ post }: Props) => {
             coverImage: coverImage.trim() || null,
             excerpt: excerpt.trim() || undefined,
             contentHtml,
+            published,
           }),
         },
       );
@@ -91,6 +93,35 @@ const PostEditor = ({ post }: Props) => {
           {error}
         </p>
       )}
+
+      <div className="mb-6 flex items-center justify-between rounded-xl border border-[#F0E4F5] bg-[#FDF5FF] px-4 py-3">
+        <div>
+          <p className="text-sm font-medium text-[#2A3342]">
+            {published ? "Sichtbar für Besucher" : "Entwurf (versteckt)"}
+          </p>
+          <p className="text-xs text-[#8a7791]">
+            {published
+              ? "Dieser Beitrag ist im Blog öffentlich sichtbar."
+              : "Nur du siehst diesen Beitrag, bis du ihn veröffentlichst."}
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={published}
+          aria-label="Sichtbarkeit umschalten"
+          onClick={() => setPublished((v) => !v)}
+          className={`relative h-7 w-12 shrink-0 rounded-full transition-colors duration-200 ${
+            published ? "bg-[#B718EC]" : "bg-[#d8c7e0]"
+          }`}
+        >
+          <span
+            className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
+              published ? "translate-x-0" : "-translate-x-5"
+            }`}
+          />
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div>
@@ -196,7 +227,13 @@ const PostEditor = ({ post }: Props) => {
           disabled={saving}
           className="rounded-[10px] bg-[#B718EC] px-6 py-3 text-sm font-medium text-[#F0FDF4] transition duration-200 hover:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {saving ? "Speichern…" : isEdit ? "Aktualisieren" : "Veröffentlichen"}
+          {saving
+            ? "Speichern…"
+            : published
+              ? isEdit
+                ? "Aktualisieren"
+                : "Veröffentlichen"
+              : "Als Entwurf speichern"}
         </button>
       </div>
     </form>

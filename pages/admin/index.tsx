@@ -24,6 +24,32 @@ const AdminDashboard = ({ posts, configured }: Props) => {
     router.push("/admin/login");
   };
 
+  const handleTogglePublished = async (id: string, next: boolean) => {
+    setBusyId(id);
+    try {
+      const res = await fetch(`/api/posts/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ published: next }),
+      });
+      if (res.status === 401) {
+        router.push("/admin/login");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Aktualisieren fehlgeschlagen.");
+      }
+      setItems((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, published: next } : p)),
+      );
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Unbekannter Fehler.");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Beitrag „${title}" wirklich löschen?`)) return;
     setBusyId(id);
@@ -88,6 +114,7 @@ const AdminDashboard = ({ posts, configured }: Props) => {
               <thead className="bg-[#FDF5FF] text-[#556987]">
                 <tr>
                   <th className="px-4 py-3 font-medium">Titel</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
                   <th className="hidden px-4 py-3 font-medium sm:table-cell">
                     Autor
                   </th>
@@ -107,6 +134,17 @@ const AdminDashboard = ({ posts, configured }: Props) => {
                     className="border-t border-[#F0E4F5] text-[#2A3342]"
                   >
                     <td className="px-4 py-3 font-medium">{post.title}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                          post.published
+                            ? "bg-green-100 text-green-700"
+                            : "bg-amber-100 text-amber-700"
+                        }`}
+                      >
+                        {post.published ? "Sichtbar" : "Versteckt"}
+                      </span>
+                    </td>
                     <td className="hidden px-4 py-3 sm:table-cell">
                       {post.author}
                     </td>
@@ -127,6 +165,15 @@ const AdminDashboard = ({ posts, configured }: Props) => {
                         >
                           Ansehen
                         </Link>
+                        <button
+                          onClick={() =>
+                            handleTogglePublished(post.id, !post.published)
+                          }
+                          disabled={busyId === post.id}
+                          className="text-[#556987] hover:text-[#b718ec] disabled:opacity-50"
+                        >
+                          {post.published ? "Verstecken" : "Anzeigen"}
+                        </button>
                         <Link
                           href={`/admin/edit/${post.id}`}
                           className="text-[#b718ec] hover:underline"
@@ -159,7 +206,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   }
 
   const configured = isFirebaseConfigured();
-  const posts = configured ? await getAllPosts("newest") : [];
+  const posts = configured
+    ? await getAllPosts("newest", { includeHidden: true })
+    : [];
 
   return { props: { posts, configured } };
 };
