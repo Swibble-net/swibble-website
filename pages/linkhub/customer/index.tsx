@@ -180,10 +180,21 @@ const LinkHubPage: NextPageWithLayout<Props> = ({ latestPost }) => {
             />
           </div>
 
-          {/* Footer */}
-          <p className="text-center text-xs text-[#a99fb0]">
-            © {new Date().getFullYear()} Swibble UG (haftungsbeschränkt)
-          </p>
+          {/* Legal footer */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-3 text-xs text-[#a99fb0]">
+              <Link href="/impressum" className="hover:text-[#b718ec] transition-colors">
+                Impressum
+              </Link>
+              <span aria-hidden>·</span>
+              <Link href="/datenschutz" className="hover:text-[#b718ec] transition-colors">
+                Datenschutz
+              </Link>
+            </div>
+            <p className="text-center text-xs text-[#a99fb0]">
+              © {new Date().getFullYear()} Swibble UG (haftungsbeschränkt)
+            </p>
+          </div>
         </div>
       </div>
     </>
