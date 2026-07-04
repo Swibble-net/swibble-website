@@ -11,6 +11,7 @@ interface PostDocument {
   excerpt: string;
   contentHtml: string;
   coverImage: string | null;
+  coverImageAlt?: string;
   author: string;
   published?: boolean;
   createdAt: number;
@@ -25,6 +26,7 @@ function toPost(id: string, data: PostDocument): BlogPost {
     excerpt: data.excerpt ?? "",
     contentHtml: data.contentHtml ?? "",
     coverImage: data.coverImage ?? null,
+    coverImageAlt: data.coverImageAlt ?? "",
     author: data.author ?? "",
     // Posts created before drafts existed have no flag and stay visible.
     published: data.published ?? true,
@@ -121,6 +123,7 @@ export async function createPost(input: BlogPostInput): Promise<BlogPost> {
     excerpt: input.excerpt?.trim() || deriveExcerpt(input.contentHtml),
     contentHtml: input.contentHtml,
     coverImage: input.coverImage?.trim() || null,
+    coverImageAlt: input.coverImageAlt?.trim() ?? "",
     author: input.author.trim(),
     // New posts start as hidden drafts so they can be reviewed first.
     published: input.published ?? false,
@@ -157,6 +160,7 @@ export async function updatePost(
     excerpt: input.excerpt?.trim() || deriveExcerpt(input.contentHtml),
     contentHtml: input.contentHtml,
     coverImage: input.coverImage?.trim() || null,
+    coverImageAlt: input.coverImageAlt?.trim() ?? current.coverImageAlt ?? "",
     author: input.author.trim(),
     published: input.published ?? current.published ?? false,
     createdAt: current.createdAt,

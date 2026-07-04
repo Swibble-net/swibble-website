@@ -10,6 +10,8 @@ export interface BlogPost {
   contentHtml: string;
   /** Optional cover image URL (absolute or rooted at /public) */
   coverImage: string | null;
+  /** Alt text for the cover image; falls back to the post title when empty. */
+  coverImageAlt: string;
   author: string;
   /** When false, the post is a draft and hidden from visitors. */
   published: boolean;
@@ -26,6 +28,7 @@ export interface BlogPostInput {
   excerpt?: string;
   contentHtml: string;
   coverImage?: string | null;
+  coverImageAlt?: string;
   author: string;
   published?: boolean;
 }

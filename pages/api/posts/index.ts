@@ -30,6 +30,7 @@ export default async function handler(
         excerpt: body.excerpt,
         contentHtml: body.contentHtml,
         coverImage: body.coverImage ?? null,
+        coverImageAlt: body.coverImageAlt,
         author: body.author?.trim() || "Swibble",
         published: body.published,
       });

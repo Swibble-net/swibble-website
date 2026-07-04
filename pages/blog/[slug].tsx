@@ -76,7 +76,7 @@ const BlogPostPage = ({ post }: Props) => {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={post.coverImage}
-            alt={post.title}
+            alt={post.coverImageAlt || post.title}
             className="mb-8 max-h-[420px] w-full rounded-2xl object-cover"
           />
         )}
