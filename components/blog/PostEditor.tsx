@@ -20,6 +20,7 @@ const PostEditor = ({ post }: Props) => {
   const [slug, setSlug] = useState(post?.slug ?? "");
   const [author, setAuthor] = useState(post?.author ?? "Swibble");
   const [coverImage, setCoverImage] = useState(post?.coverImage ?? "");
+  const [coverImageAlt, setCoverImageAlt] = useState(post?.coverImageAlt ?? "");
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "");
   const [contentHtml, setContentHtml] = useState(post?.contentHtml ?? "");
   const [published, setPublished] = useState(post?.published ?? false);
@@ -49,6 +50,7 @@ const PostEditor = ({ post }: Props) => {
             slug: slug.trim() || undefined,
             author,
             coverImage: coverImage.trim() || null,
+            coverImageAlt: coverImageAlt.trim() || undefined,
             excerpt: excerpt.trim() || undefined,
             contentHtml,
             published,
@@ -169,6 +171,18 @@ const PostEditor = ({ post }: Props) => {
             value={coverImage}
             onChange={(e) => setCoverImage(e.target.value)}
             placeholder="https://…"
+          />
+        </div>
+        <div>
+          <label className={labelClass} htmlFor="coverAlt">
+            Titelbild Alt-Text (optional – Standard: Titel)
+          </label>
+          <input
+            id="coverAlt"
+            className={inputClass}
+            value={coverImageAlt}
+            onChange={(e) => setCoverImageAlt(e.target.value)}
+            placeholder={title || "Beschreibung des Bildes"}
           />
         </div>
       </div>

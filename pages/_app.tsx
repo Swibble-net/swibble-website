@@ -1,6 +1,8 @@
+import type { ReactElement, ReactNode } from "react";
+import type { NextPage } from "next";
+import type { AppProps } from "next/app";
 import Layout from "@/components/Layout/Layout";
 import "@/styles/globals.css";
-import type { AppProps } from "next/app";
 import { Poppins } from "next/font/google";
 
 const poppins = Poppins({
@@ -9,12 +11,22 @@ const poppins = Poppins({
   style: ["normal"],
 });
 
-export default function App({ Component, pageProps }: AppProps) {
+export type NextPageWithLayout<P = object> = NextPage<P> & {
+  /** Return a custom wrapper; omit to use the default site Layout. */
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+
+export default function App({ Component, pageProps }: AppPropsWithLayout) {
+  const getLayout =
+    Component.getLayout ?? ((page) => <Layout>{page}</Layout>);
+
   return (
     <main className={poppins.className}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      {getLayout(<Component {...pageProps} />)}
     </main>
   );
 }

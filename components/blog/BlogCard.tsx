@@ -20,7 +20,7 @@ const BlogCard = ({ post }: Props) => {
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={post.coverImage}
-          alt={post.title}
+          alt={post.coverImageAlt || post.title}
           className="h-48 w-full object-cover"
           loading="lazy"
         />
