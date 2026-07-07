@@ -123,9 +123,21 @@ const AdminDashboard = ({ posts, configured }: Props) => {
       </Head>
 
       <section className="mx-auto w-full max-w-5xl">
+        {/* Section nav */}
+        <div className="mb-6 flex gap-2">
+          <span className="rounded-lg bg-[#B718EC] px-3 py-1.5 text-sm font-medium text-white">
+            Blog
+          </span>
+          <Link
+            href="/admin/linkhub"
+            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
+          >
+            Linkhub
+          </Link>
+        </div>
+
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-bold text-[#000D36]">Blog verwalten</h1>
-          <div className="flex items-center justify-between gap-3 sm:justify-end">
+          <h1 className="text-2xl font-bold text-[#000D36]">Blog verwalten</h1>          <div className="flex items-center justify-between gap-3 sm:justify-end">
             <Link
               href="/admin/new"
               className="rounded-[10px] bg-[#B718EC] px-4 py-2 text-sm font-medium text-[#F0FDF4] transition duration-200 hover:scale-95"
