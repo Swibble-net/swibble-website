@@ -35,6 +35,7 @@ export default async function handler(
         name: body.name,
         slug: body.slug,
         subtitle: body.subtitle,
+        logoUrl: body.logoUrl,
         links: body.links ?? [],
       });
 

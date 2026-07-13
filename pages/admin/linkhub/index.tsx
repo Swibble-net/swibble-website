@@ -101,13 +101,14 @@ const AdminLinkhub = ({ profiles, configured }: Props) => {
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-3 text-sm">
-                    <Link
+                    <a
                       href={`/linkhub/${profile.slug}`}
                       target="_blank"
+                      rel="noopener noreferrer"
                       className="text-[#556987] hover:text-[#b718ec]"
                     >
                       Ansehen
-                    </Link>
+                    </a>
                     <Link
                       href={`/admin/linkhub/edit/${profile.id}`}
                       className="text-[#b718ec] hover:underline"

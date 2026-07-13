@@ -30,6 +30,7 @@ const ProfileEditor = ({ profile }: Props) => {
   const [name, setName] = useState(profile?.name ?? "");
   const [slug, setSlug] = useState(profile?.slug ?? "");
   const [subtitle, setSubtitle] = useState(profile?.subtitle ?? "");
+  const [logoUrl, setLogoUrl] = useState(profile?.logoUrl ?? "");
   const [links, setLinks] = useState<LinkhubLink[]>(
     profile?.links.length ? profile.links : [newLink()],
   );
@@ -81,6 +82,7 @@ const ProfileEditor = ({ profile }: Props) => {
             name,
             slug: slug.trim() || undefined,
             subtitle: subtitle.trim() || undefined,
+            logoUrl: logoUrl.trim() || undefined,
             links: links.map(({ id, ...rest }) => ({ id, ...rest })),
           }),
         },
@@ -160,6 +162,19 @@ const ProfileEditor = ({ profile }: Props) => {
             value={subtitle}
             onChange={(e) => setSubtitle(e.target.value)}
             placeholder="Deine Digitalagentur aus Aachen"
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <label className={labelClass} htmlFor="logoUrl">
+            Logo-URL (optional)
+          </label>
+          <input
+            id="logoUrl"
+            type="url"
+            className={inputClass}
+            value={logoUrl}
+            onChange={(e) => setLogoUrl(e.target.value)}
+            placeholder="https://example.com/logo.png – leer lassen für Swibble-Logo"
           />
         </div>
       </div>
