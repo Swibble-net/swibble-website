@@ -108,7 +108,18 @@ const LinkHubPage: NextPageWithLayout<Props> = ({ profile }) => (
       <div className="flex w-full max-w-sm flex-col items-center gap-8">
         {/* Brand */}
         <div className="flex flex-col items-center gap-3">
-          <Image src={Logo} alt="Swibble Logo" width={56} height={56} />
+          {profile.logoUrl ? (
+            <Image
+              src={profile.logoUrl}
+              alt={`${profile.name} Logo`}
+              width={56}
+              height={56}
+              className="h-14 w-14"
+              unoptimized
+            />
+          ) : (
+            <Image src={Logo} alt="Swibble Logo" width={56} height={56} />
+          )}
           <div className="text-center">
             <h1 className="text-2xl font-bold text-[#000D36]">
               {profile.name}

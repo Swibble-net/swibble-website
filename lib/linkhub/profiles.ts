@@ -9,6 +9,7 @@ interface ProfileDocument {
   slug: string;
   name: string;
   subtitle: string;
+  logoUrl?: string;
   links: LinkhubLink[];
   createdAt: number;
   updatedAt: number;
@@ -20,6 +21,7 @@ function toProfile(id: string, data: ProfileDocument): LinkhubProfile {
     slug: data.slug ?? "",
     name: data.name ?? "",
     subtitle: data.subtitle ?? "",
+    logoUrl: data.logoUrl ?? "",
     links: (data.links ?? []).map((l) => ({
       id: l.id ?? Math.random().toString(36).slice(2),
       icon: l.icon ?? "🔗",
@@ -114,6 +116,7 @@ export async function createProfile(
     slug,
     name: input.name.trim(),
     subtitle: input.subtitle?.trim() ?? "",
+    logoUrl: input.logoUrl?.trim() ?? "",
     links: normaliseLinks(input.links),
     createdAt: now,
     updatedAt: now,
@@ -146,6 +149,7 @@ export async function updateProfile(
     slug,
     name: input.name.trim(),
     subtitle: input.subtitle?.trim() ?? "",
+    logoUrl: input.logoUrl?.trim() ?? "",
     links: normaliseLinks(input.links),
     createdAt: current.createdAt,
     updatedAt: Date.now(),

@@ -20,6 +20,8 @@ export interface LinkhubProfile {
   name: string;
   /** Optional tagline under the name */
   subtitle: string;
+  /** Optional absolute URL for a custom logo image; falls back to the Swibble logo */
+  logoUrl: string;
   links: LinkhubLink[];
   createdAt: number;
   updatedAt: number;
@@ -30,6 +32,7 @@ export interface LinkhubProfileInput {
   name: string;
   slug?: string;
   subtitle?: string;
+  logoUrl?: string;
   links: Array<{
     id?: string;
     icon: string;
