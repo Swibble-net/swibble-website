@@ -159,7 +159,7 @@ const ContactForm = () => {
 						disabled={!turnstileVerified}
 						className="w-44 lg:self-center text-center text-sm font-medium bg-[#B718EC] text-[#F0FDF4] py-[0.781rem] px-5 rounded-[10px] hover:scale-95 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50"
 					>
-						Konstenlos Starten
+						Kostenlos starten
 					</button>
 				</form>
 			</section>
