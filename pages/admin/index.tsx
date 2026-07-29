@@ -134,6 +134,12 @@ const AdminDashboard = ({ posts, configured }: Props) => {
           >
             Linkhub
           </Link>
+          <Link
+            href="/admin/videos"
+            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
+          >
+            Videos
+          </Link>
         </div>
 
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

@@ -44,18 +44,29 @@ const AdminLinkhub = ({ profiles, configured }: Props) => {
       </Head>
 
       <section className="mx-auto w-full max-w-4xl">
+        {/* Section nav */}
+        <div className="mb-6 flex gap-2">
+          <Link
+            href="/admin"
+            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
+          >
+            Blog
+          </Link>
+          <span className="rounded-lg bg-[#B718EC] px-3 py-1.5 text-sm font-medium text-white">
+            Linkhub
+          </span>
+          <Link
+            href="/admin/videos"
+            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
+          >
+            Videos
+          </Link>
+        </div>
+
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-[#000D36]">
-              Linkhub verwalten
-            </h1>
-            <Link
-              href="/admin"
-              className="text-sm text-[#556987] hover:text-[#b718ec]"
-            >
-              ← Blog-Verwaltung
-            </Link>
-          </div>
+          <h1 className="text-2xl font-bold text-[#000D36]">
+            Linkhub verwalten
+          </h1>
           <div className="flex items-center justify-between gap-3 sm:justify-end">
             <Link
               href="/admin/linkhub/new"
