@@ -1,156 +1,80 @@
 import { useRef, useState, useEffect, useCallback } from "react";
-import Image from "next/image";
 import type { Video } from "@/lib/videos/types";
 
 interface Props {
   videos: Video[];
 }
 
-function getPosterUrl(embedUrl: string): string | null {
+const localVimeoCovers = new Set([
+  "1054152491",
+  "1068580256",
+  "1068582382",
+  "1093776495",
+  "1093778916",
+  "1093792745",
+  "1093797196",
+  "1141495834",
+  "1141659404",
+  "1208426258",
+  "1208426259",
+  "1208426261",
+]);
+
+function getCoverPath(video: Video): string {
+  if (video.coverPath) return video.coverPath;
+
   try {
-    const url = new URL(embedUrl);
-
-    if (
-      url.hostname.includes("youtube.com") ||
-      url.hostname.includes("youtube-nocookie.com")
-    ) {
-      const id = url.pathname.match(/\/embed\/([^/]+)/)?.[1];
-      return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : null;
-    }
-
-    if (url.hostname === "player.vimeo.com") {
-      const id = url.pathname.match(/\/video\/(\d+)/)?.[1];
-      return id ? `https://vumbnail.com/${id}.jpg` : null;
+    const url = new URL(video.embedUrl);
+    const id = url.pathname.match(/\/video\/(\d+)/)?.[1];
+    if (id && localVimeoCovers.has(id)) {
+      return `/video-covers/vimeo-${id}.jpg`;
     }
   } catch {
-    return null;
+    return "";
   }
 
-  return null;
-}
-
-/** Players only report playback state when the JS API is enabled. */
-function withPlayerApi(embedUrl: string): string {
-  try {
-    const url = new URL(embedUrl);
-    if (
-      url.hostname.includes("youtube.com") ||
-      url.hostname.includes("youtube-nocookie.com")
-    ) {
-      url.searchParams.set("enablejsapi", "1");
-      return url.toString();
-    }
-  } catch {
-    return embedUrl;
-  }
-  return embedUrl;
+  return "";
 }
 
 /**
- * Slide that mounts its iframe only once it scrolls near the viewport,
- * and keeps the provider thumbnail on top until the player reports that
- * it is actually playing — the iframe load event fires well before the
- * first video frame is painted.
+ * Autoplays as the slide approaches the viewport. Off-screen slides remain
+ * lightweight until visitors scroll to them.
  */
 const VideoSlide = ({ video }: { video: Video }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const frameRef = useRef<HTMLIFrameElement>(null);
-  const [load, setLoad] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const posterUrl = getPosterUrl(video.embedUrl);
+  const [started, setStarted] = useState(false);
+  const coverPath = getCoverPath(video);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const slide = ref.current;
+    if (!slide) return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setLoad(true);
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStarted(true);
           observer.disconnect();
         }
       },
-      { rootMargin: "600px" },
+      { rootMargin: "200px 100px", threshold: 0.01 },
     );
 
-    observer.observe(el);
+    observer.observe(slide);
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (!load) return;
-
-    const onMessage = (event: MessageEvent) => {
-      if (
-        !event.origin.includes("youtube.com") &&
-        !event.origin.includes("youtube-nocookie.com") &&
-        !event.origin.includes("vimeo.com")
-      ) {
-        return;
-      }
-      if (event.source !== frameRef.current?.contentWindow) return;
-
-      try {
-        const data =
-          typeof event.data === "string" ? JSON.parse(event.data) : event.data;
-
-        // YouTube reports playerState 1 once playback has started.
-        const ytPlaying = data?.info?.playerState === 1;
-        const vimeoPlaying = data?.event === "play" || data?.event === "playing";
-
-        if (ytPlaying || vimeoPlaying) setPlaying(true);
-      } catch {
-        /* Ignore unrelated messages from the player. */
-      }
-    };
-
-    window.addEventListener("message", onMessage);
-
-    // Ask the player to start reporting its state. The handshake is retried
-    // because the player is not listening immediately after the iframe loads.
-    const handshake = window.setInterval(() => {
-      const frame = frameRef.current?.contentWindow;
-      if (!frame) return;
-      frame.postMessage(
-        JSON.stringify({ event: "listening", channel: "widget" }),
-        "*",
-      );
-      frame.postMessage(
-        JSON.stringify({ method: "addEventListener", value: "play" }),
-        "*",
-      );
-    }, 250);
-
-    // Safety net: never leave the poster up if no event ever arrives.
-    const fallback = window.setTimeout(() => setPlaying(true), 4000);
-
-    return () => {
-      window.removeEventListener("message", onMessage);
-      window.clearInterval(handshake);
-      window.clearTimeout(fallback);
-    };
-  }, [load]);
-
-  useEffect(() => {
-    if (!playing) return;
-    const frame = frameRef.current?.contentWindow;
-    if (!frame) return;
-    frame.postMessage(
-      JSON.stringify({ event: "command", func: "stopListening" }),
-      "*",
-    );
-  }, [playing]);
 
   return (
     <figure className="m-0">
       <div
         ref={ref}
-        className="relative aspect-[9/16] w-full overflow-hidden rounded-2xl bg-[#f3e8f7]"
+        className="relative aspect-[9/16] w-full overflow-hidden rounded-2xl bg-[#f3e8f7] bg-cover bg-center"
+        style={
+          coverPath ? { backgroundImage: `url("${coverPath}")` } : undefined
+        }
       >
-        {load && (
+        {started && (
           <iframe
-            ref={frameRef}
-            src={withPlayerApi(video.embedUrl)}
+            src={video.embedUrl}
             title={video.title || "Video"}
             className="absolute inset-0 h-full w-full border-0"
             allow="autoplay; encrypted-media; picture-in-picture"
@@ -159,31 +83,6 @@ const VideoSlide = ({ video }: { video: Video }) => {
             referrerPolicy="strict-origin-when-cross-origin"
           />
         )}
-
-        {/* Stays on top until the first video frame is actually on screen. */}
-        <div
-          className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ${
-            playing ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          {posterUrl ? (
-            <Image
-              src={posterUrl}
-              alt=""
-              fill
-              sizes="(max-width: 640px) 78vw, (max-width: 768px) 46vw, (max-width: 1024px) 31vw, 25vw"
-              className="object-cover"
-              loading="lazy"
-              unoptimized
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#fdf5ff] to-[#ead0f3]">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/60 text-xl text-[#b718ec]">
-                ▶
-              </span>
-            </div>
-          )}
-        </div>
       </div>
       {video.title && (
         <figcaption className="mt-2 text-center text-sm text-[#556987]">
@@ -194,9 +93,26 @@ const VideoSlide = ({ video }: { video: Video }) => {
   );
 };
 
+function getSnapPoints(track: HTMLDivElement): number[] {
+  const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+  const cards = track.querySelectorAll<HTMLElement>("[data-slide]");
+  const points: number[] = [];
+
+  cards.forEach((card) => {
+    const point = Math.min(card.offsetLeft, maxScroll);
+    const previous = points.at(-1);
+    if (previous === undefined || Math.abs(previous - point) > 2) {
+      points.push(point);
+    }
+  });
+
+  return points;
+}
+
 const VideoCarousel = ({ videos }: Props) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  const [snapPoints, setSnapPoints] = useState<number[]>([]);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
   const [hasOverflow, setHasOverflow] = useState(false);
@@ -213,21 +129,22 @@ const VideoCarousel = ({ videos }: Props) => {
 
     const sync = () => {
       const maxScroll = track.scrollWidth - track.clientWidth;
-      const cards = track.querySelectorAll<HTMLElement>("[data-slide]");
+      const points = getSnapPoints(track);
 
       setHasOverflow(maxScroll > 2);
       setAtStart(track.scrollLeft <= 2);
       setAtEnd(maxScroll > 2 && track.scrollLeft >= maxScroll - 2);
-
-      if (maxScroll > 2 && track.scrollLeft >= maxScroll - 2) {
-        setActive(cards.length - 1);
-        return;
-      }
+      setSnapPoints((current) =>
+        current.length === points.length &&
+        current.every((point, index) => Math.abs(point - points[index]) <= 2)
+          ? current
+          : points,
+      );
 
       let closest = 0;
       let minDist = Infinity;
-      cards.forEach((card, i) => {
-        const dist = Math.abs(card.offsetLeft - track.scrollLeft);
+      points.forEach((point, i) => {
+        const dist = Math.abs(point - track.scrollLeft);
         if (dist < minDist) {
           minDist = dist;
           closest = i;
@@ -250,24 +167,30 @@ const VideoCarousel = ({ videos }: Props) => {
     const track = trackRef.current;
     if (!track) return;
 
-    const cards = track.querySelectorAll<HTMLElement>("[data-slide]");
-    if (!cards.length) return;
+    const points = getSnapPoints(track);
+    const candidates =
+      direction === 1 ? points : [...points].reverse();
+    const target = candidates.find((point) =>
+      direction === 1
+        ? point > track.scrollLeft + 2
+        : point < track.scrollLeft - 2,
+    );
 
-    const distance =
-      cards.length > 1
-        ? cards[1].offsetLeft - cards[0].offsetLeft
-        : cards[0].offsetWidth;
-
-    track.scrollBy({ left: direction * distance, behavior: "smooth" });
+    if (target !== undefined) {
+      track.scrollTo({ left: target, behavior: "smooth" });
+    }
   }, []);
 
-  const scrollToIndex = useCallback((index: number) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const cards = track.querySelectorAll<HTMLElement>("[data-slide]");
-    const card = cards[Math.max(0, Math.min(index, cards.length - 1))];
-    if (card) track.scrollTo({ left: card.offsetLeft, behavior: "smooth" });
-  }, []);
+  const scrollToIndex = useCallback(
+    (index: number) => {
+      const track = trackRef.current;
+      const point = snapPoints[index];
+      if (track && point !== undefined) {
+        track.scrollTo({ left: point, behavior: "smooth" });
+      }
+    },
+    [snapPoints],
+  );
 
   if (!videos.length) return null;
 
@@ -315,11 +238,11 @@ const VideoCarousel = ({ videos }: Props) => {
           </button>
 
           <div className="flex items-center gap-2">
-            {videos.map((_, i) => (
+            {snapPoints.map((_, i) => (
               <button
                 key={i}
                 onClick={() => scrollToIndex(i)}
-                aria-label={`Zu Video ${i + 1}`}
+                aria-label={`Zu Videoposition ${i + 1}`}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   active === i
                     ? "w-6 bg-[#b718ec]"

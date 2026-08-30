@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormEvent, useState } from "react";
@@ -21,6 +22,15 @@ const AdminVideos = ({ videos, configured }: Props) => {
   const [items, setItems] = useState(videos);
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
+  const [cover, setCover] = useState("");
+  const [coverDrafts, setCoverDrafts] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      videos.map((video) => [
+        video.id,
+        video.coverPath.replace("/video-covers/", ""),
+      ]),
+    ),
+  );
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -35,7 +45,11 @@ const AdminVideos = ({ videos, configured }: Props) => {
       const res = await fetch("/api/videos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, title: title.trim() || undefined }),
+        body: JSON.stringify({
+          url,
+          title: title.trim() || undefined,
+          cover: cover.trim() || undefined,
+        }),
       });
       if (res.status === 401) {
         router.push("/admin/login");
@@ -45,12 +59,43 @@ const AdminVideos = ({ videos, configured }: Props) => {
       if (!res.ok) throw new Error(data.message || "Speichern fehlgeschlagen.");
 
       setItems((prev) => [...prev, data.video]);
+      setCoverDrafts((prev) => ({
+        ...prev,
+        [data.video.id]: data.video.coverPath.replace("/video-covers/", ""),
+      }));
       setUrl("");
       setTitle("");
+      setCover("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unbekannter Fehler.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleCoverSave = async (id: string) => {
+    setBusyId(id);
+    try {
+      const res = await fetch(`/api/videos/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cover: coverDrafts[id] ?? "" }),
+      });
+      if (res.status === 401) {
+        router.push("/admin/login");
+        return;
+      }
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Speichern fehlgeschlagen.");
+
+      setItems((prev) =>
+        prev.map((video) => (video.id === id ? data.video : video)),
+      );
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Fehler.");
+    } finally {
+      setBusyId(null);
     }
   };
 
@@ -127,7 +172,7 @@ const AdminVideos = ({ videos, configured }: Props) => {
               {error}
             </p>
           )}
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_auto]">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <input
               aria-label="Video-URL"
               type="url"
@@ -144,6 +189,13 @@ const AdminVideos = ({ videos, configured }: Props) => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
+            <input
+              aria-label="Cover-Dateiname"
+              className={inputClass}
+              placeholder="Cover-Dateiname, z. B. projekt.webp"
+              value={cover}
+              onChange={(e) => setCover(e.target.value)}
+            />
             <button
               type="submit"
               disabled={saving}
@@ -153,8 +205,9 @@ const AdminVideos = ({ videos, configured }: Props) => {
             </button>
           </div>
           <p className="mt-2 text-xs text-[#8a7791]">
-            YouTube- und Vimeo-Links werden automatisch in stumme Loop-Embeds
-            umgewandelt.
+            Lege Covers zuerst in{" "}
+            <code className="font-mono">public/video-covers</code> ab und trage
+            nur den Dateinamen ein. Unterstützt werden AVIF, JPG, PNG und WebP.
           </p>
         </form>
 
@@ -168,32 +221,69 @@ const AdminVideos = ({ videos, configured }: Props) => {
             {items.map((video, i) => (
               <div
                 key={video.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#F0E4F5] bg-white p-4"
+                className="grid gap-4 rounded-xl border border-[#F0E4F5] bg-white p-4 sm:grid-cols-[5rem_1fr]"
               >
+                <div className="relative aspect-[9/16] overflow-hidden rounded-lg bg-[#FDF5FF]">
+                  {video.coverPath ? (
+                    <Image
+                      src={video.coverPath}
+                      alt=""
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="absolute inset-0 flex items-center justify-center text-[#b718ec]">
+                      ▶
+                    </span>
+                  )}
+                </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-[#000D36]">
                     {video.title || `Video ${i + 1}`}
                   </p>
-                  <p className="max-w-md truncate text-xs text-[#8a7791]">
+                  <p className="mb-3 max-w-md truncate text-xs text-[#8a7791]">
                     {video.embedUrl}
                   </p>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <a
-                    href={video.embedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#556987] hover:text-[#b718ec]"
-                  >
-                    Ansehen
-                  </a>
-                  <button
-                    onClick={() => handleDelete(video.id)}
-                    disabled={busyId === video.id}
-                    className="text-red-500 hover:underline disabled:opacity-50"
-                  >
-                    {busyId === video.id ? "…" : "Löschen"}
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <input
+                      aria-label={`Cover für ${video.title || `Video ${i + 1}`}`}
+                      className={`${inputClass} min-w-48 flex-1`}
+                      placeholder="Cover-Dateiname"
+                      value={coverDrafts[video.id] ?? ""}
+                      onChange={(e) =>
+                        setCoverDrafts((prev) => ({
+                          ...prev,
+                          [video.id]: e.target.value,
+                        }))
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleCoverSave(video.id)}
+                      disabled={busyId === video.id}
+                      className="rounded-lg border border-[#B718EC] px-3 py-2 text-sm text-[#B718EC] disabled:opacity-50"
+                    >
+                      Cover speichern
+                    </button>
+                  </div>
+                  <div className="mt-3 flex items-center gap-3 text-sm">
+                    <a
+                      href={video.embedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#556987] hover:text-[#b718ec]"
+                    >
+                      Ansehen
+                    </a>
+                    <button
+                      onClick={() => handleDelete(video.id)}
+                      disabled={busyId === video.id}
+                      className="text-red-500 hover:underline disabled:opacity-50"
+                    >
+                      {busyId === video.id ? "…" : "Löschen"}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

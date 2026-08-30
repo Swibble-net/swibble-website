@@ -5,6 +5,8 @@ export interface Video {
   title: string;
   /** Ready-to-embed iframe src (normalized on save) */
   embedUrl: string;
+  /** Optional project-local image in public/video-covers */
+  coverPath: string;
   createdAt: number;
 }
 
@@ -13,4 +15,6 @@ export interface VideoInput {
   title?: string;
   /** Any YouTube/Vimeo/embed link; will be normalized to an embed URL */
   url: string;
+  /** File name of an image stored in public/video-covers */
+  cover?: string;
 }
