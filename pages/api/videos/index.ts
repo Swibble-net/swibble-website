@@ -24,6 +24,7 @@ export default async function handler(
       const video = await createVideo({
         url: body.url,
         title: body.title,
+        cover: body.cover,
       });
 
       return res.status(201).json({ video });
@@ -33,6 +34,9 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed" });
   } catch (error) {
     console.error("[/api/videos]", error);
+    if (error instanceof Error && error.message.startsWith("Cover must be")) {
+      return res.status(400).json({ message: error.message });
+    }
     return res.status(500).json({
       message: error instanceof Error ? error.message : "Serverfehler",
     });
