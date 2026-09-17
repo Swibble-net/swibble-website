@@ -10,7 +10,7 @@ export const organizationJsonLd = {
   logo: `${SITE_URL}/logo/SwibbleLogo.svg`,
   image: `${SITE_URL}/og-image.png`,
   description:
-    "Swibble ist eine Digitalagentur aus Aachen für Social Media, Live-Events, Design & Software-Entwicklung. Wir produzieren viralen Content, begleiten Events und entwickeln individuelle Websites und Apps.",
+    "Swibble ist eine bundesweit tätige Digitalagentur für Social Media, Live-Events, Design & Software-Entwicklung. Wir produzieren viralen Content, begleiten Events und entwickeln individuelle Websites und Apps.",
   email: "info@swibble.net",
   telephone: "+49-178-2632310",
   foundingDate: "2022",

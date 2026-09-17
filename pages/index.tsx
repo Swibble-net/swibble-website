@@ -25,8 +25,8 @@ export default function Home({ latestPosts, videos }: Props) {
   return (
     <>
       <SEO
-        title="Swibble – Social Media, Live-Events, Design & Software aus Aachen"
-        description="Swibble ist deine Digitalagentur aus Aachen für Social Media, Live-Events, Design & Software-Entwicklung. Jetzt kostenloses Erstgespräch sichern."
+        title="Swibble – Social Media, Live-Events, Design & Software"
+        description="Swibble ist deine Digitalagentur für Social Media, Live-Events, Design & Software – bundesweit im Einsatz. Jetzt kostenloses Erstgespräch sichern."
         canonical="/"
         jsonLd={[organizationJsonLd, webSiteJsonLd]}
       />

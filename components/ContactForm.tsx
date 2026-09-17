@@ -102,7 +102,7 @@ const ContactForm = () => {
 				<div className="flex flex-col gap-y-5 w-full lg:w-7/12 lg:gap-y-12">
 					<div className="text-[#000D36]">
 						<h2 className="font-bold text-2xl mb-5 lg:text-5xl">Let&apos;s stay connected</h2>
-						<p className="text-base font-normal lg:text-xl">Von Aachen aus bundesweit im Einsatz: Erfahre in deinem ganz persönlichen Erstgespräch, wie Swibble deinem Unternehmen weiterhelfen kann.</p>
+						<p className="text-base font-normal lg:text-xl">Erfahre in deinem ganz persönlichen Erstgespräch, wie Swibble deinem Unternehmen weiterhelfen kann.</p>
 					</div>
 
 					{/* Displaying contact information */}

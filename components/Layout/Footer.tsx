@@ -83,7 +83,7 @@ const Footer = () => {
             <Image src={SwibbleLogoText} alt="Swibble" width={120} height={33} />
           </Link>
           <p className="max-w-xs font-light leading-6 text-[#D5DAE1]">
-            Digitalagentur aus Aachen für Social Media, Live-Events, Design &
+            Digitalagentur für Social Media, Live-Events, Design &
             Software – bundesweit im Einsatz.
           </p>
           <div className="flex gap-3">
