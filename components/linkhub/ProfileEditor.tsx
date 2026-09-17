@@ -161,7 +161,7 @@ const ProfileEditor = ({ profile }: Props) => {
             className={inputClass}
             value={subtitle}
             onChange={(e) => setSubtitle(e.target.value)}
-            placeholder="Deine Digitalagentur aus Aachen"
+            placeholder="Deine Digitalagentur"
           />
         </div>
         <div className="sm:col-span-2">

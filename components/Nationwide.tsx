@@ -10,25 +10,25 @@ interface Location {
   href?: string;
 }
 
-// Order follows the map from north to south.
+// Order follows the map from north to south; colors are the clients' brand colors.
 const LOCATIONS: Location[] = [
   {
     city: "Hamburg",
     client: "Billstedt Center",
-    color: "#C43B7D",
+    color: "#F47807",
     href: "/blog/case-study-billstedt-center-hamburg",
   },
   {
     city: "Aachen",
     client: "Aquis Plaza",
-    color: "#B718EC",
+    color: "#2F3192",
     href: "/blog/case-study-aquis-plaza-aachen",
   },
-  { city: "Frankfurt", client: "MyZeil", color: "#5F3BC4" },
+  { city: "Frankfurt", client: "MyZeil", color: "#111111" },
   {
     city: "München",
     client: "Olympia Einkaufszentrum",
-    color: "#3ABD9E",
+    color: "#E2000F",
     href: "/blog/case-study-olympia-einkaufszentrum-munchen",
   },
 ];
@@ -81,15 +81,15 @@ const Nationwide = () => {
     >
       <div className="flex w-full flex-col gap-5 lg:w-5/12">
         <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#B718EC]">
-          Von Aachen aus
+          Wo du uns brauchst
         </p>
         <h2 className="text-2xl font-bold text-[#000D36] lg:text-5xl lg:leading-[1.2]">
           Bundesweit im Einsatz
         </h2>
         <p className="text-base font-normal leading-7 text-[#000D36] lg:text-[#6B6B6B]">
-          Ob Hamburg, Frankfurt, München oder direkt vor der Haustür in Aachen:
-          Wir sind dort, wo dein Content entsteht – und betreuen Social Media,
-          Live-Events und Software für Kunden in ganz Deutschland.
+          Von Hamburg bis München: Wir sind dort, wo dein Content entsteht – und
+          betreuen Social Media, Live-Events und Software für Kunden in ganz
+          Deutschland.
         </p>
         <ul className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {LOCATIONS.map((location) => (
