@@ -66,6 +66,7 @@ Home page sections (anchor links):
 
 - `#uber-uns` — Services (“Womit hilft Swibble mir?”)
 - `#portfolio` — Project showcase
+- `#bundesweit` — Map of clients across Germany (Aachen, Frankfurt, Hamburg, München)
 - `#kontakt` — Contact form and address
 
 ---
