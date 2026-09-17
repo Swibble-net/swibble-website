@@ -69,7 +69,6 @@ export const organizationJsonLd = {
     ],
   },
   sameAs: [
-    "https://www.instagram.com/swibble",
     "https://www.linkedin.com/company/swibble",
   ],
 };
