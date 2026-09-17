@@ -38,41 +38,21 @@ const Tasks = () => {
           <Image src={MobileIcon} alt="" width={32} height={32} />
           <h3 style={{ color: "#3ABD9E" }}>Social Media</h3>
           <p>Viraler Content auf deinen Social Media Kanälen.</p>
-          <ul>
-            <li>Content-Strategie &amp; Redaktionsplan</li>
-            <li>Reels, TikToks &amp; Shorts – Dreh und Schnitt</li>
-            <li>Community Management &amp; Reporting</li>
-          </ul>
         </div>
         <div className={styles.card4}>
           <Image src={UserLocationIcon} alt="" width={32} height={32} />
           <h3 style={{ color: "#C43B7D" }}>Live Events</h3>
-          <p>Live Events in deinem Unternehmen, auf Messen oder Online.</p>
-          <ul>
-            <li>Event-Content in 72 Stunden</li>
-            <li>Foto- &amp; Videobegleitung vor Ort</li>
-            <li>Livestreams &amp; Aktionen im Center</li>
-          </ul>
+          <p>Live Events in deinem Unternehmen, Messen oder Online.</p>
         </div>
         <div className={styles.card1}>
           <Image src={BrushIcon} alt="" width={32} height={32} />
           <h3 style={{ color: "#B718EC" }}>Design</h3>
           <p>Entwurf des Designs von Software, druckbaren Medien & Werbung.</p>
-          <ul>
-            <li>UX/UI-Design für Apps &amp; Websites</li>
-            <li>Brand Design &amp; Corporate Identity</li>
-            <li>Print, Plakate &amp; Werbemittel</li>
-          </ul>
         </div>
         <div className={styles.card2}>
           <Image src={MonitorIcon} alt="" width={32} height={32} />
           <h3 style={{ color: "#5F3BC4" }}>Development</h3>
           <p>Entwicklung persönlicher Softwarelösungen.</p>
-          <ul>
-            <li>Websites &amp; Web-Apps (Next.js, React)</li>
-            <li>iOS- &amp; Android-Apps</li>
-            <li>Qualitätssicherung &amp; Wartung</li>
-          </ul>
         </div>
       </div>
       {/*Adding the "wave" in the bottom of the component*/}
