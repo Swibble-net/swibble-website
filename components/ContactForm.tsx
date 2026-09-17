@@ -1,6 +1,4 @@
 // Importing necessary React components
-import Image from "next/image";
-import GermanyMap from "@/public/map_germany.webp";
 import { FormEvent, useEffect, useReducer, useState } from "react";
 import sendEmail from "@/lib/sendMail";
 import ContactResponseMessage from "./ContactResponseMessage";
@@ -101,26 +99,16 @@ const ContactForm = () => {
 		<>
 			<section id="kontakt" className="scroll-mt-28 lg:scroll-mt-32 w-full flex flex-col gap-y-5 lg:flex-row lg:justify-between lg:items-center lg:gap-x-24">
 				{/* Displaying address and contact information */}
-				<div className="flex flex-col gap-y-5 w-full lg:w-7/12 lg:gap-y-20">
+				<div className="flex flex-col gap-y-5 w-full lg:w-7/12 lg:gap-y-12">
 					<div className="text-[#000D36]">
 						<h2 className="font-bold text-2xl mb-5 lg:text-5xl">Let&apos;s stay connected</h2>
 						<p className="text-base font-normal lg:text-xl">Von Aachen aus bundesweit im Einsatz: Erfahre in deinem ganz persönlichen Erstgespräch, wie Swibble deinem Unternehmen weiterhelfen kann.</p>
 					</div>
 
-					{/* Displaying a map and additional contact information */}
-					<div className="flex flex-col gap-8 w-full lg:w-11/12 md:w-10/12">
-						<Image
-							src={GermanyMap}
-							alt="Deutschlandkarte: Swibble arbeitet bundesweit – Aquis Plaza Aachen, MyZeil Frankfurt, Billstedt Center Hamburg, Olympia Einkaufszentrum München"
-							width={1600}
-							height={943}
-							loading="lazy"
-							sizes="(max-width: 1024px) calc(100vw - 2rem), 50vw"
-							className="h-auto w-full"
-						/>
-
+					{/* Displaying contact information */}
+					<div className="flex flex-col gap-8 w-full">
 						{/* Displaying address and email information */}
-						<div className="w-full flex flex-row flex-wrap gap-y-4 justify-between lg:flex-row-reverse lg:justify-around items-start">
+						<div className="w-full flex flex-row flex-wrap gap-x-10 gap-y-4 items-start">
 							<div className="relative pl-2">
 								<h3 className="font-bold text-base text-[#2A3342]">Anschrift</h3>
 								<p className="text-sm text-[#556987]">
@@ -134,14 +122,14 @@ const ContactForm = () => {
 								<p className="text-sm text-[#556987]">
 									<a href={`mailto:${EMAIL}`}>{EMAIL}</a>
 								</p>
-								<div className="hidden lg:block lg:absolute lg:inset-y-1 lg:left-0 lg:w-[3px] lg:rounded-full lg:bg-[#B718EC]" aria-hidden />
+								<div className="hidden md:block md:absolute md:inset-y-1 md:left-0 md:w-[3px] md:rounded-full md:bg-[#B718EC]" aria-hidden />
 							</div>
 							<div className="relative pl-2">
 								<h3 className="font-bold text-base text-[#2A3342]">Telefon</h3>
 								<p className="text-sm text-[#556987] whitespace-nowrap">
 									<a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a>
 								</p>
-								<div className="hidden lg:block lg:absolute lg:inset-y-1 lg:left-0 lg:w-[3px] lg:rounded-full lg:bg-[#B718EC]" aria-hidden />
+								<div className="hidden md:block md:absolute md:inset-y-1 md:left-0 md:w-[3px] md:rounded-full md:bg-[#B718EC]" aria-hidden />
 							</div>
 						</div>
 					</div>

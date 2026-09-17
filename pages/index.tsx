@@ -4,6 +4,7 @@ import LandingPart from "@/components/LandingPart";
 import Projects from "@/components/Projects";
 import Tasks from "@/components/Tasks";
 import ListOfCompanies from "@/components/ListOfCompanies";
+import Nationwide from "@/components/Nationwide";
 import ContactForm from "@/components/ContactForm";
 import LatestPosts from "@/components/blog/LatestPosts";
 import VideoCarousel from "@/components/videos/VideoCarousel";
@@ -35,6 +36,7 @@ export default function Home({ latestPosts, videos }: Props) {
       <Projects />
       <VideoCarousel videos={videos} />
       <ListOfCompanies />
+      <Nationwide />
       <LatestPosts posts={latestPosts} />
       <ContactForm />
     </>
