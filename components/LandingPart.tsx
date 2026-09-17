@@ -8,7 +8,7 @@ const LandingPart = () => {
       <div className="bg-[#FDF5FF] bg-cover absolute top-0 bottom-0 right-0 left-0 -z-10 w-screen -mt-20 -mx-4 lg:-mx-20"></div>
       <div className="flex flex-col gap-5">
         <h1 className="text-[#000D36] font-bold text-3xl leading-tight lg:text-5xl lg:leading-[1.15]">
-          Social Media, Live-Events & Software aus Aachen
+          Social Media, Live-Events, Design & Software
         </h1>
         <p className="text-[#000D36] text-base font-normal lg:text-lg">
           Egal ob Start-up oder langjährig etabliert: Swibble bringt deine
