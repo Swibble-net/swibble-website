@@ -14,7 +14,7 @@ interface SEOProps {
 }
 
 export default function SEO({
-  title = "Swibble – Social Media, Live-Events & Software aus Aachen",
+  title = "Swibble – Social Media, Live-Events, Design & Software aus Aachen",
   description = "Swibble ist deine Digitalagentur aus Aachen für Social Media, Live-Events, Design & Software-Entwicklung. Jetzt kostenloses Erstgespräch sichern.",
   canonical,
   ogImage = `${SITE_URL}/og-image.png`,
