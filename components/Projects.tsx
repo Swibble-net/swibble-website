@@ -1,13 +1,25 @@
+import Link from "next/link";
 import styles from "@/styles/projects.module.scss";
-{
-  /*Render the component*/
-}
+
+const CASE_STUDIES = [
+  { href: "/blog/case-study-aquis-plaza-aachen", label: "Aquis Plaza Aachen" },
+  {
+    href: "/blog/case-study-olympia-einkaufszentrum-munchen",
+    label: "Olympia-Einkaufszentrum München",
+  },
+  {
+    href: "/blog/case-study-billstedt-center-hamburg",
+    label: "Billstedt-Center Hamburg",
+  },
+  { href: "/blog/case-study-rushfood-aachen", label: "Rushfood Aachen" },
+] as const;
+
 const Projects = () => {
   return (
     <div id="portfolio" className="scroll-mt-28 lg:scroll-mt-32">
       <div className={styles.description}>
         <div className={styles.text_description}>
-          <h1>Hier könnte dein Projekt stehen</h1>
+          <h2>Hier könnte dein Projekt stehen</h2>
           <br />
           <p>
             Viele Unternehmen vertrauen Swibble bereits! Klicke dich einfach
@@ -19,36 +31,44 @@ const Projects = () => {
       {/*Render the list of projects*/}
       <div className={styles.list}>
         <div className={styles.list_container1}>
-          <div className={styles.item1}>
-            <h3>Dein Projekt</h3>
-            <h2>Starte mit Swibble!</h2>
-          </div>
+          <Link href="/#kontakt" className={styles.item1}>
+            <p>Dein Projekt</p>
+            <h3>Starte mit Swibble!</h3>
+          </Link>
           <div className={styles.item2}>
-            <h3>App & Web-App</h3>
-            <h2>Konrat’s Welt</h2>
+            <p>App & Web-App</p>
+            <h3>Konrat’s Welt</h3>
           </div>
         </div>
         <div className={styles.list_container2}>
           <div className={styles.item3}>
-            <h3>Web App</h3>
-            <h2>Little World</h2>
+            <p>Web App</p>
+            <h3>Little World</h3>
           </div>
           <div className={styles.item4}>
-            <h3>App & Website</h3>
-            <h2>Aachen App</h2>
+            <p>App & Website</p>
+            <h3>Aachen App</h3>
           </div>
         </div>
         <div className={styles.list_container3}>
           <div className={styles.item5}>
-            <h3>App</h3>
-            <h2>RydeUp</h2>
+            <p>App</p>
+            <h3>RydeUp</h3>
           </div>
           <div className={styles.item6}>
-            <h3>Qualitätssicherung</h3>
-            <h2>Square</h2>
+            <p>Qualitätssicherung</p>
+            <h3>Square</h3>
           </div>
         </div>
       </div>
+      <p className={styles.case_studies}>
+        <span>Case Studies lesen:</span>
+        {CASE_STUDIES.map(({ href, label }) => (
+          <Link key={href} href={href}>
+            {label}
+          </Link>
+        ))}
+      </p>
     </div>
   );
 };

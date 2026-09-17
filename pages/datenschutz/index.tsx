@@ -82,6 +82,16 @@ const Datenschutz = () => {
             die USA übertragen werden, stützt sich diese auf geeignete Garantien
             (Standardvertragsklauseln bzw. EU-US Data Privacy Framework).
           </p>
+          <br />
+          <p>
+            Zur Reichweitenmessung nutzen wir „Vercel Web Analytics“. Der Dienst
+            arbeitet ohne Cookies und ohne geräteübergreifende Wiedererkennung;
+            Seitenaufrufe werden nur in aggregierter, anonymisierter Form
+            ausgewertet (z. B. aufgerufene Seite, Referrer, Land, Browser- und
+            Gerätetyp). Rechtsgrundlage ist unser berechtigtes Interesse an der
+            statistischen Analyse und Verbesserung unseres Angebots (Art. 6
+            Abs. 1 lit. f DSGVO).
+          </p>
         </div>
 
         <div className="my-5">
@@ -127,7 +137,7 @@ const Datenschutz = () => {
           </h4>
           <p>
             Zum Schutz unseres Kontaktformulars vor automatisierten Anfragen und
-            Missbrauch (Spam, Bots) setzen wir „Turnstile" der Cloudflare, Inc.,
+            Missbrauch (Spam, Bots) setzen wir „Turnstile“ der Cloudflare, Inc.,
             101 Townsend St, San Francisco, CA 94107, USA, ein. Turnstile prüft,
             ob die Eingabe durch einen Menschen erfolgt. Hierbei können technische
             Informationen (z. B. IP-Adresse, Browserinformationen) an Cloudflare
@@ -195,8 +205,8 @@ const Datenschutz = () => {
             Diese Seite nutzt aus Sicherheitsgründen und zum Schutz der
             Übertragung vertraulicher Inhalte eine SSL- bzw.
             TLS-Verschlüsselung. Eine verschlüsselte Verbindung erkennen Sie
-            daran, dass die Adresszeile des Browsers von „http://" auf
-            „https://" wechselt.
+            daran, dass die Adresszeile des Browsers von „http://“ auf
+            „https://“ wechselt.
           </p>
         </div>
 

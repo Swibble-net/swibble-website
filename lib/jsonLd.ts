@@ -10,7 +10,7 @@ export const organizationJsonLd = {
   logo: `${SITE_URL}/logo/SwibbleLogo.svg`,
   image: `${SITE_URL}/og-image.png`,
   description:
-    "Swibble ist eine Digitalagentur aus Aachen, die Unternehmen mit Web- & App-Entwicklung, UX/UI-Design, digitaler Beratung und Qualitätskontrolle dabei unterstützt, ihre digitale Präsenz auf das nächste Level zu bringen.",
+    "Swibble ist eine Digitalagentur aus Aachen für Social Media, Live-Events, Design & Software-Entwicklung. Wir produzieren viralen Content, begleiten Events und entwickeln individuelle Websites und Apps.",
   email: "info@swibble.net",
   telephone: "+49-178-2632310",
   foundingDate: "2022",
@@ -28,42 +28,42 @@ export const organizationJsonLd = {
   knowsLanguage: ["de", "en"],
   hasOfferCatalog: {
     "@type": "OfferCatalog",
-    name: "Digitale Dienstleistungen",
+    name: "Leistungen von Swibble",
     itemListElement: [
       {
         "@type": "Offer",
         itemOffered: {
           "@type": "Service",
-          name: "UX/UI Design",
+          name: "Social Media",
           description:
-            "Entwurf ansprechender Designs für Software, druckbare Medien und Werbematerialien.",
+            "Content-Strategie, Produktion von Reels, TikToks und Shorts sowie Betreuung deiner Social-Media-Kanäle.",
         },
       },
       {
         "@type": "Offer",
         itemOffered: {
           "@type": "Service",
-          name: "Web- & App-Entwicklung",
+          name: "Live-Events",
           description:
-            "Entwicklung individueller Web- und Mobilanwendungen, die genau auf dein Unternehmen zugeschnitten sind.",
+            "Foto- und Videobegleitung sowie Content-Produktion für Events im Unternehmen, auf Messen oder online.",
         },
       },
       {
         "@type": "Offer",
         itemOffered: {
           "@type": "Service",
-          name: "Digitale Beratung",
+          name: "Design",
           description:
-            "Strategische Beratung zur Stärkung der Kunden-Unternehmens-Beziehung und digitalen Markenbildung.",
+            "UX/UI-Design für Software sowie Brand Design, druckbare Medien und Werbematerialien.",
         },
       },
       {
         "@type": "Offer",
         itemOffered: {
           "@type": "Service",
-          name: "Qualitätskontrolle",
+          name: "Software-Entwicklung",
           description:
-            "Sicherstellung von Sicherheit, Stabilität und Funktionalität deiner Software durch systematische Tests.",
+            "Entwicklung individueller Websites, Web-Apps und mobiler Apps inklusive Qualitätssicherung.",
         },
       },
     ],

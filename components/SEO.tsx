@@ -14,16 +14,18 @@ interface SEOProps {
 }
 
 export default function SEO({
-  title = "Swibble – Digitalagentur aus Aachen",
-  description = "Swibble ist deine Digitalagentur aus Aachen. Wir helfen Unternehmen mit Design, Web- & App-Entwicklung, Beratung und Qualitätskontrolle dabei, den nächsten Meilenstein in der digitalen Welt zu erreichen.",
+  title = "Swibble – Social Media, Live-Events & Software aus Aachen",
+  description = "Swibble ist deine Digitalagentur aus Aachen für Social Media, Live-Events, Design & Software-Entwicklung. Jetzt kostenloses Erstgespräch sichern.",
   canonical,
   ogImage = `${SITE_URL}/og-image.png`,
   noIndex = false,
   jsonLd,
 }: SEOProps) {
-  const fullTitle = title.includes(COMPANY_NAME)
-    ? title
-    : `${title} | ${COMPANY_NAME}`;
+  // Titles that already lead with the brand don't get the company suffix (keeps them < 60 chars).
+  const fullTitle =
+    title.includes(COMPANY_NAME) || title.startsWith("Swibble")
+      ? title
+      : `${title} | ${COMPANY_NAME}`;
 
   const schemas = jsonLd
     ? Array.isArray(jsonLd)

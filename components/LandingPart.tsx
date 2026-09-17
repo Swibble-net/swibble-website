@@ -1,24 +1,25 @@
 import Image from "next/image";
-import LandingImage from "@/public/Landing_Page_Fynn_Frings.png";
+import LandingImage from "@/public/Landing_Page_Fynn_Frings.webp";
+import { CTA_LABEL, CTA_URL } from "@/lib/cta";
 
 const LandingPart = () => {
   return (
     <div className="relative w-full flex flex-col justify-between gap-12 py-10 mb-28 lg:flex-row lg:justify-around lg:items-center lg:mb-24 lg:py-28">
       <div className="bg-[#FDF5FF] bg-cover absolute top-0 bottom-0 right-0 left-0 -z-10 w-screen -mt-20 -mx-4 lg:-mx-20"></div>
       <div className="flex flex-col gap-5">
-        <h2 className="text-[#000D36] font-bold text-2xl">
-          Biete deinem Business eine Leinwand!
-        </h2>
-        <p className="text-[#000D36] text-base font-normal">
-          Egal ob StartUp oder langjährig etabliert: Swibble berät und hilft
-          deinem Unternehmen dabei, den nächsten Meilenstein in der digitalen
-          Welt zu erreichen.
+        <h1 className="text-[#000D36] font-bold text-3xl leading-tight lg:text-5xl lg:leading-[1.15]">
+          Social Media, Live-Events & Software aus Aachen
+        </h1>
+        <p className="text-[#000D36] text-base font-normal lg:text-lg">
+          Egal ob Start-up oder langjährig etabliert: Swibble bringt deine
+          Marke mit viralem Content, Live-Events, Design und individueller
+          Software auf das nächste Level.
         </p>
         <a
-          href={"https://meet.swibble.net"}
-          className="w-fit tracking-normal hover:tracking-[1px] transition-all duration-500 ease-in-out"
+          href={CTA_URL}
+          className="w-fit text-center text-base font-medium bg-[#B718EC] text-[#F0FDF4] py-3 px-6 rounded-2xl hover:scale-95 transition duration-200"
         >
-          <p className="text-[#B718EC]">Jetzt Erstgespräch sichern {">"}</p>
+          {CTA_LABEL}
         </a>
       </div>
       <div className="w-full flex justify-center">
@@ -27,7 +28,7 @@ const LandingPart = () => {
           alt="Fynn Frings mit professioneller Kamera vor farbigem Hintergrund"
           width={1179}
           height={1191}
-          loading="lazy"
+          priority
           sizes="(max-width: 1024px) min(100vw - 2rem, 509px), min(50vw, 640px)"
           className="h-auto w-full max-w-[509px] lg:max-w-[560px] xl:max-w-[640px]"
         />

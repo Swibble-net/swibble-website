@@ -1,12 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import SwibbleLogoText from "@/public/logo/SwibbleTextLogoWhite.svg";
+import { EMAIL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/cta";
+
+const footerLinkClass =
+  "hover:text-[#E7A1FF] transition-colors duration-300 ease-in-out";
 
 const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
-    <div className="relative mt-auto w-full bg-[#000D36] px-4 pb-7 pt-12 text-[#FAFAFA]">
+    <footer className="relative mt-auto w-full bg-[#000D36] px-4 pb-7 pt-12 text-[#FAFAFA]">
       <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0]">
         <svg
           className="relative block w-[136%] h-4 lg:h-[39px]"
@@ -26,7 +30,7 @@ const Footer = () => {
           <div className="flex flex-row gap-7  hover:scale-95 transition duration-200">
             <Image
               src={SwibbleLogoText}
-              alt="instagram"
+              alt="Swibble"
               width={97}
               height={27}
             />
@@ -34,23 +38,35 @@ const Footer = () => {
         </Link>
         <div className="w-full">
           <ul className="list-none flex flex-col items-center font-light text-xs gap-y-5">
-            <Link href={"/impressum"}>
-              <li className="tracking-normal hover:tracking-[1px] transition-all duration-500 ease-in-out">
-                Impressum
-              </li>
-            </Link>
-            <Link href={"/datenschutz"}>
-              <li className="tracking-normal hover:tracking-[1px] transition-all duration-500 ease-in-out">
-                Datenschutz
-              </li>
-            </Link>
             <li>
-              <p className="text-[#ADADAD]">All Rights Reserved @{year}</p>
+              <a href={`tel:${PHONE_TEL}`} className={footerLinkClass}>
+                {PHONE_DISPLAY}
+              </a>
+            </li>
+            <li>
+              <a href={`mailto:${EMAIL}`} className={footerLinkClass}>
+                {EMAIL}
+              </a>
+            </li>
+            <li>
+              <Link href={"/impressum"} className={footerLinkClass}>
+                Impressum
+              </Link>
+            </li>
+            <li>
+              <Link href={"/datenschutz"} className={footerLinkClass}>
+                Datenschutz
+              </Link>
+            </li>
+            <li>
+              <p className="text-[#ADADAD]">
+                © {year} Swibble UG (haftungsbeschränkt)
+              </p>
             </li>
           </ul>
         </div>
       </div>
-    </div>
+    </footer>
   );
 };
 

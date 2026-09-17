@@ -24,8 +24,8 @@ export default function Home({ latestPosts, videos }: Props) {
   return (
     <>
       <SEO
-        title="Swibble – Digitalagentur aus Aachen"
-        description="Swibble ist deine Digitalagentur aus Aachen. Wir helfen Unternehmen mit Web- & App-Entwicklung, UX/UI-Design, Beratung und Qualitätskontrolle, ihren nächsten digitalen Meilenstein zu erreichen. Jetzt kostenloses Erstgespräch buchen."
+        title="Swibble – Social Media, Live-Events & Software aus Aachen"
+        description="Swibble ist deine Digitalagentur aus Aachen für Social Media, Live-Events, Design & Software-Entwicklung. Jetzt kostenloses Erstgespräch sichern."
         canonical="/"
         jsonLd={[organizationJsonLd, webSiteJsonLd]}
       />

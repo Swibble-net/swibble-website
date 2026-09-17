@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { NAV_LINKS } from "@/lib/navLinks";
+import { CTA_LABEL, CTA_URL } from "@/lib/cta";
 
 interface MenuProps {
   handleOnClick: () => void;
 }
 
 const navLinkClass =
-  "tracking-normal hover:tracking-[1px] transition-all duration-500 ease-in-out";
+  "hover:text-[#B718EC] transition-colors duration-300 ease-in-out";
 
 export default function Menu({ handleOnClick }: MenuProps) {
   return (
@@ -28,10 +29,12 @@ export default function Menu({ handleOnClick }: MenuProps) {
       >
         Impressum
       </Link>
-      <a href={"https://meet.swibble.net"} onClick={handleOnClick}>
-        <button className="text-center w-full bg-[#B718EC] text-[#F0FDF4] rounded-lg py-3 hover:scale-95 transition duration-200">
-          Termin vereinbaren
-        </button>
+      <a
+        href={CTA_URL}
+        onClick={handleOnClick}
+        className="block text-center w-full bg-[#B718EC] text-[#F0FDF4] rounded-lg py-3 hover:scale-95 transition duration-200"
+      >
+        {CTA_LABEL}
       </a>
     </div>
   );

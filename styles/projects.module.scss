@@ -10,7 +10,7 @@
             width: 70%;
         }
     }
-    h1 {
+    h2 {
         font-weight: 700;
         font-size: 1.5rem;
         line-height: 2.25rem;
@@ -39,7 +39,7 @@
    align-items: stretch;
    gap: 1rem;
    margin-top: 3rem;
-   margin-bottom: 3rem;
+   margin-bottom: 1.5rem;
    @media screen and (min-width: 1024px) {
     gap: 2rem;
    }
@@ -53,16 +53,21 @@
     flex-shrink: 1;
     gap: 1rem;
 .item1 {
+    display: block;
     width: 100%;
+    transition: transform 200ms ease-in-out;
+    &:hover {
+        transform: scale(0.98);
+    }
     height: 16.25rem;
-    background-image: url("../public/projects_photo/Swibble_Image.png");
+    background-image: url("../public/projects_photo/Swibble_Image.webp");
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
     border-radius: 0.625rem;
     padding-left: 0.625rem;
     padding-top: 0.938rem;
-    h3{
+    p {
         font-weight: 400;
         font-size: 0.875rem;
         line-height: 1.313rem;
@@ -73,7 +78,7 @@
             line-height: 2rem;
         }
     }
-    h2 {
+    h3 {
         font-weight: 600;
         font-size: 1.125rem;
         line-height: 1.688rem;
@@ -95,14 +100,14 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    background-image: url("../public/projects_photo/KonratsWelt_Image.png");
+    background-image: url("../public/projects_photo/KonratsWelt_Image.webp");
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
     border-radius: 0.625rem;
     padding-left: 0.625rem;
     padding-bottom: 0.938rem;
-    h3{
+    p {
         font-weight: 400;
         font-size: 0.875rem;
         line-height: 1.313rem;
@@ -113,7 +118,7 @@
             line-height: 2rem;
         }
     }
-    h2 {
+    h3 {
         font-weight: 600;
         font-size: 1.125rem;
         line-height: 1.688rem;
@@ -148,14 +153,14 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    background-image: url("../public/projects_photo/LittleWorld_Image.png");
+    background-image: url("../public/projects_photo/LittleWorld_Image.webp");
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
     border-radius: 0.625rem;
     padding-left: 0.625rem;
     padding-bottom: 0.938rem;
-    h3{
+    p {
         font-weight: 400;
         font-size: 0.875rem;
         line-height: 1.313rem;
@@ -166,7 +171,7 @@
             line-height: 2rem;
         }
     }
-    h2 {
+    h3 {
         font-weight: 600;
         font-size: 1.125rem;
         line-height: 1.688rem;
@@ -185,14 +190,14 @@
 .item4 {
     width: 100%;
     height: 16.25rem;
-    background-image: url("../public/projects_photo/AachenApp_Image.png");
+    background-image: url("../public/projects_photo/AachenApp_Image.webp");
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
     border-radius: 0.625rem;
     padding-left: 0.625rem;
     padding-top: 0.938rem;
-    h3{
+    p {
         font-weight: 400;
         font-size: 0.875rem;
         line-height: 1.313rem;
@@ -203,7 +208,7 @@
             line-height: 2rem;
         }
     }
-    h2 {
+    h3 {
         font-weight: 600;
         font-size: 1.125rem;
         line-height: 1.688rem;
@@ -238,14 +243,14 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    background-image: url("../public/projects_photo/RydeUp_Image.png");
+    background-image: url("../public/projects_photo/RydeUp_Image.webp");
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
     border-radius: 0.625rem;
     padding-left: 0.625rem;
     padding-bottom: 0.938rem;
-    h3{
+    p {
         font-weight: 400;
         font-size: 0.875rem;
         line-height: 1.313rem;
@@ -256,7 +261,7 @@
             line-height: 2rem;
         }
     }
-    h2 {
+    h3 {
         font-weight: 600;
         font-size: 1.125rem;
         line-height: 1.688rem;
@@ -278,14 +283,14 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    background-image: url("../public/projects_photo/Square_Image.png");
+    background-image: url("../public/projects_photo/Square_Image.webp");
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
     border-radius: 0.625rem;
     padding-left: 0.625rem;
     padding-bottom: 0.938rem;
-    h3{
+    p {
         font-weight: 400;
         font-size: 0.875rem;
         line-height: 1.313rem;
@@ -296,7 +301,7 @@
             line-height: 2rem;
         }
     }
-    h2 {
+    h3 {
         font-weight: 600;
         font-size: 1.125rem;
         line-height: 1.688rem;
@@ -318,4 +323,27 @@
     flex-basis: 30%;
     gap: 2rem;
 }
+}
+
+.case_studies {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin-bottom: 3rem;
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    color: #556987;
+    span {
+        font-weight: 600;
+        color: #000D36;
+    }
+    a {
+        color: #B718EC;
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+        &:hover {
+            color: #5F3BC4;
+        }
+    }
 }

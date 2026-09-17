@@ -4,13 +4,14 @@ import BurgerMenu from "../BurgerMenu/BurgerMenu";
 import Logo from "@/public/logo/SwibbleLogo.svg";
 import LogoText from "@/public/logo/SwibbleTextLogo.svg";
 import { NAV_LINKS } from "@/lib/navLinks";
+import { CTA_LABEL, CTA_URL } from "@/lib/cta";
 import { useEffect, useState } from "react";
 import { useScrollPosition } from "@/hooks/useScrollPostion";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { IoClose } from "react-icons/io5";
 
 const navLinkClass =
-  "text-sm font-medium text-[#556987] tracking-normal hover:text-[#B718EC] hover:tracking-[1px] transition-all duration-300 ease-in-out";
+  "text-sm font-medium text-[#556987] hover:text-[#B718EC] transition-colors duration-300 ease-in-out";
 
 const Header = () => {
   const [menu, setMenu] = useState<boolean>(false);
@@ -38,8 +39,8 @@ const Header = () => {
         <div>
           <Link href={"/"}>
             <div className="w-full flex items-center hover:scale-95 transition duration-200">
-              <Image src={Logo} alt="logo" width={35} height={35} />
-              <Image src={LogoText} alt="logo" width={90} height={30} />
+              <Image src={Logo} alt="Swibble Logo" width={35} height={35} />
+              <Image src={LogoText} alt="" width={90} height={30} />
             </div>
           </Link>
         </div>
@@ -51,10 +52,11 @@ const Header = () => {
           ))}
         </nav>
         <div className="hidden lg:block">
-          <a href={"https://meet.swibble.net"}>
-            <button className="text-center w-full bg-[#B718EC] text-[#F0FDF4] py-3 px-5 rounded-2xl hover:scale-95 transition duration-200">
-              Termin vereinbaren
-            </button>
+          <a
+            href={CTA_URL}
+            className="inline-block text-center bg-[#B718EC] text-[#F0FDF4] py-3 px-5 rounded-2xl hover:scale-95 transition duration-200"
+          >
+            {CTA_LABEL}
           </a>
         </div>
         <div className="relative z-60 block lg:hidden">
