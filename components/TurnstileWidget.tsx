@@ -12,6 +12,7 @@ type TurnstileApi = {
     container: HTMLElement,
     options: {
       sitekey: string;
+      theme?: "light" | "dark" | "auto";
       callback: (token: string) => void;
       "expired-callback"?: () => void;
       "error-callback"?: () => void;
@@ -58,6 +59,7 @@ const TurnstileWidget = ({
 
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: siteKey,
+      theme: "light",
       callback: () => onVerifyRef.current(),
       "expired-callback": () => onExpireRef.current?.(),
       "error-callback": () => onErrorRef.current?.(),
