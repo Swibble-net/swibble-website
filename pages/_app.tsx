@@ -4,6 +4,7 @@ import type { AppProps } from "next/app";
 import Layout from "@/components/Layout/Layout";
 import "@/styles/globals.css";
 import { Poppins } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 
 const poppins = Poppins({
   weight: ["400", "500", "700"],
@@ -27,6 +28,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <main className={poppins.className}>
       {getLayout(<Component {...pageProps} />)}
+      <Analytics />
     </main>
   );
 }

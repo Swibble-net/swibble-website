@@ -9,7 +9,7 @@ export default function Document() {
         <meta name="author" content="Swibble UG (haftungsbeschränkt)" />
         <meta name="publisher" content="Swibble UG" />
         <meta name="copyright" content="Swibble UG (haftungsbeschränkt)" />
-        <meta name="category" content="Digitalagentur, Webentwicklung, App-Entwicklung, Design" />
+        <meta name="category" content="Digitalagentur, Social Media, Live-Events, Design, Software-Entwicklung" />
         <link rel="icon" href="/logo/SwibbleLogo.svg" type="image/svg+xml" />
         <link rel="shortcut icon" href="/logo/SwibbleLogo.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/logo/SwibbleLogo.svg" />

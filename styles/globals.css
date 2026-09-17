@@ -48,6 +48,10 @@
     max-width: 100vw;
     overflow-x: hidden;
   }
+
+  body {
+    background-color: #ffffff;
+  }
 }
 
 /* Typography for admin-authored HTML rendered on blog post pages */

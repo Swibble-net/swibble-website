@@ -12,6 +12,7 @@ const Poster = () => {
       title="Poster – Swibble"
       description="Swibble Poster – Weiterleitung zur Startseite."
       canonical="/redirect/poster"
+      noIndex
     />
   );
 };

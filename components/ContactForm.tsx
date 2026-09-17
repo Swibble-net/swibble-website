@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useReducer, useState } from "react";
 import sendEmail from "@/lib/sendMail";
 import ContactResponseMessage from "./ContactResponseMessage";
 import TurnstileWidget from "./TurnstileWidget";
+import { CTA_LABEL, EMAIL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/cta";
 
 // Defining expected input properties for `updateEvent` reducer
 interface Input {
@@ -108,10 +109,10 @@ const ContactForm = () => {
 
 					{/* Displaying a map and additional contact information */}
 					<div className="rounded-[14px] flex flex-col gap-5 w-full lg:w-8/12 md:w-8/12">
-						<Image src={AachenMap} alt="map" width={640} height={360} className="h-auto w-full" />
+						<Image src={AachenMap} alt="Karte: Königstraße 30, Aachen" width={640} height={360} className="h-auto w-full" />
 
 						{/* Displaying address and email information */}
-						<div className="w-full flex flex-row justify-between lg:flex-row-reverse lg:justify-around items-start">
+						<div className="w-full flex flex-row flex-wrap gap-y-4 justify-between lg:flex-row-reverse lg:justify-around items-start">
 							<div className="relative pl-2">
 								<h3 className="font-bold text-base text-[#2A3342]">Anschrift</h3>
 								<p className="text-sm text-[#556987]">
@@ -121,9 +122,16 @@ const ContactForm = () => {
 								<div className="hidden md:block md:absolute md:bottom-1 md:left-0 md:h-20 md:w-[3px] md:rounded-b-full md:bg-[#B718EC]" aria-hidden />
 							</div>
 							<div className="relative pl-2">
-								<h3 className="font-bold text-base text-[#2A3342]">E-mail</h3>
+								<h3 className="font-bold text-base text-[#2A3342]">E-Mail</h3>
 								<p className="text-sm text-[#556987]">
-									<a href="mailto:info@swibble.net">info@swibble.net</a>
+									<a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+								</p>
+								<div className="hidden lg:block lg:absolute lg:bottom-1 lg:left-0 lg:-z-10 lg:h-16 lg:w-[3px] lg:rounded-b-full lg:bg-[#B718EC]" aria-hidden />
+							</div>
+							<div className="relative pl-2">
+								<h3 className="font-bold text-base text-[#2A3342]">Telefon</h3>
+								<p className="text-sm text-[#556987] whitespace-nowrap">
+									<a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a>
 								</p>
 								<div className="hidden lg:block lg:absolute lg:bottom-1 lg:left-0 lg:-z-10 lg:h-16 lg:w-[3px] lg:rounded-b-full lg:bg-[#B718EC]" aria-hidden />
 							</div>
@@ -136,17 +144,17 @@ const ContactForm = () => {
 					<div>
 						<label htmlFor="email">E-Mail*</label>
 						<br />
-						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:outline-none! pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" name="email" type="email" placeholder="Deine E-Mail Adresse" required value={event.email} onChange={(e) => updateEvent({ email: e.target.value })} />
+						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:outline-none! pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" id="email" name="email" type="email" placeholder="Deine E-Mail Adresse" required value={event.email} onChange={(e) => updateEvent({ email: e.target.value })} />
 					</div>
 					<div>
 						<label htmlFor="Telefonnummer">Telefonnummer (Optional)</label>
 						<br />
-						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:outline-none! pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" type="tel" name="Telefonnummer" placeholder="Deine Telefonnummer" value={event.number} onChange={(e) => updateEvent({ number: e.target.value })} />
+						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:outline-none! pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" id="Telefonnummer" type="tel" name="Telefonnummer" placeholder="Deine Telefonnummer" value={event.number} onChange={(e) => updateEvent({ number: e.target.value })} />
 					</div>
 					<div>
 						<label htmlFor="text">Nachricht*</label>
 						<br />
-						<textarea className="w-full bg-[#F6F6F6] h-24 rounded-lg resize-none focus:outline-none! pl-2 pt-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" name="text" maxLength={200} placeholder="Vor welchen Herausforderungen steht dein Unternehmen?" required value={event.message} onChange={(e) => updateEvent({ message: e.target.value })} />
+						<textarea className="w-full bg-[#F6F6F6] h-24 rounded-lg resize-none focus:outline-none! pl-2 pt-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" id="text" name="text" maxLength={200} placeholder="Vor welchen Herausforderungen steht dein Unternehmen?" required value={event.message} onChange={(e) => updateEvent({ message: e.target.value })} />
 					</div>
 					<TurnstileWidget
 						key={turnstileKey}
@@ -157,9 +165,9 @@ const ContactForm = () => {
 					<button
 						type="submit"
 						disabled={!turnstileVerified}
-						className="w-44 lg:self-center text-center text-sm font-medium bg-[#B718EC] text-[#F0FDF4] py-[0.781rem] px-5 rounded-[10px] hover:scale-95 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50"
+						className="w-fit min-w-44 lg:self-center text-center text-sm font-medium bg-[#B718EC] text-[#F0FDF4] py-[0.781rem] px-5 rounded-[10px] hover:scale-95 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50"
 					>
-						Kostenlos starten
+						{CTA_LABEL}
 					</button>
 				</form>
 			</section>

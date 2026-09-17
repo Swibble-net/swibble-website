@@ -1,3 +1,4 @@
 {
-  "installCommand": "corepack enable && pnpm install --frozen-lockfile"
+  "installCommand": "corepack enable && pnpm install --frozen-lockfile",
+  "regions": ["fra1"]
 }

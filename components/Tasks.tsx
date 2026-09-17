@@ -3,8 +3,6 @@ import styles from "@/styles/tasks.module.scss";
 import Image from "next/image";
 import BrushIcon from "@/public/icons/icon_brush.svg";
 import MonitorIcon from "@/public/icons/icon_monitor.svg";
-import StonksIcon from "@/public/icons/icon_stonks.svg";
-import SecurityIcon from "@/public/icons/icon_security.svg";
 import MobileIcon from "@/public/icons/mobile_icon.svg";
 import UserLocationIcon from "@/public/icons/user_location_icon.svg";
 // Render rthe component
@@ -28,7 +26,7 @@ const Tasks = () => {
       {/*Adding the background ignoring the paddings of layout */}
       <div className={styles.background}></div>
       <div className={styles.description}>
-        <h1>Womit hilft Swibble mir?</h1>
+        <h2>Womit hilft Swibble mir?</h2>
         <p>
           Swibble unterstützt ganzheitlich, egal ob Online oder in Präsenz.
           Wir repräsentieren deine Marke im besten Licht auf Social Media, auf Events oder im Web!
@@ -37,24 +35,44 @@ const Tasks = () => {
       {/* Render the container with cards */}
       <div className={styles.card_container}>
         <div className={styles.card3}>
-          <Image src={MobileIcon} alt="stonks" width={32} height={32} />
-          <h2 style={{ color: "#3ABD9E" }}>Social Media</h2>
+          <Image src={MobileIcon} alt="" width={32} height={32} />
+          <h3 style={{ color: "#3ABD9E" }}>Social Media</h3>
           <p>Viraler Content auf deinen Social Media Kanälen.</p>
+          <ul>
+            <li>Content-Strategie &amp; Redaktionsplan</li>
+            <li>Reels, TikToks &amp; Shorts – Dreh und Schnitt</li>
+            <li>Community Management &amp; Reporting</li>
+          </ul>
         </div>
         <div className={styles.card4}>
-          <Image src={UserLocationIcon} alt="monitor" width={32} height={32} />
-          <h2 style={{ color: "#C43B7D" }}>Live Events</h2>
-          <p>Live Events in deinem Unternehmen, Messen oder Online.</p>
+          <Image src={UserLocationIcon} alt="" width={32} height={32} />
+          <h3 style={{ color: "#C43B7D" }}>Live Events</h3>
+          <p>Live Events in deinem Unternehmen, auf Messen oder Online.</p>
+          <ul>
+            <li>Event-Content in 72 Stunden</li>
+            <li>Foto- &amp; Videobegleitung vor Ort</li>
+            <li>Livestreams &amp; Aktionen im Center</li>
+          </ul>
         </div>
         <div className={styles.card1}>
-          <Image src={BrushIcon} alt="brush" width={32} height={32} />
-          <h2 style={{ color: "#B718EC" }}>Design</h2>
+          <Image src={BrushIcon} alt="" width={32} height={32} />
+          <h3 style={{ color: "#B718EC" }}>Design</h3>
           <p>Entwurf des Designs von Software, druckbaren Medien & Werbung.</p>
+          <ul>
+            <li>UX/UI-Design für Apps &amp; Websites</li>
+            <li>Brand Design &amp; Corporate Identity</li>
+            <li>Print, Plakate &amp; Werbemittel</li>
+          </ul>
         </div>
         <div className={styles.card2}>
-          <Image src={MonitorIcon} alt="monitor" width={32} height={32} />
-          <h2 style={{ color: "#5F3BC4" }}>Development</h2>
+          <Image src={MonitorIcon} alt="" width={32} height={32} />
+          <h3 style={{ color: "#5F3BC4" }}>Development</h3>
           <p>Entwicklung persönlicher Softwarelösungen.</p>
+          <ul>
+            <li>Websites &amp; Web-Apps (Next.js, React)</li>
+            <li>iOS- &amp; Android-Apps</li>
+            <li>Qualitätssicherung &amp; Wartung</li>
+          </ul>
         </div>
       </div>
       {/*Adding the "wave" in the bottom of the component*/}

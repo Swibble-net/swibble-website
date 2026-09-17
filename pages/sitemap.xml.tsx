@@ -8,8 +8,6 @@ const SITE_URL = "https://swibble.net";
 const crawlablePaths = [
   { path: "", priority: "1.0", changefreq: "weekly" },
   { path: "/blog", priority: "0.8", changefreq: "weekly" },
-  { path: "/card", priority: "0.5", changefreq: "monthly" },
-  { path: "/redirect/poster", priority: "0.3", changefreq: "monthly" },
 ];
 
 function Sitemap() {

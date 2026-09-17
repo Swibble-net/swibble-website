@@ -2,21 +2,21 @@ import Image from "next/image";
 import worldIcon from "@/public/icons/swibble_icon_world.svg";
 import softIcon from "@/public/icons/swibble_icon_soft.svg";
 import bagIcon from "@/public/icons/swibble_icon_bag.svg";
-import IntroImage from "@/public/Swibble_Window_Mockup.svg";
+import IntroImage from "@/public/Swibble_Window_Mockup.webp";
 import styles from "@/styles/introduction.module.scss";
 
 const Introduction = () => {
   return (
     <div className={styles.container}>
-      <h1>Dein Business hat Potenzial</h1>
-      <h2>
+      <h2>Dein Business hat Potenzial</h2>
+      <p>
         Aus deinem Unternehmen eine Marke mit Wiedererkennungswert zu machen,
         ist unsere Top Priorität!
-      </h2>
+      </p>
       <div className={styles.content}>
         <div className={styles.list}>
           <div className={styles.list_item}>
-            <Image src={worldIcon} alt="world" height={43} width={43} />
+            <Image src={worldIcon} alt="" height={43} width={43} />
             <div className={styles.item_text}>
               <h3>Echte Marke</h3>
               <p>
@@ -26,7 +26,7 @@ const Introduction = () => {
             </div>
           </div>
           <div className={styles.list_item}>
-            <Image src={softIcon} alt="world" height={43} width={43} />
+            <Image src={softIcon} alt="" height={43} width={43} />
             <div className={styles.item_text}>
               <h3>Online Präsenz</h3>
               <p>
@@ -36,7 +36,7 @@ const Introduction = () => {
             </div>
           </div>
           <div className={styles.list_item}>
-            <Image src={bagIcon} alt="world" height={43} width={43} />
+            <Image src={bagIcon} alt="" height={43} width={43} />
             <div className={styles.item_text}>
               <h3>Digitales Business</h3>
               <p>
