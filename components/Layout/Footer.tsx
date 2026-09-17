@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import SwibbleLogoText from "@/public/logo/SwibbleTextLogoWhite.svg";
-import InstagramIcon from "@/public/icons/Instagram.svg";
 import LinkedInIcon from "@/public/icons/LinkedIn.svg";
 import { NAV_LINKS } from "@/lib/navLinks";
 import {
@@ -48,11 +47,6 @@ const BLOG_LINKS = [
 ] as const;
 
 const SOCIAL_LINKS = [
-  {
-    href: "https://www.instagram.com/swibble",
-    label: "Swibble auf Instagram",
-    icon: InstagramIcon,
-  },
   {
     href: "https://www.linkedin.com/company/swibble",
     label: "Swibble auf LinkedIn",

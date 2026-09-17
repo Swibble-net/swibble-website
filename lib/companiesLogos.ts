@@ -3,6 +3,7 @@ import AachenLogo from "@/public/companies_logos/aachen.png";
 import AquisPlazaLogo from "@/public/companies_logos/aquis_plaza_logo.png";
 import BillstedtCenterLogo from "@/public/companies_logos/billstedt_center_logo.png";
 import KellerLogo from "@/public/companies_logos/keller.png";
+import MyZeilLogo from "@/public/companies_logos/myzeil_logo.png";
 import MontisMedicalLogo from "@/public/companies_logos/montis_medical_logo.png";
 import OlympiaLogo from "@/public/companies_logos/olympia_einkaufszentrum_logo.png";
 import RushfoodLogo from "@/public/companies_logos/rushfood_logo.png";
@@ -21,6 +22,7 @@ export const companyLogos: CompanyLogo[] = [
   { src: BillstedtCenterLogo, alt: "Billstedt Center" },
   { src: KellerLogo, alt: "Keller" },
   { src: MontisMedicalLogo, alt: "Montis Medical" },
+  { src: MyZeilLogo, alt: "MyZeil" },
   { src: OlympiaLogo, alt: "Olympia Einkaufszentrum" },
   { src: RushfoodLogo, alt: "Rushfood" },
   { src: RydeLogo, alt: "RydeUp" },
