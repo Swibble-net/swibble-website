@@ -1,0 +1,106 @@
+// Layered hero visual with a subtle mouse parallax.
+// Geometry comes 1:1 from the Figma export (viewBox 590 × 596).
+
+.visual {
+    --px: 0; // -1 … 1, set by HeroVisual.tsx
+    --py: 0;
+    --shift: 1px; // base unit; layer offset = --shift × --depth
+    --tilt: 1.6deg; // max. 3D tilt of the whole visual
+
+    position: relative;
+    width: 100%;
+    aspect-ratio: 590 / 596;
+    perspective: 1200px;
+}
+
+.stage {
+    position: absolute;
+    inset: 0;
+    transform: rotateX(calc(var(--py) * var(--tilt) * -1))
+        rotateY(calc(var(--px) * var(--tilt)));
+    will-change: transform;
+}
+
+.layer {
+    --depth: 0;
+    position: absolute;
+    inset: 0;
+    transform: translate3d(
+        calc(var(--px) * var(--depth) * var(--shift)),
+        calc(var(--py) * var(--depth) * var(--shift)),
+        0
+    );
+    will-change: transform;
+}
+
+// depths: negative = moves against the cursor (far away), positive = towards it
+.green {
+    --depth: -7; // behind the card
+}
+.blue {
+    --depth: -5; // behind the card
+}
+.cardLayer {
+    --depth: 2;
+}
+.purple {
+    --depth: 8; // in front of the card
+}
+.pink {
+    --depth: 10; // in front of the card
+}
+
+.shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 5px 20px rgba(0, 0, 0, 0.1));
+}
+
+.card {
+    position: absolute;
+    left: 13.467%; //  79.458 / 590
+    top: 12.096%; //  72.090 / 596
+    width: 74.101%; // 437.196 / 590
+    height: 73.62%; // 438.774 / 596
+    border-radius: 5.49% / 5.47%; // 24px at full size
+    overflow: hidden;
+    background-color: #975fe3;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.cardBackground {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.person {
+    --depth: 5;
+    position: absolute;
+    left: 6.528%;
+    top: -15.518%;
+    width: 86.917%;
+    height: 115.55%;
+    max-width: none;
+    // slightly oversized + anchored at the bottom so the offset never reveals a gap
+    transform-origin: 50% 100%;
+    transform: translate3d(
+            calc(var(--px) * var(--depth) * var(--shift)),
+            calc(var(--py) * var(--depth) * var(--shift) + 1.2%),
+            0
+        )
+        scale(1.03);
+    will-change: transform;
+    user-select: none;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .visual {
+        --shift: 0px;
+        --tilt: 0deg;
+    }
+}

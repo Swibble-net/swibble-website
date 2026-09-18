@@ -1,5 +1,4 @@
-import Image from "next/image";
-import LandingImage from "@/public/Landing_Page_Fynn_Frings.webp";
+import HeroVisual from "@/components/HeroVisual";
 import { CTA_LABEL, CTA_URL } from "@/lib/cta";
 
 const LandingPart = () => {
@@ -26,14 +25,10 @@ const LandingPart = () => {
         </a>
       </div>
       <div className="w-full flex justify-center">
-        <Image
-          src={LandingImage}
+        <HeroVisual
           alt="Fynn Frings mit professioneller Kamera vor farbigem Hintergrund"
-          width={1179}
-          height={1191}
-          priority
           sizes="(max-width: 1024px) min(100vw - 2rem, 509px), min(50vw, 640px)"
-          className="h-auto w-full max-w-[509px] lg:max-w-[560px] xl:max-w-[640px]"
+          className="max-w-[509px] lg:max-w-[560px] xl:max-w-[640px]"
         />
       </div>
       <div
