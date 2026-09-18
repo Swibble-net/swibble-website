@@ -92,7 +92,11 @@ const AppVideoPicker = ({ onClose, onAdded, onUnauthorized }: Props) => {
       const res = await fetch("/api/admin/app-videos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assetId: item.assetId, fileId: item.fileId }),
+        body: JSON.stringify({
+          assetId: item.assetId,
+          fileId: item.fileId,
+          accountName: item.accountName,
+        }),
       });
       if (res.status === 401) return onUnauthorized();
       const payload = await res.json();

@@ -125,7 +125,9 @@ const AppVideoPlayer = ({
           playsInline
           preload="metadata"
           disablePictureInPicture
-          aria-label={video.title || "Video"}
+          aria-label={
+            video.accountName ? `Video für ${video.accountName}` : "Video"
+          }
           onPlaying={() => setPlaying(true)}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
             playing ? "opacity-100" : "opacity-0"

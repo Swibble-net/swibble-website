@@ -71,9 +71,14 @@ async function call(
 export async function listAppVideos(query: {
   page?: string;
   q?: string;
+  limit?: string;
 }): Promise<AppVideoCandidatePage> {
   const response = await call("/candidates", {
-    query: { page: query.page ?? "1", limit: "12", q: query.q ?? "" },
+    query: {
+      page: query.page ?? "1",
+      limit: query.limit ?? "12",
+      q: query.q ?? "",
+    },
   });
   return (await response.json()) as AppVideoCandidatePage;
 }
