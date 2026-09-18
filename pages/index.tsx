@@ -1,4 +1,4 @@
-import type { GetServerSideProps } from "next";
+import type { GetStaticProps } from "next";
 import Introduction from "@/components/Introduction";
 import LandingPart from "@/components/LandingPart";
 import Projects from "@/components/Projects";
@@ -47,9 +47,16 @@ export default function Home({ latestPosts, videos, soundEnabled }: Props) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
+// Static + ISR: served from the CDN, rebuilt at most every 5 minutes. CMS changes
+// trigger an immediate rebuild via revalidateHome() in the API routes.
+const REVALIDATE_SECONDS = 300;
+
+export const getStaticProps: GetStaticProps<Props> = async () => {
   if (!isFirebaseConfigured()) {
-    return { props: { latestPosts: [], videos: [], soundEnabled: false } };
+    return {
+      props: { latestPosts: [], videos: [], soundEnabled: false },
+      revalidate: REVALIDATE_SECONDS,
+    };
   }
 
   const [posts, videos, settings] = await Promise.all([
@@ -64,5 +71,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
       videos,
       soundEnabled: settings.soundEnabled,
     },
+    revalidate: REVALIDATE_SECONDS,
   };
 };

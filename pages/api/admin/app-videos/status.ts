@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
+import { revalidateHome } from "@/lib/revalidateHome";
 import { AppVideoError, getAppVideoJob } from "@/lib/videos/appVideos";
 import { getVideo, updateAppVideo } from "@/lib/videos/videos";
 
@@ -23,7 +24,10 @@ export default async function handler(
     if (video.status === "ready") return res.status(200).json({ video });
 
     const job = await getAppVideoJob(video.appJobId);
-    return res.status(200).json({ video: await updateAppVideo(id, job) });
+    const updated = await updateAppVideo(id, job);
+    // The carousel only shows playable videos, so rebuild the home page once the job is done.
+    if (updated?.status === "ready") await revalidateHome(res);
+    return res.status(200).json({ video: updated });
   } catch (error) {
     console.error("[/api/admin/app-videos/status]", error);
     const status = error instanceof AppVideoError ? error.status : 500;

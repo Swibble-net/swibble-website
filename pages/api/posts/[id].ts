@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
+import { revalidateHome } from "@/lib/revalidateHome";
 import {
   deletePost,
   getPostById,
@@ -46,6 +47,7 @@ export default async function handler(
       });
 
       if (!post) return res.status(404).json({ message: "Nicht gefunden." });
+      await revalidateHome(res);
       return res.status(200).json({ post });
     }
 
@@ -61,6 +63,7 @@ export default async function handler(
 
       const post = await setPostPublished(id, published);
       if (!post) return res.status(404).json({ message: "Nicht gefunden." });
+      await revalidateHome(res);
       return res.status(200).json({ post });
     }
 
@@ -69,6 +72,7 @@ export default async function handler(
 
       const ok = await deletePost(id);
       if (!ok) return res.status(404).json({ message: "Nicht gefunden." });
+      await revalidateHome(res);
       return res.status(200).json({ success: true });
     }
 

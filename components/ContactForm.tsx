@@ -1,9 +1,10 @@
 // Importing necessary React components
 import { FormEvent, useEffect, useReducer, useState } from "react";
+import Link from "next/link";
 import sendEmail from "@/lib/sendMail";
 import ContactResponseMessage from "./ContactResponseMessage";
 import TurnstileWidget from "./TurnstileWidget";
-import { CTA_LABEL, EMAIL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/cta";
+import { CTA_LABEL, EMAIL, MESSAGE_MAX_LENGTH, PHONE_DISPLAY, PHONE_TEL } from "@/lib/cta";
 import { MdOutlineEmail, MdOutlineLocationOn, MdOutlinePhone } from "react-icons/md";
 
 // Defining expected input properties for `updateEvent` reducer
@@ -141,17 +142,17 @@ const ContactForm = () => {
 					<div>
 						<label htmlFor="email">E-Mail*</label>
 						<br />
-						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:outline-none! pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" id="email" name="email" type="email" placeholder="Deine E-Mail Adresse" required value={event.email} onChange={(e) => updateEvent({ email: e.target.value })} />
+						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:outline-none! pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" id="email" name="email" type="email" autoComplete="email" placeholder="Deine E-Mail Adresse" required value={event.email} onChange={(e) => updateEvent({ email: e.target.value })} />
 					</div>
 					<div>
 						<label htmlFor="Telefonnummer">Telefonnummer (Optional)</label>
 						<br />
-						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:outline-none! pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" id="Telefonnummer" type="tel" name="Telefonnummer" placeholder="Deine Telefonnummer" value={event.number} onChange={(e) => updateEvent({ number: e.target.value })} />
+						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:outline-none! pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" id="Telefonnummer" type="tel" name="Telefonnummer" autoComplete="tel" placeholder="Deine Telefonnummer" value={event.number} onChange={(e) => updateEvent({ number: e.target.value })} />
 					</div>
 					<div>
 						<label htmlFor="text">Nachricht*</label>
 						<br />
-						<textarea className="w-full bg-[#F6F6F6] h-24 rounded-lg resize-none focus:outline-none! pl-2 pt-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" id="text" name="text" maxLength={200} placeholder="Vor welchen Herausforderungen steht dein Unternehmen?" required value={event.message} onChange={(e) => updateEvent({ message: e.target.value })} />
+						<textarea className="w-full bg-[#F6F6F6] h-32 rounded-lg resize-none focus:outline-none! pl-2 pt-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" id="text" name="text" maxLength={MESSAGE_MAX_LENGTH} placeholder="Vor welchen Herausforderungen steht dein Unternehmen?" required value={event.message} onChange={(e) => updateEvent({ message: e.target.value })} />
 					</div>
 					<TurnstileWidget
 						key={turnstileKey}
@@ -166,6 +167,13 @@ const ContactForm = () => {
 					>
 						{CTA_LABEL}
 					</button>
+					<p className="text-xs text-[#556987] lg:text-center">
+						Wir verwenden deine Angaben ausschließlich, um deine Anfrage zu bearbeiten. Mehr dazu in unserer{" "}
+						<Link href="/datenschutz" className="underline hover:text-[#B718EC]">
+							Datenschutzerklärung
+						</Link>
+						.
+					</p>
 				</form>
 			</section>
 			{/* Dispalying alert message depending on event.alert state */}

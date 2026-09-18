@@ -10,7 +10,7 @@ interface Props {
   post: BlogPost;
 }
 
-const SITE_URL = "https://swibble.net";
+const SITE_URL = "https://www.swibble.net";
 
 const BlogPostPage = ({ post }: Props) => {
   const changed = post.updatedAt && post.updatedAt > post.createdAt;

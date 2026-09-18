@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
+import { revalidateHome } from "@/lib/revalidateHome";
 import {
   AppVideoError,
   listAppVideos,
@@ -35,6 +36,7 @@ export default async function handler(
         job,
         typeof title === "string" ? title : undefined,
       );
+      await revalidateHome(res);
       return res.status(201).json({ video });
     }
 

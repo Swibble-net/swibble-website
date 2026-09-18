@@ -3,7 +3,7 @@ import { getAllPosts } from "@/lib/blog/posts";
 import { isFirebaseConfigured } from "@/lib/firebaseAdmin";
 import { toIsoDate } from "@/lib/blog/format";
 
-const SITE_URL = "https://swibble.net";
+const SITE_URL = "https://www.swibble.net";
 
 const crawlablePaths = [
   { path: "", priority: "1.0", changefreq: "weekly" },

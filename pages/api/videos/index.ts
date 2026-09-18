@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
+import { revalidateHome } from "@/lib/revalidateHome";
 import { createVideo, getPublicVideos } from "@/lib/videos/videos";
 import type { VideoInput } from "@/lib/videos/types";
 
@@ -27,6 +28,7 @@ export default async function handler(
         cover: body.cover,
       });
 
+      await revalidateHome(res);
       return res.status(201).json({ video });
     }
 
