@@ -2,7 +2,7 @@ import Image from "next/image";
 import worldIcon from "@/public/icons/swibble_icon_world.svg";
 import softIcon from "@/public/icons/swibble_icon_soft.svg";
 import bagIcon from "@/public/icons/swibble_icon_bag.svg";
-import IntroImage from "@/public/Swibble_Window_Mockup.webp";
+import IntroImage from "@/public/Swibble_Window_Mockup.svg";
 import styles from "@/styles/introduction.module.scss";
 
 const Introduction = () => {
@@ -52,7 +52,6 @@ const Introduction = () => {
           width={823}
           height={669}
           loading="lazy"
-          sizes="(max-width: 1024px) 0px, min(50vw, 823px)"
           className={`${styles.image} h-auto w-full`}
         />
       </div>
