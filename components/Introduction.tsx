@@ -7,7 +7,7 @@ import styles from "@/styles/introduction.module.scss";
 
 const Introduction = () => {
   return (
-    <div className={styles.container}>
+    <section className={styles.container}>
       <h2>Dein Business hat Potenzial</h2>
       <p>
         Aus deinem Unternehmen eine Marke mit Wiedererkennungswert zu machen,
@@ -56,7 +56,7 @@ const Introduction = () => {
           className={`${styles.image} h-auto w-full`}
         />
       </div>
-    </div>
+    </section>
   );
 };
 

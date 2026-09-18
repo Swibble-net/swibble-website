@@ -8,9 +8,9 @@ import UserLocationIcon from "@/public/icons/user_location_icon.svg";
 // Render rthe component
 const Tasks = () => {
   return (
-    <div id="uber-uns" className={`${styles.container} scroll-mt-28 lg:scroll-mt-32`}>
+    <section id="uber-uns" className={`${styles.container} scroll-mt-28 lg:scroll-mt-32`}>
       {/*Adding the "wave" on top of the component*/}
-      <div className={styles.wave_top}>
+      <div className={styles.wave_top} aria-hidden>
         <svg
           data-name="Layer 1"
           xmlns="http://www.w3.org/2000/svg"
@@ -24,7 +24,7 @@ const Tasks = () => {
         </svg>
       </div>
       {/*Adding the background ignoring the paddings of layout */}
-      <div className={styles.background}></div>
+      <div className={styles.background} aria-hidden></div>
       <div className={styles.description}>
         <h2>Womit hilft Swibble mir?</h2>
         <p>
@@ -56,7 +56,7 @@ const Tasks = () => {
         </div>
       </div>
       {/*Adding the "wave" in the bottom of the component*/}
-      <div className={styles.wave_bottom}>
+      <div className={styles.wave_bottom} aria-hidden>
         <svg
           data-name="Layer 1"
           xmlns="http://www.w3.org/2000/svg"
@@ -69,7 +69,7 @@ const Tasks = () => {
           ></path>
         </svg>
       </div>
-    </div>
+    </section>
   );
 };
 

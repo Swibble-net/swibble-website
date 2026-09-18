@@ -10,68 +10,63 @@ interface Location {
   href?: string;
 }
 
-// Order follows the map from north to south; colors are the clients' brand colors.
+// Colors are the clients' brand colors.
 const LOCATIONS: Location[] = [
-  {
-    city: "Hamburg",
-    client: "Billstedt Center",
-    color: "#F47807",
-    href: "/blog/case-study-billstedt-center-hamburg",
-  },
   {
     city: "Aachen",
     client: "Aquis Plaza",
     color: "#2F3192",
     href: "/blog/case-study-aquis-plaza-aachen",
   },
-  { city: "Frankfurt", client: "MyZeil", color: "#111111" },
   {
     city: "München",
     client: "Olympia Einkaufszentrum",
     color: "#E2000F",
     href: "/blog/case-study-olympia-einkaufszentrum-munchen",
   },
+  {
+    city: "Hamburg",
+    client: "Billstedt Center",
+    color: "#F47807",
+    href: "/blog/case-study-billstedt-center-hamburg",
+  },
+  { city: "Frankfurt", client: "MyZeil", color: "#111111" },
 ];
 
 const cardClass =
   "group relative flex h-full flex-col gap-1 overflow-hidden rounded-[10px] bg-white py-4 pl-5 pr-4 shadow-[0_25px_100px_rgba(76,64,247,0.08)]";
 
-const LocationCard = ({ city, client, color, href }: Location) => {
-  const content = (
-    <>
+// Text lives outside the anchor (a stretched link keeps the whole card clickable),
+// so reader modes and screen readers get real headings instead of one long link.
+const LocationCard = ({ city, client, color, href }: Location) => (
+  <div
+    className={`${cardClass} ${href ? "transition duration-200 hover:-translate-y-1" : ""}`}
+  >
+    <span
+      className="absolute inset-y-0 left-0 w-1"
+      style={{ backgroundColor: color }}
+      aria-hidden
+    />
+    <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.1em] text-[#556987]">
       <span
-        className="absolute inset-y-0 left-0 w-1"
+        className="h-2 w-2 rounded-full"
         style={{ backgroundColor: color }}
         aria-hidden
       />
-      <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.1em] text-[#556987]">
-        <span
-          className="h-2 w-2 rounded-full"
-          style={{ backgroundColor: color }}
-          aria-hidden
-        />
-        {city}
-      </span>
-      <span className="text-base font-bold text-[#000D36]">{client}</span>
-      {href && (
-        <span className="mt-1 text-sm text-[#B718EC] transition-transform duration-200 group-hover:translate-x-1">
-          Case Study lesen →
-        </span>
-      )}
-    </>
-  );
-
-  return href ? (
-    <Link
-      href={href}
-      className={`${cardClass} transition duration-200 hover:-translate-y-1`}
-    >
-      {content}
-    </Link>
-  ) : (
-    <div className={cardClass}>{content}</div>
-  );
-};
+      {city}
+    </p>
+    <h3 className="text-base font-bold text-[#000D36]">{client}</h3>
+    {href && (
+      <Link
+        href={href}
+        aria-label={`Case Study ${client} lesen`}
+        className="mt-1 w-fit text-sm text-[#B718EC] transition-transform duration-200 after:absolute after:inset-0 group-hover:translate-x-1"
+      >
+        Case Study lesen →
+      </Link>
+    )}
+  </div>
+);
 
 const Nationwide = () => {
   return (

@@ -36,7 +36,21 @@ const BlogPostPage = ({ post }: Props) => {
         ogImage={post.coverImage ?? undefined}
         jsonLd={articleJsonLd}
         noIndex={!post.published}
+        article={{
+          publishedTime: articleJsonLd.datePublished,
+          modifiedTime: articleJsonLd.dateModified,
+        }}
       />
+
+      {/* Navigation stays outside the article so reader modes show only the post. */}
+      <nav aria-label="Blog" className="mx-auto w-full max-w-3xl">
+        <Link
+          href="/blog"
+          className="text-sm font-medium text-[#b718ec] hover:underline"
+        >
+          ← Zurück zum Blog
+        </Link>
+      </nav>
 
       <article className="mx-auto w-full max-w-3xl">
         {!post.published && (
@@ -46,19 +60,12 @@ const BlogPostPage = ({ post }: Props) => {
           </p>
         )}
 
-        <Link
-          href="/blog"
-          className="text-sm font-medium text-[#b718ec] hover:underline"
-        >
-          ← Zurück zum Blog
-        </Link>
-
         <header className="mt-6 mb-8">
           <h1 className="text-3xl font-bold text-[#000D36] lg:text-4xl">
             {post.title}
           </h1>
           <div className="mt-4 flex flex-wrap items-center gap-x-2 text-sm text-[#8a7791]">
-            <span className="font-medium text-[#556987]">{post.author}</span>
+            <span className="author font-medium text-[#556987]">{post.author}</span>
             {post.author && <span aria-hidden>·</span>}
             <time dateTime={toIsoDate(post.createdAt)}>
               {formatDate(post.createdAt)}
@@ -66,19 +73,26 @@ const BlogPostPage = ({ post }: Props) => {
             {changed && (
               <>
                 <span aria-hidden>·</span>
-                <span>Aktualisiert {formatDate(post.updatedAt)}</span>
+                <span>
+                  Aktualisiert{" "}
+                  <time dateTime={toIsoDate(post.updatedAt)}>
+                    {formatDate(post.updatedAt)}
+                  </time>
+                </span>
               </>
             )}
           </div>
         </header>
 
         {post.coverImage && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={post.coverImage}
-            alt={post.coverImageAlt || post.title}
-            className="mb-8 max-h-[420px] w-full rounded-2xl object-cover"
-          />
+          <figure className="m-0 mb-8">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={post.coverImage}
+              alt={post.coverImageAlt || post.title}
+              className="max-h-[420px] w-full rounded-2xl object-cover"
+            />
+          </figure>
         )}
 
         <div

@@ -31,13 +31,16 @@ export default function Home({ latestPosts, videos, soundEnabled }: Props) {
         canonical="/"
         jsonLd={[organizationJsonLd, webSiteJsonLd]}
       />
-      <LandingPart />
-      <Introduction />
-      <Tasks />
-      <Projects />
-      <VideoCarousel videos={videos} soundEnabled={soundEnabled} />
-      <ListOfCompanies />
-      <Nationwide />
+      {/* One article = one readable document for reader modes and screen readers. */}
+      <article>
+        <LandingPart />
+        <Introduction />
+        <Tasks />
+        <Projects />
+        <VideoCarousel videos={videos} soundEnabled={soundEnabled} />
+        <ListOfCompanies />
+        <Nationwide />
+      </article>
       <LatestPosts posts={latestPosts} />
       <ContactForm />
     </>
