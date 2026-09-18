@@ -112,7 +112,7 @@ const Nationwide = () => {
           src={GermanyMap}
           alt="Deutschlandkarte mit Swibble-Kunden: Billstedt Center in Hamburg, Aquis Plaza in Aachen, MyZeil in Frankfurt und Olympia Einkaufszentrum in München"
           width={1600}
-          height={943}
+          height={932}
           loading="lazy"
           sizes="(max-width: 1024px) calc(100vw - 2rem), 55vw"
           className="h-auto w-full"
