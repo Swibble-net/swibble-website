@@ -75,6 +75,7 @@ Home page sections (anchor links):
 
 Example projects referenced on the site:
 
+- Aquis Plaza, Olympia Einkaufszentrum, Billstedt Center, MyZeil, Rushfood (Social Media)
 - Konrat's Welt (App & Web-App)
 - Little World (Web App)
 - Aachen App (App & Website)
