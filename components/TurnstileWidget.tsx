@@ -38,6 +38,7 @@ const TurnstileWidget = ({
   const onExpireRef = useRef(onExpire);
   const onErrorRef = useRef(onError);
   const [scriptReady, setScriptReady] = useState(false);
+  const [scriptFailed, setScriptFailed] = useState(false);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   // Keep the latest callbacks without re-rendering the widget.
@@ -83,12 +84,25 @@ const TurnstileWidget = ({
 
   return (
     <>
+      {/*
+        onReady (not onLoad): onLoad fires once per page session, so a widget that
+        mounts again after client-side navigation or a form reset would never render.
+        render=explicit keeps Turnstile from scanning the page on its own.
+      */}
       <Script
-        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-        strategy="lazyOnload"
-        onLoad={() => setScriptReady(true)}
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+        strategy="afterInteractive"
+        onReady={() => setScriptReady(true)}
+        onError={() => setScriptFailed(true)}
       />
       <div ref={containerRef} className="min-h-[65px]" />
+      {scriptFailed && (
+        <p role="alert" className="text-sm text-red-600">
+          Der Spam-Schutz konnte nicht geladen werden. Bitte deaktiviere
+          Werbeblocker für diese Seite und lade sie neu – oder schreib uns
+          direkt per E-Mail.
+        </p>
+      )}
     </>
   );
 };
