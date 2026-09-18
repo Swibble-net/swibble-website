@@ -56,6 +56,9 @@ const AdminVideos = ({
       ]),
     ),
   );
+  // Unsaved customer names; a video without a draft shows its stored name.
+  const [nameDrafts, setNameDrafts] = useState<Record<string, string>>({});
+  const [savedNameId, setSavedNameId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -206,6 +209,34 @@ const AdminVideos = ({
       alert(err instanceof Error ? err.message : "Fehler.");
     } finally {
       setReordering(false);
+    }
+  };
+
+  const handleNameSave = async (id: string, accountName: string) => {
+    setBusyId(id);
+    try {
+      const res = await fetch(`/api/videos/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accountName }),
+      });
+      if (res.status === 401) return toLogin();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Speichern fehlgeschlagen.");
+
+      setItems((prev) =>
+        prev.map((video) => (video.id === id ? data.video : video)),
+      );
+      setNameDrafts((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      setSavedNameId(id);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Fehler.");
+    } finally {
+      setBusyId(null);
     }
   };
 
@@ -417,13 +448,8 @@ const AdminVideos = ({
                   {video.source === "app" ? (
                     <p className="mb-3 text-xs text-[#8a7791]">
                       <span className="mr-2 rounded bg-[#FDF5FF] px-1.5 py-0.5 font-medium text-[#B718EC]">
-                        Swibble-App
+                        {video.appJobId ? "Swibble-App" : "Selbst gehostet"}
                       </span>
-                      {video.accountName && (
-                        <span className="mr-2 font-medium text-[#556987]">
-                          {video.accountName}
-                        </span>
-                      )}
                       {video.status === "processing" &&
                         "Wird komprimiert … das dauert meist 1–3 Minuten."}
                       {video.status === "failed" &&
@@ -460,6 +486,38 @@ const AdminVideos = ({
                       </div>
                     </>
                   )}
+                  {(() => {
+                    const name = nameDrafts[video.id] ?? video.accountName;
+                    const changed = name.trim() !== video.accountName;
+                    return (
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <input
+                          aria-label={`Kunde für ${video.title || `Video ${i + 1}`}`}
+                          className={`${inputClass} min-w-48 flex-1`}
+                          placeholder="Kunde (Beschriftung auf der Website)"
+                          maxLength={200}
+                          value={name}
+                          onChange={(e) => {
+                            setSavedNameId(null);
+                            setNameDrafts((prev) => ({
+                              ...prev,
+                              [video.id]: e.target.value,
+                            }));
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleNameSave(video.id, name)}
+                          disabled={busyId === video.id || !changed}
+                          className="rounded-lg border border-[#B718EC] px-3 py-2 text-sm text-[#B718EC] disabled:opacity-50"
+                        >
+                          {savedNameId === video.id && !changed
+                            ? "Gespeichert"
+                            : "Kunde speichern"}
+                        </button>
+                      </div>
+                    );
+                  })()}
                   <div className="mt-3 flex items-center gap-3 text-sm">
                     <div className="flex items-center gap-1">
                       <button

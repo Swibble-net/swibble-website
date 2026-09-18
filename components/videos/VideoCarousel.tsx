@@ -60,7 +60,7 @@ const VideoSlide = (props: SlideProps) =>
   props.video.source === "app" ? (
     <figure className="m-0">
       <AppVideoPlayer {...props} />
-      {/* App video titles are file names; visitors see the customer instead. */}
+      {/* Titles of self-hosted videos are file names; visitors see the customer instead. */}
       <Caption title={props.video.accountName} />
     </figure>
   ) : (
@@ -129,7 +129,9 @@ const EmbedSlide = ({ video }: { video: Video }) => {
           <iframe
             ref={frameRef}
             src={video.embedUrl}
-            title={video.title || "Video"}
+            title={
+              video.accountName ? `Video für ${video.accountName}` : "Video"
+            }
             className="absolute inset-0 h-full w-full border-0"
             allow="autoplay; encrypted-media; picture-in-picture"
             allowFullScreen
@@ -138,7 +140,7 @@ const EmbedSlide = ({ video }: { video: Video }) => {
           />
         )}
       </div>
-      <Caption title={video.title} />
+      <Caption title={video.accountName || video.title} />
     </figure>
   );
 };

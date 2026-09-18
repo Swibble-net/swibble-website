@@ -1,7 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
 import { revalidateHome } from "@/lib/revalidateHome";
-import { deleteVideo, updateVideoCover } from "@/lib/videos/videos";
+import {
+  deleteVideo,
+  updateVideoAccountName,
+  updateVideoCover,
+} from "@/lib/videos/videos";
 import { unpublishAppVideo } from "@/lib/videos/appVideos";
 
 export default async function handler(
@@ -19,7 +23,11 @@ export default async function handler(
 
       const cover =
         typeof req.body?.cover === "string" ? req.body.cover : undefined;
-      const video = await updateVideoCover(id, cover);
+      // `{ accountName }` edits the caption; anything else is a cover update.
+      const video =
+        typeof req.body?.accountName === "string"
+          ? await updateVideoAccountName(id, req.body.accountName)
+          : await updateVideoCover(id, cover);
       if (!video) return res.status(404).json({ message: "Nicht gefunden." });
 
       await revalidateHome(res);
