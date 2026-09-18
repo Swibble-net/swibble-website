@@ -4,6 +4,7 @@ import sendEmail from "@/lib/sendMail";
 import ContactResponseMessage from "./ContactResponseMessage";
 import TurnstileWidget from "./TurnstileWidget";
 import { CTA_LABEL, EMAIL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/cta";
+import { MdOutlineEmail, MdOutlineLocationOn, MdOutlinePhone } from "react-icons/md";
 
 // Defining expected input properties for `updateEvent` reducer
 interface Input {
@@ -109,27 +110,27 @@ const ContactForm = () => {
 					<div className="flex flex-col gap-8 w-full">
 						{/* Displaying address and email information */}
 						<div className="w-full flex flex-row flex-wrap gap-x-10 gap-y-4 items-start">
-							<div className="relative pl-2">
+							<div className="relative pl-8">
+								<MdOutlineLocationOn className="absolute left-0 top-0 h-6 w-6 text-[#B718EC]" aria-hidden />
 								<h3 className="font-bold text-base text-[#2A3342]">Anschrift</h3>
 								<p className="text-sm text-[#556987]">
 									Königstraße 30, <br />
 									52064 Aachen
 								</p>
-								<div className="hidden md:block md:absolute md:inset-y-1 md:left-0 md:w-[3px] md:rounded-full md:bg-[#B718EC]" aria-hidden />
 							</div>
-							<div className="relative pl-2">
+							<div className="relative pl-8">
+								<MdOutlineEmail className="absolute left-0 top-0 h-6 w-6 text-[#B718EC]" aria-hidden />
 								<h3 className="font-bold text-base text-[#2A3342]">E-Mail</h3>
 								<p className="text-sm text-[#556987]">
 									<a href={`mailto:${EMAIL}`}>{EMAIL}</a>
 								</p>
-								<div className="hidden md:block md:absolute md:inset-y-1 md:left-0 md:w-[3px] md:rounded-full md:bg-[#B718EC]" aria-hidden />
 							</div>
-							<div className="relative pl-2">
+							<div className="relative pl-8">
+								<MdOutlinePhone className="absolute left-0 top-0 h-6 w-6 text-[#B718EC]" aria-hidden />
 								<h3 className="font-bold text-base text-[#2A3342]">Telefon</h3>
 								<p className="text-sm text-[#556987] whitespace-nowrap">
 									<a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a>
 								</p>
-								<div className="hidden md:block md:absolute md:inset-y-1 md:left-0 md:w-[3px] md:rounded-full md:bg-[#B718EC]" aria-hidden />
 							</div>
 						</div>
 					</div>
