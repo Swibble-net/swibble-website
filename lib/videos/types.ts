@@ -10,8 +10,10 @@ export interface Video {
   source: VideoSource;
   /** Ready-to-embed iframe src (normalized on save); empty for app videos */
   embedUrl: string;
-  /** Optional project-local image in public/video-covers */
+  /** Project-local image in public/video-covers, or the cover route for TikTok videos */
   coverPath: string;
+  /** Original link of a TikTok video (needed to refresh its cover) */
+  sourceUrl: string;
   /** Self-hosted 720p MP4 (app videos only) */
   videoUrl: string;
   /** Poster shown until the MP4 has loaded (app videos only) */

@@ -266,6 +266,17 @@ of the iframe until the player reports it is actually playing (via the player's
 postMessage API), which avoids a flash of the player's black background, then
 fades out.
 
+### TikTok links
+
+Pasting a TikTok link (`tiktok.com/@user/video/…`, or a share link such as
+`vm.tiktok.com/…`, which is resolved server-side) embeds TikTok's official
+player (`/player/v1/<id>`) without any player chrome. The player has no muted
+URL option, so the carousel mutes it via the player's `postMessage` API as soon
+as it reports ready. The cover comes from TikTok's oEmbed endpoint through
+`/api/videos/cover/[id]` (thumbnail URLs expire, so it is fetched on demand,
+validated against TikTok's CDN hosts and cached at the CDN); a local cover file
+still takes precedence.
+
 ### Videos from the Swibble app
 
 `/admin/videos` can also pick a finished video straight from the Swibble app

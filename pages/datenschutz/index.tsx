@@ -165,7 +165,40 @@ const Datenschutz = () => {
 
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            7. Cookies
+            7. Videos
+          </h4>
+          <p>
+            Auf unserer Startseite zeigen wir Videos. Eigene Videos liefern wir
+            als Datei über Google Firebase Storage (Google Ireland Limited,
+            Gordon House, Barrow Street, Dublin 4, Irland) aus; dabei wird wie
+            bei jedem Abruf Ihre IP-Adresse technisch verarbeitet.
+          </p>
+          <br />
+          <p>
+            Einzelne Videos sind über die Player von YouTube (Google Ireland
+            Limited, im erweiterten Datenschutzmodus über
+            „youtube-nocookie.com“), Vimeo (Vimeo.com, Inc., 330 West 34th
+            Street, New York, NY 10001, USA) oder TikTok (TikTok Technology
+            Limited, 10 Earlsfort Terrace, Dublin, D02 T380, Irland)
+            eingebunden. Der jeweilige Player wird erst geladen, wenn das Video
+            in den sichtbaren Bereich kommt. Dabei erhält der Anbieter Ihre
+            IP-Adresse und technische Informationen zu Browser und Gerät und
+            kann eigene Cookies oder vergleichbare Technologien einsetzen; eine
+            Übermittlung in Drittländer (insbesondere die USA) ist möglich. Die
+            Vorschaubilder der Videos liefern wir selbst aus.
+          </p>
+          <br />
+          <p>
+            Rechtsgrundlage ist unser berechtigtes Interesse an einer
+            ansprechenden Darstellung unserer Arbeit (Art. 6 Abs. 1 lit. f
+            DSGVO). Weitere Informationen finden Sie in den
+            Datenschutzhinweisen der Anbieter.
+          </p>
+        </div>
+
+        <div className="my-5">
+          <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
+            8. Cookies
           </h4>
           <p>
             Wir verwenden auf unserer Website keine Cookies zu Analyse-, Tracking-
@@ -186,7 +219,7 @@ const Datenschutz = () => {
 
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            8. Schriftarten
+            9. Schriftarten
           </h4>
           <p>
             Zur einheitlichen Darstellung von Schriftarten verwenden wir
@@ -199,7 +232,7 @@ const Datenschutz = () => {
 
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            9. SSL- bzw. TLS-Verschlüsselung
+            10. SSL- bzw. TLS-Verschlüsselung
           </h4>
           <p>
             Diese Seite nutzt aus Sicherheitsgründen und zum Schutz der
@@ -212,7 +245,7 @@ const Datenschutz = () => {
 
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            10. Ihre Rechte als betroffene Person
+            11. Ihre Rechte als betroffene Person
           </h4>
           <p>Ihnen stehen hinsichtlich Ihrer personenbezogenen Daten zu:</p>
           <ul className="mt-2 list-disc pl-6">
@@ -236,7 +269,7 @@ const Datenschutz = () => {
 
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            11. Beschwerderecht bei der Aufsichtsbehörde
+            12. Beschwerderecht bei der Aufsichtsbehörde
           </h4>
           <p>
             Unbeschadet anderweitiger Rechtsbehelfe steht Ihnen ein
@@ -250,7 +283,7 @@ const Datenschutz = () => {
 
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            12. Aktualität und Änderung dieser Datenschutzerklärung
+            13. Aktualität und Änderung dieser Datenschutzerklärung
           </h4>
           <p>
             Diese Datenschutzerklärung ist aktuell gültig. Durch die

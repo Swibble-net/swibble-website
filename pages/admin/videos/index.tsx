@@ -18,6 +18,13 @@ interface Props {
   soundEnabled: boolean;
 }
 
+/** Only local files are editable; the TikTok cover route is shown as "automatic" (empty). */
+function localCoverName(coverPath: string): string {
+  return coverPath.startsWith("/video-covers/")
+    ? coverPath.replace("/video-covers/", "")
+    : "";
+}
+
 function formatSize(bytes: number): string {
   return `${(bytes / 1024 ** 2).toFixed(1).replace(".", ",")} MB`;
 }
@@ -40,7 +47,7 @@ const AdminVideos = ({
     Object.fromEntries(
       videos.map((video) => [
         video.id,
-        video.coverPath.replace("/video-covers/", ""),
+        localCoverName(video.coverPath),
       ]),
     ),
   );
@@ -128,7 +135,7 @@ const AdminVideos = ({
       setItems((prev) => [...prev, data.video]);
       setCoverDrafts((prev) => ({
         ...prev,
-        [data.video.id]: data.video.coverPath.replace("/video-covers/", ""),
+        [data.video.id]: localCoverName(data.video.coverPath),
       }));
       setUrl("");
       setTitle("");
@@ -277,7 +284,7 @@ const AdminVideos = ({
           className="mb-8 rounded-xl border border-[#F0E4F5] bg-white p-4"
         >
           <p className="mb-3 text-sm font-semibold text-[#000D36]">
-            YouTube- oder Vimeo-Video hinzufügen
+            YouTube-, Vimeo- oder TikTok-Link hinzufügen
           </p>
           {error && (
             <p className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">
@@ -289,7 +296,7 @@ const AdminVideos = ({
               aria-label="Video-URL"
               type="url"
               className={inputClass}
-              placeholder="https://youtube.com/… oder https://vimeo.com/…"
+              placeholder="Link von YouTube, Vimeo oder TikTok"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               required
@@ -320,6 +327,7 @@ const AdminVideos = ({
             Lege Covers zuerst in{" "}
             <code className="font-mono">public/video-covers</code> ab und trage
             nur den Dateinamen ein. Unterstützt werden AVIF, JPG, PNG und WebP.
+            TikTok-Links (auch Kurzlinks) bringen ihr Cover automatisch mit.
           </p>
         </form>
 
@@ -340,6 +348,14 @@ const AdminVideos = ({
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={video.coverUrl}
+                      alt=""
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : video.coverPath.startsWith("/api/") ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={video.coverPath}
                       alt=""
                       loading="lazy"
                       className="absolute inset-0 h-full w-full object-cover"
