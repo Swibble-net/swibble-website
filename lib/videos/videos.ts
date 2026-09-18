@@ -201,9 +201,11 @@ export async function createAppVideo(
     .get();
   if (!existing.empty) {
     const doc = existing.docs[0];
+    const stored = (doc.data() as VideoDocument).accountName;
     const fields: VideoDocument = {
       ...appJobFields(job),
-      ...(customer ? { accountName: customer } : {}),
+      // Keep a name that is already there: it may have been edited in the CMS.
+      ...(customer && !stored ? { accountName: customer } : {}),
     };
     await doc.ref.update(fields);
     return toVideo(doc.id, { ...(doc.data() as VideoDocument), ...fields });
@@ -296,6 +298,23 @@ export async function updateVideoCover(
   return toVideo(id, {
     ...(existing.data() as VideoDocument),
     coverPath,
+  });
+}
+
+/** Caption shown under the video. Storing a string also opts the video out of the backfill. */
+export async function updateVideoAccountName(
+  id: string,
+  accountName: string,
+): Promise<Video | null> {
+  const ref = getDb().collection(COLLECTION).doc(id);
+  const existing = await ref.get();
+  if (!existing.exists) return null;
+
+  const value = accountName.trim().slice(0, 200);
+  await ref.update({ accountName: value });
+  return toVideo(id, {
+    ...(existing.data() as VideoDocument),
+    accountName: value,
   });
 }
 
