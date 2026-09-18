@@ -10,9 +10,15 @@ export default function Document() {
         <meta name="publisher" content="Swibble UG" />
         <meta name="copyright" content="Swibble UG (haftungsbeschränkt)" />
         <meta name="category" content="Digitalagentur, Social Media, Live-Events, Design, Software-Entwicklung" />
-        <link rel="icon" href="/logo/SwibbleLogo.svg" type="image/svg+xml" />
-        <link rel="shortcut icon" href="/logo/SwibbleLogo.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/logo/SwibbleLogo.svg" />
+        <meta name="application-name" content="Swibble" />
+        <meta name="apple-mobile-web-app-title" content="Swibble" />
+        {/* Safari ignores SVG favicons, so ICO/PNG come first. */}
+        <link rel="icon" href="/favicon.ico" sizes="48x48" />
+        <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+        <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+        <link rel="manifest" href="/site.webmanifest" />
         <link
           rel="alternate"
           type="text/plain"
