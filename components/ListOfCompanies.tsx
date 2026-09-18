@@ -25,7 +25,7 @@ const CompanyLogoSlide = ({
 const ListOfCompanies = () => {
   return (
     <div className={styles.container}>
-      <div className={styles.wave_top}>
+      <div className={styles.wave_top} aria-hidden>
         <svg
           data-name="Layer 1"
           xmlns="http://www.w3.org/2000/svg"
@@ -38,7 +38,7 @@ const ListOfCompanies = () => {
           ></path>
         </svg>
       </div>
-      <div className={styles.background}></div>
+      <div className={styles.background} aria-hidden></div>
       <div className={styles.description}>
         <p className="text-center text-base lg:text-lg font-normal text-[#707070]">Diese Unternehmen vertrauen Swibble bereits</p>
       </div>
@@ -54,7 +54,7 @@ const ListOfCompanies = () => {
         </div>
       </div>
 
-      <div className={styles.wave_bottom}>
+      <div className={styles.wave_bottom} aria-hidden>
         <svg
           data-name="Layer 1"
           xmlns="http://www.w3.org/2000/svg"

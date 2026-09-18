@@ -16,7 +16,7 @@ const CASE_STUDIES = [
 
 const Projects = () => {
   return (
-    <div id="portfolio" className="scroll-mt-28 lg:scroll-mt-32">
+    <section id="portfolio" className="scroll-mt-28 lg:scroll-mt-32">
       <div className={styles.description}>
         <div className={styles.text_description}>
           <h2>Hier könnte dein Projekt stehen</h2>
@@ -69,7 +69,7 @@ const Projects = () => {
           </Link>
         ))}
       </p>
-    </div>
+    </section>
   );
 };
 

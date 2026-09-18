@@ -26,9 +26,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     Component.getLayout ?? ((page) => <Layout>{page}</Layout>);
 
   return (
-    <main className={poppins.className}>
+    <div className={poppins.className}>
       {getLayout(<Component {...pageProps} />)}
       <Analytics />
-    </main>
+    </div>
   );
 }

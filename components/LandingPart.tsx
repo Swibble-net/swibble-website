@@ -4,8 +4,11 @@ import { CTA_LABEL, CTA_URL } from "@/lib/cta";
 
 const LandingPart = () => {
   return (
-    <div className="relative w-full flex flex-col justify-between gap-12 py-10 mb-28 lg:flex-row lg:justify-around lg:items-center lg:mb-24 lg:py-28">
-      <div className="bg-[#FDF5FF] bg-cover absolute top-0 bottom-0 right-0 left-0 -z-10 w-screen -mt-20 -mx-4 lg:-mx-20"></div>
+    <section className="relative w-full flex flex-col justify-between gap-12 py-10 mb-28 lg:flex-row lg:justify-around lg:items-center lg:mb-24 lg:py-28">
+      <div
+        aria-hidden
+        className="bg-[#FDF5FF] bg-cover absolute top-0 bottom-0 right-0 left-0 -z-10 w-screen -mt-20 -mx-4 lg:-mx-20"
+      ></div>
       <div className="flex flex-col gap-5">
         <h1 className="text-[#000D36] font-bold text-3xl leading-tight lg:text-5xl lg:leading-[1.15]">
           Social Media, Live-Events, Design & Software
@@ -33,7 +36,10 @@ const LandingPart = () => {
           className="h-auto w-full max-w-[509px] lg:max-w-[560px] xl:max-w-[640px]"
         />
       </div>
-      <div className="absolute -bottom-12 left-0 overflow-hidden leading-[0] -mx-4 lg:-mx-20 lg:-bottom-20 w-screen">
+      <div
+        aria-hidden
+        className="absolute -bottom-12 left-0 overflow-hidden leading-[0] -mx-4 lg:-mx-20 lg:-bottom-20 w-screen"
+      >
         <svg
           className="relative block rotate-180 w-[137%] h-12 lg:h-20"
           data-name="Layer 1"
@@ -47,7 +53,7 @@ const LandingPart = () => {
           ></path>
         </svg>
       </div>
-    </div>
+    </section>
   );
 };
 

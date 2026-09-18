@@ -11,6 +11,8 @@ interface SEOProps {
   ogImage?: string;
   noIndex?: boolean;
   jsonLd?: object | object[];
+  /** Blog posts: enables og:type=article plus publish/modify dates for reader modes and previews. */
+  article?: { publishedTime: string; modifiedTime?: string };
 }
 
 export default function SEO({
@@ -20,6 +22,7 @@ export default function SEO({
   ogImage = `${SITE_URL}/og-image.png`,
   noIndex = false,
   jsonLd,
+  article,
 }: SEOProps) {
   // Titles that already lead with the brand don't get the company suffix (keeps them < 60 chars).
   const fullTitle =
@@ -48,7 +51,15 @@ export default function SEO({
       />
 
       {/* Open Graph */}
-      <meta property="og:type" content="website" />
+      <meta property="og:type" content={article ? "article" : "website"} />
+      {article && (
+        <>
+          <meta property="article:published_time" content={article.publishedTime} />
+          {article.modifiedTime && (
+            <meta property="article:modified_time" content={article.modifiedTime} />
+          )}
+        </>
+      )}
       <meta property="og:site_name" content={COMPANY_NAME} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
