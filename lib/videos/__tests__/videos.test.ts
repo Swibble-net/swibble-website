@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appJobFields, isPlayable, toCoverPath, toVideo } from "@/lib/videos/videos";
+import { appJobFields, isPlayable, sortByPosition, toCoverPath, toVideo } from "@/lib/videos/videos";
 import { silenceIfHidden, toggleUnmuted } from "@/lib/videos/sound";
 import { toEmbedUrl } from "@/lib/videos/embed";
 
@@ -78,5 +78,36 @@ describe("existing helpers", () => {
     expect(toCoverPath("")).toBe("");
     expect(() => toCoverPath("https://evil.example/x.png")).toThrow();
     expect(() => toCoverPath("../secret.png")).toThrow();
+  });
+});
+
+describe("accountName", () => {
+  it("defaults to an empty caption and only accepts strings", () => {
+    expect(toVideo("v", { source: "app" }).accountName).toBe("");
+    expect(toVideo("v", { source: "app", accountName: "Aquis Plaza" }).accountName).toBe("Aquis Plaza");
+    expect(toVideo("v", { source: "app", accountName: 5 as unknown as string }).accountName).toBe("");
+  });
+});
+
+describe("sortByPosition", () => {
+  it("puts sorted videos first and keeps never-sorted ones in their original order behind them", () => {
+    const items = [
+      { id: "old-unsorted" },
+      { id: "second", position: 1 },
+      { id: "new-unsorted" },
+      { id: "first", position: 0 },
+    ];
+    expect(sortByPosition(items).map((item) => item.id)).toEqual([
+      "first",
+      "second",
+      "old-unsorted",
+      "new-unsorted",
+    ]);
+  });
+
+  it("ignores positions that are not numbers and does not mutate the input", () => {
+    const items = [{ id: "a", position: "0" }, { id: "b", position: 3 }];
+    expect(sortByPosition(items).map((item) => item.id)).toEqual(["b", "a"]);
+    expect(items.map((item) => item.id)).toEqual(["a", "b"]);
   });
 });

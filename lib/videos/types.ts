@@ -27,6 +27,8 @@ export interface Video {
   hasAudio: boolean;
   /** Job id of the web copy in the Swibble app */
   appJobId: string;
+  /** Customer the video was produced for; shown as the caption of app videos */
+  accountName: string;
   status: AppVideoStatus;
   createdAt: number;
 }

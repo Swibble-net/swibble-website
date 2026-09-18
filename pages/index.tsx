@@ -11,7 +11,11 @@ import VideoCarousel from "@/components/videos/VideoCarousel";
 import SEO from "@/components/SEO";
 import { organizationJsonLd, webSiteJsonLd } from "@/lib/jsonLd";
 import { getAllPosts } from "@/lib/blog/posts";
-import { getPublicVideos, getVideoSettings } from "@/lib/videos/videos";
+import {
+  backfillAccountNames,
+  getPublicVideos,
+  getVideoSettings,
+} from "@/lib/videos/videos";
 import { isFirebaseConfigured } from "@/lib/firebaseAdmin";
 import type { BlogPost } from "@/lib/blog/types";
 import type { Video } from "@/lib/videos/types";
@@ -58,6 +62,11 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
       revalidate: REVALIDATE_SECONDS,
     };
   }
+
+  // One-off per video; a failing app connection must never break the home page.
+  await backfillAccountNames().catch((error) =>
+    console.error("[home] backfillAccountNames", error),
+  );
 
   const [posts, videos, settings] = await Promise.all([
     getAllPosts("newest"),

@@ -1,7 +1,7 @@
 import { getDb, isFirebaseConfigured } from "@/lib/firebaseAdmin";
 import { tiktokVideoId, toEmbedUrl } from "./embed";
 import { resolveTikTokUrl } from "./tiktok";
-import { isTrustedMediaUrl } from "./appVideos";
+import { isAppVideoApiConfigured, isTrustedMediaUrl, listAppVideos } from "./appVideos";
 import type {
   AppVideoJob,
   AppVideoStatus,
@@ -34,6 +34,7 @@ export function toVideo(id: string, data: VideoDocument): Video {
     size: Number(data.size) || 0,
     hasAudio: data.hasAudio === true,
     appJobId: data.appJobId ?? "",
+    accountName: typeof data.accountName === "string" ? data.accountName : "",
     status: source === "app" ? (data.status ?? "processing") : "ready",
     createdAt: data.createdAt ?? 0,
   };
@@ -68,17 +69,61 @@ export function toCoverPath(value?: string): string {
   return `/video-covers/${fileName}`;
 }
 
-/** Oldest first, so the carousel keeps the order videos were added in. */
-export async function getAllVideos(): Promise<Video[]> {
-  if (!isFirebaseConfigured()) return [];
+/**
+ * Carousel order: videos sorted in the CMS come first (by their stored `position`);
+ * videos that were never sorted, e.g. just added, follow oldest first.
+ */
+export function sortByPosition<T extends { position?: unknown }>(items: T[]): T[] {
+  const rank = (item: T) =>
+    typeof item.position === "number" ? item.position : Number.POSITIVE_INFINITY;
+  // Array.prototype.sort is stable, so equal ranks keep their createdAt order.
+  return [...items].sort((a, b) => {
+    const ra = rank(a);
+    const rb = rank(b);
+    return ra === rb ? 0 : ra < rb ? -1 : 1;
+  });
+}
 
+async function getOrderedDocs() {
   const snapshot = await getDb()
     .collection(COLLECTION)
     .orderBy("createdAt", "asc")
     .get();
+  return sortByPosition(
+    snapshot.docs.map((doc) => ({
+      doc,
+      position: (doc.data() as { position?: unknown }).position,
+    })),
+  ).map(({ doc }) => doc);
+}
 
-  return snapshot.docs.map((doc) =>
+export async function getAllVideos(): Promise<Video[]> {
+  if (!isFirebaseConfigured()) return [];
+
+  return (await getOrderedDocs()).map((doc) =>
     toVideo(doc.id, doc.data() as VideoDocument),
+  );
+}
+
+/**
+ * Stores a new carousel order. `ids` is the wanted order; unknown ids are ignored and
+ * videos missing from the list keep their relative order behind the listed ones.
+ */
+export async function reorderVideos(ids: string[]): Promise<Video[]> {
+  const docs = await getOrderedDocs();
+  const byId = new Map(docs.map((doc) => [doc.id, doc]));
+  const wanted = [...new Set(ids)].filter((id) => byId.has(id));
+  const rest = docs.map((doc) => doc.id).filter((id) => !wanted.includes(id));
+  const ordered = [...wanted, ...rest];
+
+  const batch = getDb().batch();
+  ordered.forEach((id, position) => {
+    batch.update(byId.get(id)!.ref, { position });
+  });
+  await batch.commit();
+
+  return ordered.map((id) =>
+    toVideo(id, byId.get(id)!.data() as VideoDocument),
   );
 }
 
@@ -146,7 +191,9 @@ export function appJobFields(job: AppVideoJob): VideoDocument {
 export async function createAppVideo(
   job: AppVideoJob,
   title?: string,
+  accountName?: string,
 ): Promise<Video> {
+  const customer = (accountName ?? "").trim().slice(0, 200);
   const collection = getDb().collection(COLLECTION);
   const existing = await collection
     .where("appJobId", "==", job.jobId)
@@ -154,7 +201,10 @@ export async function createAppVideo(
     .get();
   if (!existing.empty) {
     const doc = existing.docs[0];
-    const fields = appJobFields(job);
+    const fields: VideoDocument = {
+      ...appJobFields(job),
+      ...(customer ? { accountName: customer } : {}),
+    };
     await doc.ref.update(fields);
     return toVideo(doc.id, { ...(doc.data() as VideoDocument), ...fields });
   }
@@ -163,11 +213,58 @@ export async function createAppVideo(
     title: (title ?? job.title ?? "").trim().slice(0, 200),
     source: "app",
     appJobId: job.jobId,
+    accountName: customer,
     createdAt: Date.now(),
     ...appJobFields(job),
   };
   const ref = await collection.add(data);
   return toVideo(ref.id, data);
+}
+
+const BACKFILL_PAGE_SIZE = 60;
+const BACKFILL_MAX_PAGES = 20;
+
+/**
+ * App videos added before customer names were stored get theirs from the app's
+ * candidate list (matched by web copy job). Runs once per video: the result is
+ * stored even when no match exists, so this is a no-op on every later call.
+ * Returns true when something was written.
+ */
+export async function backfillAccountNames(): Promise<boolean> {
+  if (!isFirebaseConfigured() || !isAppVideoApiConfigured()) return false;
+
+  const snapshot = await getDb()
+    .collection(COLLECTION)
+    .where("source", "==", "app")
+    .get();
+  const missing = snapshot.docs.filter(
+    (doc) => typeof (doc.data() as VideoDocument).accountName !== "string",
+  );
+  if (missing.length === 0) return false;
+
+  const namesByJob = new Map<string, string>();
+  for (let page = 1; page <= BACKFILL_MAX_PAGES; page += 1) {
+    const result = await listAppVideos({
+      page: String(page),
+      limit: String(BACKFILL_PAGE_SIZE),
+    });
+    for (const item of result.items) {
+      if (item.website?.jobId) {
+        namesByJob.set(item.website.jobId, item.accountName ?? "");
+      }
+    }
+    if (page >= result.pages) break;
+  }
+
+  const batch = getDb().batch();
+  for (const doc of missing) {
+    const jobId = (doc.data() as VideoDocument).appJobId ?? "";
+    batch.update(doc.ref, {
+      accountName: (namesByJob.get(jobId) ?? "").trim().slice(0, 200),
+    });
+  }
+  await batch.commit();
+  return true;
 }
 
 export async function updateAppVideo(

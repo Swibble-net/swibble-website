@@ -4,8 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import type { GetServerSideProps } from "next";
+import { MdArrowDownward, MdArrowUpward } from "react-icons/md";
 import { isAuthenticated } from "@/lib/adminAuth";
-import { getAllVideos, getVideoSettings } from "@/lib/videos/videos";
+import {
+  backfillAccountNames,
+  getAllVideos,
+  getVideoSettings,
+} from "@/lib/videos/videos";
 import { isAppVideoApiConfigured } from "@/lib/videos/appVideos";
 import AppVideoPicker from "@/components/admin/AppVideoPicker";
 import { isFirebaseConfigured } from "@/lib/firebaseAdmin";
@@ -57,6 +62,7 @@ const AdminVideos = ({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(initialSound);
   const [savingSound, setSavingSound] = useState(false);
+  const [reordering, setReordering] = useState(false);
 
   const toLogin = useCallback(() => {
     router.push("/admin/login");
@@ -170,6 +176,36 @@ const AdminVideos = ({
       alert(err instanceof Error ? err.message : "Fehler.");
     } finally {
       setBusyId(null);
+    }
+  };
+
+  // Moves a video one step; the list order is exactly the carousel order on the website.
+  const handleMove = async (id: string, direction: -1 | 1) => {
+    const from = items.findIndex((video) => video.id === id);
+    const to = from + direction;
+    if (from < 0 || to < 0 || to >= items.length || reordering) return;
+
+    const previous = items;
+    const next = [...items];
+    [next[from], next[to]] = [next[to], next[from]];
+    setItems(next);
+    setReordering(true);
+    try {
+      const res = await fetch("/api/videos/order", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: next.map((video) => video.id) }),
+      });
+      if (res.status === 401) return toLogin();
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || "Reihenfolge konnte nicht gespeichert werden.");
+      }
+    } catch (err) {
+      setItems(previous);
+      alert(err instanceof Error ? err.message : "Fehler.");
+    } finally {
+      setReordering(false);
     }
   };
 
@@ -383,6 +419,11 @@ const AdminVideos = ({
                       <span className="mr-2 rounded bg-[#FDF5FF] px-1.5 py-0.5 font-medium text-[#B718EC]">
                         Swibble-App
                       </span>
+                      {video.accountName && (
+                        <span className="mr-2 font-medium text-[#556987]">
+                          {video.accountName}
+                        </span>
+                      )}
                       {video.status === "processing" &&
                         "Wird komprimiert … das dauert meist 1–3 Minuten."}
                       {video.status === "failed" &&
@@ -420,6 +461,31 @@ const AdminVideos = ({
                     </>
                   )}
                   <div className="mt-3 flex items-center gap-3 text-sm">
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleMove(video.id, -1)}
+                        disabled={i === 0 || reordering}
+                        aria-label={`${video.title || `Video ${i + 1}`} nach oben`}
+                        title="Nach oben"
+                        className="rounded-lg border border-[#F0E4F5] p-1.5 text-[#B718EC] transition hover:border-[#B718EC] disabled:cursor-not-allowed disabled:opacity-30"
+                      >
+                        <MdArrowUpward className="h-4 w-4" aria-hidden />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMove(video.id, 1)}
+                        disabled={i === items.length - 1 || reordering}
+                        aria-label={`${video.title || `Video ${i + 1}`} nach unten`}
+                        title="Nach unten"
+                        className="rounded-lg border border-[#F0E4F5] p-1.5 text-[#B718EC] transition hover:border-[#B718EC] disabled:cursor-not-allowed disabled:opacity-30"
+                      >
+                        <MdArrowDownward className="h-4 w-4" aria-hidden />
+                      </button>
+                      <span className="ml-1 text-xs text-[#8a7791]">
+                        Position {i + 1}
+                      </span>
+                    </div>
                     <a
                       href={video.source === "app" ? video.videoUrl : video.embedUrl}
                       target="_blank"
@@ -465,6 +531,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     return { redirect: { destination: "/admin/login", permanent: false } };
   }
   const configured = isFirebaseConfigured();
+  if (configured) {
+    await backfillAccountNames().catch((error) =>
+      console.error("[admin/videos] backfillAccountNames", error),
+    );
+  }
   const [videos, settings] = configured
     ? await Promise.all([getAllVideos(), getVideoSettings()])
     : [[], { soundEnabled: false }];

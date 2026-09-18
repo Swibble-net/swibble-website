@@ -24,7 +24,7 @@ export default async function handler(
     }
 
     if (req.method === "POST") {
-      const { assetId, fileId, title } = (req.body ?? {}) as Record<
+      const { assetId, fileId, title, accountName } = (req.body ?? {}) as Record<
         string,
         unknown
       >;
@@ -35,6 +35,7 @@ export default async function handler(
       const video = await createAppVideo(
         job,
         typeof title === "string" ? title : undefined,
+        typeof accountName === "string" ? accountName : undefined,
       );
       await revalidateHome(res);
       return res.status(201).json({ video });

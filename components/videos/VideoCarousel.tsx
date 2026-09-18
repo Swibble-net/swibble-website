@@ -60,7 +60,8 @@ const VideoSlide = (props: SlideProps) =>
   props.video.source === "app" ? (
     <figure className="m-0">
       <AppVideoPlayer {...props} />
-      <Caption title={props.video.title} />
+      {/* App video titles are file names; visitors see the customer instead. */}
+      <Caption title={props.video.accountName} />
     </figure>
   ) : (
     <EmbedSlide video={props.video} />
