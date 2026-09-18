@@ -1,4 +1,4 @@
-const SITE_URL = "https://swibble.net";
+const SITE_URL = "https://www.swibble.net";
 
 export const organizationJsonLd = {
   "@context": "https://schema.org",

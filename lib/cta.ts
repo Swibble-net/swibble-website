@@ -6,3 +6,6 @@ export const PHONE_DISPLAY = "+49 178 2632310";
 export const PHONE_TEL = "+491782632310";
 
 export const EMAIL = "info@swibble.net";
+
+// Contact form message limit, enforced in the form and in /api/send-mail.
+export const MESSAGE_MAX_LENGTH = 2000;

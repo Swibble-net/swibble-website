@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
+import { revalidateHome } from "@/lib/revalidateHome";
 import { createPost, getAllPosts } from "@/lib/blog/posts";
 import type { BlogPostInput, SortOrder } from "@/lib/blog/types";
 
@@ -35,6 +36,7 @@ export default async function handler(
         published: body.published,
       });
 
+      await revalidateHome(res);
       return res.status(201).json({ post });
     }
 
