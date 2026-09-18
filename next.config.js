@@ -12,7 +12,7 @@ const csp = [
   "media-src 'self' blob: https:",
   "font-src 'self' data:",
   `connect-src 'self' https:${isDev ? " ws: http://localhost:*" : ""}`,
-  "frame-src https://challenges.cloudflare.com https://player.vimeo.com https://www.youtube-nocookie.com https://www.youtube.com",
+  "frame-src https://challenges.cloudflare.com https://player.vimeo.com https://www.youtube-nocookie.com https://www.youtube.com https://www.tiktok.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
   "form-action 'self'",
