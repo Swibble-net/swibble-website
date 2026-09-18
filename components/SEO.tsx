@@ -1,6 +1,6 @@
 import Head from "next/head";
 
-const SITE_URL = "https://swibble.net";
+const SITE_URL = "https://www.swibble.net";
 const COMPANY_NAME = "Swibble UG";
 const TWITTER_HANDLE = "@swibble_net";
 

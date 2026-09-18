@@ -4,6 +4,6 @@ Disallow: /impressum
 Disallow: /api/
 Disallow: /admin/
 
-# AI-readable site summary: https://swibble.net/llms.txt
+# AI-readable site summary: https://www.swibble.net/llms.txt
 
-Sitemap: https://swibble.net/sitemap.xml
+Sitemap: https://www.swibble.net/sitemap.xml

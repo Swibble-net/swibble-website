@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { NextApiRequest, NextApiResponse } from "next";
+import { MESSAGE_MAX_LENGTH } from "@/lib/cta";
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,6 +14,10 @@ export default async function handler(
 
   if (!email || !message) {
     return res.status(400).json({ message: "Bad request!" });
+  }
+
+  if (typeof message !== "string" || message.length > MESSAGE_MAX_LENGTH) {
+    return res.status(400).json({ message: "Message too long" });
   }
 
   const transporter = nodemailer.createTransport({

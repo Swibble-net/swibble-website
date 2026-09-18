@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
+import { revalidateHome } from "@/lib/revalidateHome";
 import { getVideoSettings, updateVideoSettings } from "@/lib/videos/videos";
 
 export default async function handler(
@@ -19,6 +20,7 @@ export default async function handler(
       const settings = await updateVideoSettings({
         soundEnabled: req.body.soundEnabled,
       });
+      await revalidateHome(res);
       return res.status(200).json({ settings });
     }
 

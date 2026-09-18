@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
+import { revalidateHome } from "@/lib/revalidateHome";
 import { deleteVideo, updateVideoCover } from "@/lib/videos/videos";
 import { unpublishAppVideo } from "@/lib/videos/appVideos";
 
@@ -21,6 +22,7 @@ export default async function handler(
       const video = await updateVideoCover(id, cover);
       if (!video) return res.status(404).json({ message: "Nicht gefunden." });
 
+      await revalidateHome(res);
       return res.status(200).json({ video });
     }
 
@@ -35,6 +37,7 @@ export default async function handler(
           console.error(`[/api/videos/${id}] unpublish`, error),
         );
       }
+      await revalidateHome(res);
       return res.status(200).json({ success: true });
     }
 
