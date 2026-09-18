@@ -2,22 +2,35 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FormEvent, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import type { GetServerSideProps } from "next";
 import { isAuthenticated } from "@/lib/adminAuth";
-import { getAllVideos } from "@/lib/videos/videos";
+import { getAllVideos, getVideoSettings } from "@/lib/videos/videos";
+import { isAppVideoApiConfigured } from "@/lib/videos/appVideos";
+import AppVideoPicker from "@/components/admin/AppVideoPicker";
 import { isFirebaseConfigured } from "@/lib/firebaseAdmin";
 import type { Video } from "@/lib/videos/types";
 
 interface Props {
   videos: Video[];
   configured: boolean;
+  appConfigured: boolean;
+  soundEnabled: boolean;
+}
+
+function formatSize(bytes: number): string {
+  return `${(bytes / 1024 ** 2).toFixed(1).replace(".", ",")} MB`;
 }
 
 const inputClass =
   "w-full rounded-lg bg-[#F6F6F6] px-3 py-2 text-sm text-[#2A3342] focus:outline-none";
 
-const AdminVideos = ({ videos, configured }: Props) => {
+const AdminVideos = ({
+  videos,
+  configured,
+  appConfigured,
+  soundEnabled: initialSound,
+}: Props) => {
   const router = useRouter();
   const [items, setItems] = useState(videos);
   const [url, setUrl] = useState("");
@@ -34,6 +47,60 @@ const AdminVideos = ({ videos, configured }: Props) => {
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(initialSound);
+  const [savingSound, setSavingSound] = useState(false);
+
+  const toLogin = useCallback(() => {
+    router.push("/admin/login");
+  }, [router]);
+
+  // Poll while the Swibble app is still compressing a chosen video.
+  const processingIds = items
+    .filter((video) => video.source === "app" && video.status === "processing")
+    .map((video) => video.id)
+    .join(",");
+  useEffect(() => {
+    if (!processingIds) return;
+    const timer = setInterval(async () => {
+      for (const id of processingIds.split(",")) {
+        try {
+          const res = await fetch(
+            `/api/admin/app-videos/status?id=${encodeURIComponent(id)}`,
+          );
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (data.video) {
+            setItems((prev) =>
+              prev.map((video) => (video.id === id ? data.video : video)),
+            );
+          }
+        } catch {
+          /* Transient network errors are retried on the next tick. */
+        }
+      }
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [processingIds]);
+
+  const handleSoundToggle = async () => {
+    const next = !soundEnabled;
+    setSavingSound(true);
+    try {
+      const res = await fetch("/api/videos/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ soundEnabled: next }),
+      });
+      if (res.status === 401) return toLogin();
+      if (!res.ok) throw new Error("Speichern fehlgeschlagen.");
+      setSoundEnabled(next);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Fehler.");
+    } finally {
+      setSavingSound(false);
+    }
+  };
 
   const handleAdd = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -159,13 +226,58 @@ const AdminVideos = ({ videos, configured }: Props) => {
           </p>
         )}
 
+        {/* Swibble app + sound setting */}
+        <div className="mb-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-[#F0E4F5] bg-white p-4">
+            <p className="mb-1 text-sm font-semibold text-[#000D36]">
+              Aus der Swibble-App
+            </p>
+            <p className="mb-3 text-xs text-[#8a7791]">
+              Fertiges Video wählen – es wird automatisch auf 720p komprimiert
+              und bekommt ein Cover.
+            </p>
+            <button
+              type="button"
+              onClick={() => setPickerOpen(true)}
+              disabled={!appConfigured || !configured}
+              className="w-full rounded-[10px] bg-[#B718EC] px-5 py-2 text-sm font-medium text-[#F0FDF4] transition duration-200 hover:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Video aus Swibble-App wählen
+            </button>
+            {!appConfigured && (
+              <p className="mt-2 text-xs text-amber-700">
+                Verbindung fehlt: <code>SWIBBLE_APP_VIDEO_API_URL</code> und{" "}
+                <code>SWIBBLE_APP_VIDEO_API_KEY</code> setzen.
+              </p>
+            )}
+          </div>
+          <div className="rounded-xl border border-[#F0E4F5] bg-white p-4">
+            <p className="mb-1 text-sm font-semibold text-[#000D36]">Ton</p>
+            <p className="mb-3 text-xs text-[#8a7791]">
+              Videos starten immer stumm. Ist der Ton erlaubt, erscheint beim
+              Hovern ein Lautsprecher-Symbol; es läuft nie mehr als ein Video
+              mit Ton.
+            </p>
+            <label className="flex cursor-pointer items-center gap-3 text-sm text-[#2A3342]">
+              <input
+                type="checkbox"
+                className="h-4 w-4 accent-[#B718EC]"
+                checked={soundEnabled}
+                disabled={savingSound || !configured}
+                onChange={handleSoundToggle}
+              />
+              Besucher dürfen den Ton einschalten
+            </label>
+          </div>
+        </div>
+
         {/* Add form */}
         <form
           onSubmit={handleAdd}
           className="mb-8 rounded-xl border border-[#F0E4F5] bg-white p-4"
         >
           <p className="mb-3 text-sm font-semibold text-[#000D36]">
-            Neues Video hinzufügen
+            YouTube- oder Vimeo-Video hinzufügen
           </p>
           {error && (
             <p className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">
@@ -224,7 +336,15 @@ const AdminVideos = ({ videos, configured }: Props) => {
                 className="grid gap-4 rounded-xl border border-[#F0E4F5] bg-white p-4 sm:grid-cols-[5rem_1fr]"
               >
                 <div className="relative aspect-[9/16] overflow-hidden rounded-lg bg-[#FDF5FF]">
-                  {video.coverPath ? (
+                  {video.coverUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={video.coverUrl}
+                      alt=""
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : video.coverPath ? (
                     <Image
                       src={video.coverPath}
                       alt=""
@@ -242,34 +362,50 @@ const AdminVideos = ({ videos, configured }: Props) => {
                   <p className="font-semibold text-[#000D36]">
                     {video.title || `Video ${i + 1}`}
                   </p>
-                  <p className="mb-3 max-w-md truncate text-xs text-[#8a7791]">
-                    {video.embedUrl}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <input
-                      aria-label={`Cover für ${video.title || `Video ${i + 1}`}`}
-                      className={`${inputClass} min-w-48 flex-1`}
-                      placeholder="Cover-Dateiname"
-                      value={coverDrafts[video.id] ?? ""}
-                      onChange={(e) =>
-                        setCoverDrafts((prev) => ({
-                          ...prev,
-                          [video.id]: e.target.value,
-                        }))
-                      }
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleCoverSave(video.id)}
-                      disabled={busyId === video.id}
-                      className="rounded-lg border border-[#B718EC] px-3 py-2 text-sm text-[#B718EC] disabled:opacity-50"
-                    >
-                      Cover speichern
-                    </button>
-                  </div>
+                  {video.source === "app" ? (
+                    <p className="mb-3 text-xs text-[#8a7791]">
+                      <span className="mr-2 rounded bg-[#FDF5FF] px-1.5 py-0.5 font-medium text-[#B718EC]">
+                        Swibble-App
+                      </span>
+                      {video.status === "processing" &&
+                        "Wird komprimiert … das dauert meist 1–3 Minuten."}
+                      {video.status === "failed" &&
+                        "Komprimierung fehlgeschlagen – bitte entfernen und erneut wählen."}
+                      {video.status === "ready" &&
+                        `${video.width}×${video.height} · ${Math.round(video.duration)} s · ${formatSize(video.size)}${video.hasAudio ? "" : " · ohne Ton"}`}
+                    </p>
+                  ) : (
+                    <>
+                      <p className="mb-3 max-w-md truncate text-xs text-[#8a7791]">
+                        {video.embedUrl}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <input
+                          aria-label={`Cover für ${video.title || `Video ${i + 1}`}`}
+                          className={`${inputClass} min-w-48 flex-1`}
+                          placeholder="Cover-Dateiname"
+                          value={coverDrafts[video.id] ?? ""}
+                          onChange={(e) =>
+                            setCoverDrafts((prev) => ({
+                              ...prev,
+                              [video.id]: e.target.value,
+                            }))
+                          }
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleCoverSave(video.id)}
+                          disabled={busyId === video.id}
+                          className="rounded-lg border border-[#B718EC] px-3 py-2 text-sm text-[#B718EC] disabled:opacity-50"
+                        >
+                          Cover speichern
+                        </button>
+                      </div>
+                    </>
+                  )}
                   <div className="mt-3 flex items-center gap-3 text-sm">
                     <a
-                      href={video.embedUrl}
+                      href={video.source === "app" ? video.videoUrl : video.embedUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[#556987] hover:text-[#b718ec]"
@@ -290,6 +426,20 @@ const AdminVideos = ({ videos, configured }: Props) => {
           </div>
         )}
       </section>
+
+      {pickerOpen && (
+        <AppVideoPicker
+          onClose={() => setPickerOpen(false)}
+          onUnauthorized={toLogin}
+          onAdded={(video) =>
+            setItems((prev) =>
+              prev.some((item) => item.id === video.id)
+                ? prev.map((item) => (item.id === video.id ? video : item))
+                : [...prev, video],
+            )
+          }
+        />
+      )}
     </>
   );
 };
@@ -299,8 +449,17 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     return { redirect: { destination: "/admin/login", permanent: false } };
   }
   const configured = isFirebaseConfigured();
-  const videos = configured ? await getAllVideos() : [];
-  return { props: { videos, configured } };
+  const [videos, settings] = configured
+    ? await Promise.all([getAllVideos(), getVideoSettings()])
+    : [[], { soundEnabled: false }];
+  return {
+    props: {
+      videos,
+      configured,
+      appConfigured: isAppVideoApiConfigured(),
+      soundEnabled: settings.soundEnabled,
+    },
+  };
 };
 
 export default AdminVideos;

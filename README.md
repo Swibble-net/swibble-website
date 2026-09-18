@@ -56,6 +56,7 @@ Open [http://localhost:3000](http://localhost:3000). The site runs without Fireb
 | `pnpm build` | Production build (also type-checks) |
 | `pnpm start` | Serve production build |
 | `pnpm lint` | Run ESLint |
+| `pnpm test` | Run unit tests (Vitest) |
 
 ## Project structure
 
@@ -264,6 +265,29 @@ stills from the third-party `vumbnail.com` service. The thumbnail stays on top
 of the iframe until the player reports it is actually playing (via the player's
 postMessage API), which avoids a flash of the player's black background, then
 fades out.
+
+### Videos from the Swibble app
+
+`/admin/videos` can also pick a finished video straight from the Swibble app
+("Video aus Swibble-App wählen"). The website server talks to the app's
+`websiteVideoApi` with a shared key (`SWIBBLE_APP_VIDEO_API_URL`,
+`SWIBBLE_APP_VIDEO_API_KEY`); the key never reaches the browser, the CMS only
+uses `/api/admin/app-videos/*`.
+
+- The app compresses the original to a 720p H.264 MP4 (CRF 28, max. 1.5 Mbit/s,
+  AAC 96k, `faststart`) and extracts a JPEG cover. The Drive original is never
+  modified. While this runs the entry shows "Wird komprimiert …" and is hidden
+  from visitors; the CMS polls until it is ready.
+- The carousel plays these copies with a native `<video>` (`AppVideoPlayer`): the
+  cover is visible immediately, the MP4 is only requested when the slide
+  approaches the viewport, fades in once it plays and pauses off-screen.
+- **Sound:** videos always start muted. If "Besucher dürfen den Ton einschalten"
+  is enabled in the CMS (`settings/videos.soundEnabled`), a speaker icon appears
+  bottom-right on hover (always visible on touch devices). Only one video can be
+  audible at a time; it is silenced when it leaves the viewport. With the setting
+  off, no icon is rendered and everything stays muted.
+- Only tokenized Firebase Storage URLs under `website-videos/` are ever stored or
+  rendered (`isTrustedMediaUrl`). Deleting an entry also removes the public copy.
 
 ## Partner logos
 

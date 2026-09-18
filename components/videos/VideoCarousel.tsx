@@ -1,8 +1,20 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import type { Video } from "@/lib/videos/types";
+import { silenceIfHidden, toggleUnmuted } from "@/lib/videos/sound";
+import AppVideoPlayer from "./AppVideoPlayer";
 
 interface Props {
   videos: Video[];
+  /** CMS setting: visitors may switch on sound for self-hosted videos. */
+  soundEnabled?: boolean;
+}
+
+interface SlideProps {
+  video: Video;
+  soundAllowed: boolean;
+  muted: boolean;
+  onToggleSound: () => void;
+  onHidden: () => void;
 }
 
 const localVimeoCovers = new Set([
@@ -36,11 +48,28 @@ function getCoverPath(video: Video): string {
   return "";
 }
 
+const Caption = ({ title }: { title: string }) =>
+  title ? (
+    <figcaption className="mt-2 text-center text-sm text-[#556987]">
+      {title}
+    </figcaption>
+  ) : null;
+
+const VideoSlide = (props: SlideProps) =>
+  props.video.source === "app" ? (
+    <figure className="m-0">
+      <AppVideoPlayer {...props} />
+      <Caption title={props.video.title} />
+    </figure>
+  ) : (
+    <EmbedSlide video={props.video} />
+  );
+
 /**
  * Autoplays as the slide approaches the viewport. Off-screen slides remain
  * lightweight until visitors scroll to them.
  */
-const VideoSlide = ({ video }: { video: Video }) => {
+const EmbedSlide = ({ video }: { video: Video }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [started, setStarted] = useState(false);
   const coverPath = getCoverPath(video);
@@ -84,11 +113,7 @@ const VideoSlide = ({ video }: { video: Video }) => {
           />
         )}
       </div>
-      {video.title && (
-        <figcaption className="mt-2 text-center text-sm text-[#556987]">
-          {video.title}
-        </figcaption>
-      )}
+      <Caption title={video.title} />
     </figure>
   );
 };
@@ -109,7 +134,8 @@ function getSnapPoints(track: HTMLDivElement): number[] {
   return points;
 }
 
-const VideoCarousel = ({ videos }: Props) => {
+const VideoCarousel = ({ videos, soundEnabled = false }: Props) => {
+  const [unmutedId, setUnmutedId] = useState<string | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [snapPoints, setSnapPoints] = useState<number[]>([]);
@@ -220,7 +246,17 @@ const VideoCarousel = ({ videos }: Props) => {
             data-slide={i}
             className="w-[72%] flex-none [scroll-snap-align:start] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)]"
           >
-            <VideoSlide video={video} />
+            <VideoSlide
+              video={video}
+              soundAllowed={soundEnabled && video.hasAudio}
+              muted={!soundEnabled || unmutedId !== video.id}
+              onToggleSound={() =>
+                setUnmutedId((current) => toggleUnmuted(current, video.id))
+              }
+              onHidden={() =>
+                setUnmutedId((current) => silenceIfHidden(current, video.id))
+              }
+            />
           </div>
         ))}
       </div>

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
 import { deleteVideo, updateVideoCover } from "@/lib/videos/videos";
+import { unpublishAppVideo } from "@/lib/videos/appVideos";
 
 export default async function handler(
   req: NextApiRequest,
@@ -26,8 +27,14 @@ export default async function handler(
     if (req.method === "DELETE") {
       if (!requireAdmin(req, res)) return;
 
-      const ok = await deleteVideo(id);
-      if (!ok) return res.status(404).json({ message: "Nicht gefunden." });
+      const removed = await deleteVideo(id);
+      if (!removed) return res.status(404).json({ message: "Nicht gefunden." });
+      if (removed.source === "app" && removed.appJobId) {
+        // Best effort: the carousel entry is gone either way; the Drive original is never touched.
+        await unpublishAppVideo(removed.appJobId).catch((error) =>
+          console.error(`[/api/videos/${id}] unpublish`, error),
+        );
+      }
       return res.status(200).json({ success: true });
     }
 

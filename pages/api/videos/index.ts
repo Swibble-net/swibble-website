@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
-import { createVideo, getAllVideos } from "@/lib/videos/videos";
+import { createVideo, getPublicVideos } from "@/lib/videos/videos";
 import type { VideoInput } from "@/lib/videos/types";
 
 export default async function handler(
@@ -9,7 +9,7 @@ export default async function handler(
 ) {
   try {
     if (req.method === "GET") {
-      const videos = await getAllVideos();
+      const videos = await getPublicVideos();
       return res.status(200).json({ videos });
     }
 

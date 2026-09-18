@@ -11,7 +11,7 @@ import VideoCarousel from "@/components/videos/VideoCarousel";
 import SEO from "@/components/SEO";
 import { organizationJsonLd, webSiteJsonLd } from "@/lib/jsonLd";
 import { getAllPosts } from "@/lib/blog/posts";
-import { getAllVideos } from "@/lib/videos/videos";
+import { getPublicVideos, getVideoSettings } from "@/lib/videos/videos";
 import { isFirebaseConfigured } from "@/lib/firebaseAdmin";
 import type { BlogPost } from "@/lib/blog/types";
 import type { Video } from "@/lib/videos/types";
@@ -19,9 +19,10 @@ import type { Video } from "@/lib/videos/types";
 interface Props {
   latestPosts: BlogPost[];
   videos: Video[];
+  soundEnabled: boolean;
 }
 
-export default function Home({ latestPosts, videos }: Props) {
+export default function Home({ latestPosts, videos, soundEnabled }: Props) {
   return (
     <>
       <SEO
@@ -34,7 +35,7 @@ export default function Home({ latestPosts, videos }: Props) {
       <Introduction />
       <Tasks />
       <Projects />
-      <VideoCarousel videos={videos} />
+      <VideoCarousel videos={videos} soundEnabled={soundEnabled} />
       <ListOfCompanies />
       <Nationwide />
       <LatestPosts posts={latestPosts} />
@@ -45,13 +46,20 @@ export default function Home({ latestPosts, videos }: Props) {
 
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
   if (!isFirebaseConfigured()) {
-    return { props: { latestPosts: [], videos: [] } };
+    return { props: { latestPosts: [], videos: [], soundEnabled: false } };
   }
 
-  const [posts, videos] = await Promise.all([
+  const [posts, videos, settings] = await Promise.all([
     getAllPosts("newest"),
-    getAllVideos(),
+    getPublicVideos(),
+    getVideoSettings(),
   ]);
 
-  return { props: { latestPosts: posts.slice(0, 3), videos } };
+  return {
+    props: {
+      latestPosts: posts.slice(0, 3),
+      videos,
+      soundEnabled: settings.soundEnabled,
+    },
+  };
 };
