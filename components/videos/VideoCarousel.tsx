@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import type { Video } from "@/lib/videos/types";
 import { silenceIfHidden, toggleUnmuted } from "@/lib/videos/sound";
+import { isTikTokEmbed } from "@/lib/videos/embed";
 import AppVideoPlayer from "./AppVideoPlayer";
 
 interface Props {
@@ -73,6 +74,28 @@ const EmbedSlide = ({ video }: { video: Video }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [started, setStarted] = useState(false);
   const coverPath = getCoverPath(video);
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const tiktok = isTikTokEmbed(video.embedUrl);
+
+  // TikTok's player has no "muted" URL option: silence it as soon as it reports ready
+  // (and again on every state change, in case the browser allowed autoplay with sound).
+  useEffect(() => {
+    if (!tiktok || !started) return;
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== "https://www.tiktok.com") return;
+      if (event.source !== frameRef.current?.contentWindow) return;
+      const data = event.data as { type?: string; "x-tiktok-player"?: boolean };
+      if (!data?.["x-tiktok-player"]) return;
+      if (data.type === "onPlayerReady" || data.type === "onStateChange") {
+        frameRef.current?.contentWindow?.postMessage(
+          { type: "mute", "x-tiktok-player": true },
+          "https://www.tiktok.com",
+        );
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [tiktok, started]);
 
   useEffect(() => {
     const slide = ref.current;
@@ -103,6 +126,7 @@ const EmbedSlide = ({ video }: { video: Video }) => {
       >
         {started && (
           <iframe
+            ref={frameRef}
             src={video.embedUrl}
             title={video.title || "Video"}
             className="absolute inset-0 h-full w-full border-0"

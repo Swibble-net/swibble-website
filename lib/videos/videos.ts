@@ -1,5 +1,6 @@
 import { getDb, isFirebaseConfigured } from "@/lib/firebaseAdmin";
-import { toEmbedUrl } from "./embed";
+import { tiktokVideoId, toEmbedUrl } from "./embed";
+import { resolveTikTokUrl } from "./tiktok";
 import { isTrustedMediaUrl } from "./appVideos";
 import type {
   AppVideoJob,
@@ -23,6 +24,7 @@ export function toVideo(id: string, data: VideoDocument): Video {
     source,
     embedUrl: data.embedUrl ?? "",
     coverPath: data.coverPath ?? "",
+    sourceUrl: data.sourceUrl ?? "",
     // Never render a stored URL that is not one of our own web copies.
     videoUrl: isTrustedMediaUrl(data.videoUrl) ? data.videoUrl : "",
     coverUrl: isTrustedMediaUrl(data.coverUrl) ? data.coverUrl : "",
@@ -92,16 +94,28 @@ export async function getVideo(id: string): Promise<Video | null> {
 }
 
 export async function createVideo(input: VideoInput): Promise<Video> {
+  const url = await resolveTikTokUrl(input.url);
+  const isTikTok = Boolean(tiktokVideoId(url));
   const data: VideoDocument = {
     title: input.title?.trim() ?? "",
     source: "embed",
-    embedUrl: toEmbedUrl(input.url),
+    embedUrl: toEmbedUrl(url),
     coverPath: toCoverPath(input.cover),
+    ...(isTikTok ? { sourceUrl: url } : {}),
     createdAt: Date.now(),
   };
 
   const ref = await getDb().collection(COLLECTION).add(data);
+  // TikTok videos bring their own cover unless a local file was chosen.
+  if (isTikTok && !data.coverPath) {
+    data.coverPath = tiktokCoverPath(ref.id);
+    await ref.update({ coverPath: data.coverPath });
+  }
   return toVideo(ref.id, data);
+}
+
+export function tiktokCoverPath(id: string): string {
+  return `/api/videos/cover/${encodeURIComponent(id)}`;
 }
 
 /** Maps the Swibble app's job state onto the fields stored with a video. */
@@ -176,7 +190,10 @@ export async function updateVideoCover(
   const existing = await ref.get();
   if (!existing.exists) return null;
 
-  const coverPath = toCoverPath(cover);
+  const stored = existing.data() as VideoDocument;
+  // Clearing the local cover of a TikTok video falls back to TikTok's own.
+  const coverPath =
+    toCoverPath(cover) || (stored.sourceUrl ? tiktokCoverPath(id) : "");
   await ref.update({ coverPath });
 
   return toVideo(id, {
