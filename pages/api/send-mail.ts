@@ -7,6 +7,7 @@ import {
   buildConfirmationSubject,
   buildConfirmationText,
 } from "@/lib/contact/confirmation";
+import { buildNotificationHtml } from "@/lib/contact/notification";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export default async function handler(
@@ -44,6 +45,10 @@ export default async function handler(
     to: process.env.SMTP_USER,
     subject: buildSubject(inquiry),    // single line, control characters removed
     text: buildText(inquiry),
+    // Funnel inquiries also come in the Swibble look; the former form stays plain text.
+    ...(inquiry.legacy
+      ? {}
+      : { html: buildNotificationHtml(inquiry), attachments: [EMAIL_LOGO_ATTACHMENT] }),
   };
 
   try {
