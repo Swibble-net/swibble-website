@@ -5,6 +5,7 @@ export const APPLICATION_ROLES = [
   { id: "video", label: "Im Video mitmachen" },
   { id: "promoter", label: "Promoter:in" },
   { id: "model", label: "Model" },
+  { id: "kamera", label: "Kamerabedienung" },
 ] as const;
 
 export type ApplicationRole = (typeof APPLICATION_ROLES)[number]["id"];

@@ -48,7 +48,7 @@ const BewerbenPage: NextPageWithLayout<Props> = ({
     <>
       <SEO
         title="Mach mit bei unseren Videos"
-        description="Du willst in TikTok- und Instagram-Videos aus deinem Einkaufszentrum dabei sein, als Promoter:in oder Model arbeiten? Bewirb dich in zwei Minuten bei Swibble."
+        description="Du willst in TikTok- und Instagram-Videos aus deinem Einkaufszentrum dabei sein, als Promoter:in oder Model arbeiten oder die Kamera bedienen? Bewirb dich in zwei Minuten bei Swibble."
         canonical="/bewerben"
       />
 
@@ -80,7 +80,7 @@ const BewerbenPage: NextPageWithLayout<Props> = ({
                 </h1>
                 <p className="max-w-md text-base text-[#556987]">
                   Wir drehen die TikToks und Reels für dein Center – und suchen
-                  Leute, die Lust haben, vor der Kamera zu stehen, als
+                  Leute, die Lust haben, vor oder hinter der Kamera zu stehen, als
                   Promoter:in zu arbeiten oder zu modeln. Keine Erfahrung nötig.
                 </p>
               </>

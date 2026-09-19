@@ -52,7 +52,6 @@ const ERROR_TARGETS: Array<[string, string]> = [
   ["city", "f-city"],
   ["email", "f-email"],
   ["phone", "f-phone"],
-  ["socials", "f-tiktok"],
   ["tiktok", "f-tiktok"],
   ["instagram", "f-instagram"],
   ["snapchat", "f-snapchat"],
@@ -124,7 +123,6 @@ const ApplicationForm = ({
     guardianEmail: "",
     website: "", // honeypot
   });
-  const [showMoreSocials, setShowMoreSocials] = useState(false);
   const [contactConsent, setContactConsent] = useState(false);
   const [privacyAck, setPrivacyAck] = useState(false);
   const [guardianConfirmed, setGuardianConfirmed] = useState(false);
@@ -346,12 +344,11 @@ const ApplicationForm = ({
   const handleInput = (
     name: "tiktok" | "instagram" | "snapchat" | "youtube",
     label: string,
-    required: boolean,
   ) => (
     <div>
       <label className={labelClass} htmlFor={`f-${name}`}>
         {label}
-        {!required && <span className="font-normal text-[#8a7791]"> (optional)</span>}
+        <span className="font-normal text-[#8a7791]"> (optional)</span>
       </label>
       <div className="relative">
         <span
@@ -364,13 +361,13 @@ const ApplicationForm = ({
           id={`f-${name}`}
           className={`${inputClass} pl-9`}
           value={fields[name]}
-          onChange={setField(name, "socials")}
+          onChange={setField(name)}
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
           maxLength={120}
           placeholder="deinname"
-          {...errorProps(name, ...(required ? ["socials"] : []))}
+          {...errorProps(name)}
         />
       </div>
       {errorFor(name)}
@@ -562,8 +559,13 @@ const ApplicationForm = ({
             maxLength={30}
             placeholder="0151 2345678"
             required
-            {...errorProps("phone")}
+            aria-invalid={errors.phone ? true : undefined}
+            aria-describedby={`${formId}-phone-hint${errors.phone ? ` ${formId}-phone-error` : ""}`}
           />
+          <p id={`${formId}-phone-hint`} className="mt-1.5 text-xs text-[#8a7791]">
+            Am besten eine Nummer, unter der du bei WhatsApp erreichbar bist –
+            darüber melden wir uns am liebsten.
+          </p>
           {errorFor("phone")}
         </div>
       </Section>
@@ -571,26 +573,12 @@ const ApplicationForm = ({
       {/* Socials */}
       <Section
         title="Deine Profile"
-        hint="Mindestens TikTok oder Instagram – damit wir sehen, wer du bist."
+        hint="Alles freiwillig – hilft uns aber zu sehen, wer du bist."
       >
-        {handleInput("tiktok", "TikTok", true)}
-        {handleInput("instagram", "Instagram", true)}
-        {errorFor("socials")}
-
-        {showMoreSocials ? (
-          <>
-            {handleInput("snapchat", "Snapchat", false)}
-            {handleInput("youtube", "YouTube", false)}
-          </>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setShowMoreSocials(true)}
-            className="self-start rounded-lg py-1 text-sm font-medium text-[#B718EC] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC]"
-          >
-            + Snapchat oder YouTube hinzufügen
-          </button>
-        )}
+        {handleInput("tiktok", "TikTok")}
+        {handleInput("instagram", "Instagram")}
+        {handleInput("snapchat", "Snapchat")}
+        {handleInput("youtube", "YouTube")}
       </Section>
 
       {/* About + center */}
