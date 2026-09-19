@@ -26,6 +26,7 @@ import {
   prepareConsentFile,
   type PreparedFile,
 } from "@/lib/applications/clientFile";
+import { adoptEarlyInput } from "@/lib/applications/earlyInput";
 import { validateApplication } from "@/lib/applications/validation";
 import type { ApplicationErrors } from "@/lib/applications/types";
 import type { CenterOption } from "@/lib/applications/store";
@@ -159,15 +160,7 @@ const ApplicationForm = ({
         (document.getElementById(id) as HTMLInputElement | null)?.checked ??
         false;
 
-      setFields((prev) => {
-        const next = { ...prev };
-        for (const key of Object.keys(prev) as Array<keyof typeof prev>) {
-          let domValue = valueOf(`f-${key}`);
-          if (key.startsWith("birth")) domValue = domValue.replace(/\D/g, "");
-          if (domValue && !prev[key]) next[key] = domValue;
-        }
-        return next;
-      });
+      setFields((prev) => adoptEarlyInput(prev, (key) => valueOf(`f-${key}`)));
       setRoles((prev) =>
         prev.length > 0
           ? prev
