@@ -28,7 +28,7 @@ export interface Inquiry {
   /** City or town, no full address. */
   location: string;
   services: Service[];
-  goal: Goal | "";
+  goals: Goal[];
   budget: Budget | "";
   timeframe: Timeframe | "";
   /** Body of the former free-text form (email, message, number only). */
@@ -39,7 +39,7 @@ export type InquiryResult =
   | { ok: true; inquiry: Inquiry }
   | { ok: false; error: string };
 
-const FUNNEL_FIELDS = ["services", "goal", "budget", "timeframe", "name", "company", "location"] as const;
+const FUNNEL_FIELDS = ["services", "goals", "goal", "budget", "timeframe", "name", "company", "location"] as const;
 const SUBJECT_MAX_LENGTH = 200;
 
 /** Single line without control characters: safe for mail headers such as the subject. */
@@ -118,8 +118,23 @@ export function parseInquiry(body: unknown): InquiryResult {
     );
   }
 
-  const goal = optionalChoice(data.goal, GOALS);
-  if (goal === null) return fail("Invalid goal");
+  // Multi-select `goals`; the single `goal` of earlier form versions is still accepted.
+  let goals: Goal[] = [];
+  if (!isEmpty(data.goals)) {
+    const allowed = GOALS.map((option) => option.value) as string[];
+    if (
+      !Array.isArray(data.goals) ||
+      data.goals.length > allowed.length ||
+      !data.goals.every((item) => typeof item === "string" && allowed.includes(item))
+    ) {
+      return fail("Invalid goal");
+    }
+    goals = GOALS.map((option) => option.value).filter((value) => (data.goals as string[]).includes(value));
+  } else {
+    const goal = optionalChoice(data.goal, GOALS);
+    if (goal === null) return fail("Invalid goal");
+    if (goal) goals = [goal];
+  }
 
   const budget = optionalChoice(data.budget, BUDGETS);
   if (budget === null) return fail("Invalid budget");
@@ -137,7 +152,7 @@ export function parseInquiry(body: unknown): InquiryResult {
       company,
       location,
       services,
-      goal,
+      goals,
       budget,
       timeframe,
       legacy,
@@ -171,7 +186,7 @@ export function buildText(inquiry: Inquiry): string {
     "",
     "ANFRAGE",
     `Leistungen: ${inquiry.services.map((service) => labelOf(SERVICES, service)).join(", ")}`,
-    `Ziel:       ${orDash(labelOf(GOALS, inquiry.goal))}`,
+    `Ziele:      ${orDash(inquiry.goals.map((goal) => labelOf(GOALS, goal)).join(", "))}`,
     `Budget:     ${orDash(labelOf(BUDGETS, inquiry.budget))}`,
     `Start:      ${orDash(labelOf(TIMEFRAMES, inquiry.timeframe))}`,
     "",

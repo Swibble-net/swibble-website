@@ -7,7 +7,8 @@ import {
   nextStep,
   prevStep,
   progressPercent,
-  reconcileGoal,
+  reconcileGoals,
+  toggleGoal,
   toggleService,
   type FunnelAnswers,
   type Step,
@@ -45,10 +46,16 @@ describe("goals", () => {
     expect(goalsForServices([])).toHaveLength(6);
   });
 
-  it("drops a goal that no longer fits the services", () => {
-    expect(reconcileGoal(["social-media"], "reach")).toBe("reach");
-    expect(reconcileGoal(["live-events"], "reach")).toBe("");
-    expect(reconcileGoal(["live-events"], "")).toBe("");
+  it("allows several goals and keeps the order of the chips", () => {
+    const selected = toggleGoal(toggleGoal([], "branding"), "reach");
+    expect(selected).toEqual(["reach", "branding"]);
+    expect(toggleGoal(selected, "reach")).toEqual(["branding"]);
+  });
+
+  it("drops the goals that no longer fit the services", () => {
+    expect(reconcileGoals(["social-media"], ["reach", "customers"])).toEqual(["reach", "customers"]);
+    expect(reconcileGoals(["live-events"], ["reach", "customers"])).toEqual(["customers"]);
+    expect(reconcileGoals(["live-events"], [])).toEqual([]);
   });
 });
 
@@ -58,13 +65,13 @@ describe("step logic", () => {
     expect(canProceed(1, answers({ services: ["unsure"] }))).toBe(true);
     expect(canProceed(2, answers({ services: ["design"] }))).toBe(false);
     // Budget and timeframe stay optional.
-    expect(canProceed(2, answers({ services: ["design"], goal: "branding" }))).toBe(true);
+    expect(canProceed(2, answers({ services: ["design"], goals: ["branding"] }))).toBe(true);
   });
 
   it("only moves forward when the step is complete", () => {
     expect(nextStep(1, answers({}))).toBe(1);
     expect(nextStep(1, answers({ services: ["design"] }))).toBe(2);
-    expect(nextStep(2, answers({ services: ["design"], goal: "branding" }))).toBe(3);
+    expect(nextStep(2, answers({ services: ["design"], goals: ["branding", "website-app"] }))).toBe(3);
     expect(nextStep(3, answers({}))).toBe(4);
     expect(nextStep(4, answers({}))).toBe(4);
   });

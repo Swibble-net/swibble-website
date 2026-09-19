@@ -10,7 +10,7 @@ export interface InquiryPayload {
   company: string;
   location: string;
   services: Service[];
-  goal: Goal | "";
+  goals: Goal[];
   budget: Budget | "";
   timeframe: Timeframe | "";
   /** Checked server-side once TURNSTILE_SECRET_KEY is configured. */

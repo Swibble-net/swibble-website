@@ -84,14 +84,14 @@ export const DONE_STEP: Step = 4;
 
 export interface FunnelAnswers {
   services: Service[];
-  goal: Goal | "";
+  goals: Goal[];
   budget: Budget | "";
   timeframe: Timeframe | "";
 }
 
 export const EMPTY_ANSWERS: FunnelAnswers = {
   services: [],
-  goal: "",
+  goals: [],
   budget: "",
   timeframe: "",
 };
@@ -118,14 +118,21 @@ export function goalsForServices(services: readonly Service[]) {
   );
 }
 
-/** Drops a goal that no longer fits after the services were changed. */
-export function reconcileGoal(services: readonly Service[], goal: Goal | ""): Goal | "" {
-  return goalsForServices(services).some((option) => option.value === goal) ? goal : "";
+/** Toggles a goal chip (multi-select); the result keeps the order of GOALS. */
+export function toggleGoal(selected: readonly Goal[], goal: Goal): Goal[] {
+  const next = selected.includes(goal) ? selected.filter((item) => item !== goal) : [...selected, goal];
+  return GOALS.map((option) => option.value).filter((value) => next.includes(value));
+}
+
+/** Drops the goals that no longer fit after the services were changed. */
+export function reconcileGoals(services: readonly Service[], goals: readonly Goal[]): Goal[] {
+  const offered = goalsForServices(services).map((option) => option.value);
+  return goals.filter((goal) => offered.includes(goal));
 }
 
 export function canProceed(step: Step, answers: FunnelAnswers): boolean {
   if (step === 1) return answers.services.length > 0;
-  if (step === 2) return answers.goal !== "";
+  if (step === 2) return answers.goals.length > 0;
   return step === 3;
 }
 

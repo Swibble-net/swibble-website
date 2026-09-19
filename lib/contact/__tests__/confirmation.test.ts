@@ -25,7 +25,7 @@ const FULL = parseOk({
   company: "Muster GmbH",
   location: "Aachen",
   services: ["social-media", "design"],
-  goal: "reach",
+  goals: ["reach", "customers"],
   budget: "2k-5k",
   timeframe: "1-3-months",
 });
@@ -40,7 +40,7 @@ describe("confirmation mail", () => {
   it("repeats every answer and leaves out empty ones", () => {
     expect(summaryRows(FULL).map((row) => row.label)).toEqual([
       "Leistungen",
-      "Ziel",
+      "Ziele",
       "Budgetrahmen",
       "Gewünschter Start",
       "Name",

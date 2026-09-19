@@ -30,9 +30,11 @@ import {
   nextStep,
   prevStep,
   progressPercent,
-  reconcileGoal,
+  reconcileGoals,
+  toggleGoal,
   toggleService,
   type FunnelAnswers,
+  type Goal,
   type Service,
   type Step,
 } from "@/lib/contact/funnel";
@@ -56,7 +58,7 @@ const CASE_STUDY = {
 
 const STEP_HINTS: Partial<Record<Step, string>> = {
   1: "Bitte wähle mindestens eine Option aus.",
-  2: "Bitte wähle ein Ziel aus.",
+  2: "Bitte wähle mindestens ein Ziel aus.",
 };
 
 const INPUT_CLASS =
@@ -107,12 +109,17 @@ const ContactFunnel = () => {
     setStepError("");
     setAnswers((prev) => {
       const services = toggleService(prev.services, service);
-      return { ...prev, services, goal: reconcileGoal(services, prev.goal) };
+      return { ...prev, services, goals: reconcileGoals(services, prev.goals) };
     });
   };
 
+  const handleGoalToggle = (goal: Goal) => {
+    setStepError("");
+    setAnswers((prev) => ({ ...prev, goals: toggleGoal(prev.goals, goal) }));
+  };
+
   // Single-select chips: a second click clears the choice again.
-  const handleChoice = <K extends "goal" | "budget" | "timeframe">(field: K, value: FunnelAnswers[K]) => {
+  const handleChoice = <K extends "budget" | "timeframe">(field: K, value: FunnelAnswers[K]) => {
     setStepError("");
     setAnswers((prev) => ({ ...prev, [field]: prev[field] === value ? "" : value }));
   };
@@ -146,7 +153,7 @@ const ContactFunnel = () => {
       setConfirmationSent(response.data.confirmationSent === true);
       track("contact_funnel_submit", {
         services: answers.services.join(","),
-        goal: answers.goal,
+        goals: answers.goals.join(","),
         budget: answers.budget || "none",
         timeframe: answers.timeframe || "none",
       });
@@ -163,7 +170,7 @@ const ContactFunnel = () => {
   const title = STEPS.find((item) => item.step === step)?.title ?? "";
   const summary = [
     answers.services.map((service) => labelOf(SERVICES, service)).join(", "),
-    labelOf(GOALS, answers.goal),
+    answers.goals.map((goal) => labelOf(GOALS, goal)).join(", "),
   ]
     .filter(Boolean)
     .join(" · ");
@@ -251,10 +258,10 @@ const ContactFunnel = () => {
         {step === 2 && (
           <>
             <fieldset>
-              <legend className="sr-only">Ziel</legend>
+              <legend className="mb-3 text-sm font-normal text-[#556987]">Mehrfachauswahl möglich.</legend>
               <div className="flex flex-wrap gap-2">
                 {goalsForServices(answers.services).map((goal) => (
-                  <ChoiceChip key={goal.value} selected={answers.goal === goal.value} onToggle={() => handleChoice("goal", goal.value)}>
+                  <ChoiceChip key={goal.value} selected={answers.goals.includes(goal.value)} onToggle={() => handleGoalToggle(goal.value)}>
                     {goal.label}
                   </ChoiceChip>
                 ))}
