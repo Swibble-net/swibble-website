@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import SwibbleLogoText from "@/public/logo/SwibbleTextLogoWhite.svg";
+import SwibbleLogoText from "@/public/logo/SwibbleWordmarkWhite.svg";
 import LinkedInIcon from "@/public/icons/LinkedIn.svg";
 import { NAV_LINKS, SERVICE_LINKS } from "@/lib/navLinks";
 import {
@@ -80,7 +80,7 @@ const Footer = () => {
             href={"/"}
             className="w-fit hover:scale-95 transition duration-200"
           >
-            <Image src={SwibbleLogoText} alt="Swibble" width={120} height={33} />
+            <Image src={SwibbleLogoText} alt="Swibble" width={133} height={33} />
           </Link>
           <p className="max-w-xs font-light leading-6 text-[#D5DAE1]">
             Digitalagentur für Social Media, Live-Events, Design &

@@ -19,6 +19,7 @@ export function summaryRows(inquiry: Inquiry): MailRow[] {
     { label: "Gewünschter Start", value: labelOf(TIMEFRAMES, inquiry.timeframe) },
     { label: "Name", value: inquiry.name },
     { label: "Unternehmen", value: inquiry.company },
+    { label: "Stadt / Ort", value: inquiry.location },
     { label: "E-Mail", value: inquiry.email },
     { label: "Telefon", value: inquiry.number },
   ].filter((row) => row.value);

@@ -8,6 +8,7 @@ export interface InquiryPayload {
   message: string;
   name: string;
   company: string;
+  location: string;
   services: Service[];
   goal: Goal | "";
   budget: Budget | "";

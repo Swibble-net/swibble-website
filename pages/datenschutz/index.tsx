@@ -118,7 +118,7 @@ const Datenschutz = () => {
           <p>
             Wenn Sie uns über das Kontaktformular oder per E-Mail kontaktieren,
             werden die von Ihnen angegebenen Daten (Ihre E-Mail-Adresse,
-            optional Ihr Name, Ihr Unternehmen, Ihre Telefonnummer und Ihre
+            optional Ihr Name, Ihr Unternehmen, Ihr Ort, Ihre Telefonnummer und Ihre
             Nachricht sowie Ihre Angaben zum Vorhaben: gewünschte Leistungen,
             Ziel, Budgetrahmen und Startzeitraum) verarbeitet, um Ihre
             Anfrage zu bearbeiten und zu beantworten. Diese Daten werden per

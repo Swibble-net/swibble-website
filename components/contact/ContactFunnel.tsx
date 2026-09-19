@@ -16,6 +16,7 @@ import {
   FIRST_STEP,
   GOALS,
   LAST_INPUT_STEP,
+  LOCATION_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NUMBER_MAX_LENGTH,
   SERVICES,
@@ -66,7 +67,7 @@ const PRIMARY_BUTTON_CLASS =
 const ContactFunnel = () => {
   const [step, setStep] = useState<Step>(FIRST_STEP);
   const [answers, setAnswers] = useState<FunnelAnswers>(EMPTY_ANSWERS);
-  const [contact, setContact] = useState({ name: "", email: "", number: "", company: "", message: "" });
+  const [contact, setContact] = useState({ name: "", email: "", number: "", company: "", location: "", message: "" });
   const [stepError, setStepError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [submitError, setSubmitError] = useState<"" | "turnstile" | "send">("");
@@ -326,9 +327,15 @@ const ContactFunnel = () => {
                 </p>
               )}
             </div>
-            <div>
-              <label htmlFor="number">Telefonnummer (Optional)</label>
-              <input className={INPUT_CLASS} id="number" name="number" type="tel" autoComplete="tel" maxLength={NUMBER_MAX_LENGTH} placeholder="Deine Telefonnummer" value={contact.number} onChange={(e) => setContact({ ...contact, number: e.target.value })} />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <div>
+                <label htmlFor="number">Telefonnummer (Optional)</label>
+                <input className={INPUT_CLASS} id="number" name="number" type="tel" autoComplete="tel" maxLength={NUMBER_MAX_LENGTH} placeholder="Deine Telefonnummer" value={contact.number} onChange={(e) => setContact({ ...contact, number: e.target.value })} />
+              </div>
+              <div>
+                <label htmlFor="location">Stadt / Ort (Optional)</label>
+                <input className={INPUT_CLASS} id="location" name="location" type="text" autoComplete="address-level2" maxLength={LOCATION_MAX_LENGTH} placeholder="z. B. Aachen" value={contact.location} onChange={(e) => setContact({ ...contact, location: e.target.value })} />
+              </div>
             </div>
             <div>
               <label htmlFor="message">Nachricht (Optional)</label>
