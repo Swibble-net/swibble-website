@@ -1,10 +1,12 @@
 import Link from "next/link";
 import {
   useCallback,
+  useEffect,
   useId,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ChangeEvent,
   type FormEvent,
   type ReactNode,
@@ -24,6 +26,7 @@ import {
   prepareConsentFile,
   type PreparedFile,
 } from "@/lib/applications/clientFile";
+import { adoptEarlyInput } from "@/lib/applications/earlyInput";
 import { validateApplication } from "@/lib/applications/validation";
 import type { ApplicationErrors } from "@/lib/applications/types";
 import type { CenterOption } from "@/lib/applications/store";
@@ -52,7 +55,6 @@ const ERROR_TARGETS: Array<[string, string]> = [
   ["city", "f-city"],
   ["email", "f-email"],
   ["phone", "f-phone"],
-  ["socials", "f-tiktok"],
   ["tiktok", "f-tiktok"],
   ["instagram", "f-instagram"],
   ["snapchat", "f-snapchat"],
@@ -69,6 +71,8 @@ const ERROR_TARGETS: Array<[string, string]> = [
   ["privacyAck", "f-privacyAck"],
   ["turnstile", "f-turnstile"],
 ];
+
+const subscribeNever = () => () => {};
 
 const FieldError = ({ id, message }: { id: string; message?: string }) =>
   message ? (
@@ -124,7 +128,6 @@ const ApplicationForm = ({
     guardianEmail: "",
     website: "", // honeypot
   });
-  const [showMoreSocials, setShowMoreSocials] = useState(false);
   const [contactConsent, setContactConsent] = useState(false);
   const [privacyAck, setPrivacyAck] = useState(false);
   const [guardianConfirmed, setGuardianConfirmed] = useState(false);
@@ -138,6 +141,39 @@ const ApplicationForm = ({
   const [errors, setErrors] = useState<ApplicationErrors>({});
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  // False in the server HTML, true once React runs in the browser. Until then
+  // the submit button stays disabled so nobody can trigger a native submit.
+  const hydrated = useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
+
+  // On slow connections people start typing (or the browser autofills) before
+  // React has taken over. Adopt those values instead of showing filled fields
+  // that the form state knows nothing about.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const valueOf = (id: string) =>
+        (document.getElementById(id) as HTMLInputElement | null)?.value ?? "";
+      const isChecked = (id: string) =>
+        (document.getElementById(id) as HTMLInputElement | null)?.checked ??
+        false;
+
+      setFields((prev) => adoptEarlyInput(prev, (key) => valueOf(`f-${key}`)));
+      setRoles((prev) =>
+        prev.length > 0
+          ? prev
+          : APPLICATION_ROLES.map((r) => r.id).filter((id) =>
+              isChecked(`f-role-${id}`),
+            ),
+      );
+      if (isChecked("f-contactConsent")) setContactConsent(true);
+      if (isChecked("f-privacyAck")) setPrivacyAck(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const monthRef = useRef<HTMLInputElement>(null);
   const yearRef = useRef<HTMLInputElement>(null);
 
@@ -346,12 +382,11 @@ const ApplicationForm = ({
   const handleInput = (
     name: "tiktok" | "instagram" | "snapchat" | "youtube",
     label: string,
-    required: boolean,
   ) => (
     <div>
       <label className={labelClass} htmlFor={`f-${name}`}>
         {label}
-        {!required && <span className="font-normal text-[#8a7791]"> (optional)</span>}
+        <span className="font-normal text-[#8a7791]"> (optional)</span>
       </label>
       <div className="relative">
         <span
@@ -364,13 +399,13 @@ const ApplicationForm = ({
           id={`f-${name}`}
           className={`${inputClass} pl-9`}
           value={fields[name]}
-          onChange={setField(name, "socials")}
+          onChange={setField(name)}
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
           maxLength={120}
           placeholder="deinname"
-          {...errorProps(name, ...(required ? ["socials"] : []))}
+          {...errorProps(name)}
         />
       </div>
       {errorFor(name)}
@@ -562,8 +597,13 @@ const ApplicationForm = ({
             maxLength={30}
             placeholder="0151 2345678"
             required
-            {...errorProps("phone")}
+            aria-invalid={errors.phone ? true : undefined}
+            aria-describedby={`${formId}-phone-hint${errors.phone ? ` ${formId}-phone-error` : ""}`}
           />
+          <p id={`${formId}-phone-hint`} className="mt-1.5 text-xs text-[#8a7791]">
+            Am besten eine Nummer, unter der du bei WhatsApp erreichbar bist –
+            darüber melden wir uns am liebsten.
+          </p>
           {errorFor("phone")}
         </div>
       </Section>
@@ -571,26 +611,12 @@ const ApplicationForm = ({
       {/* Socials */}
       <Section
         title="Deine Profile"
-        hint="Mindestens TikTok oder Instagram – damit wir sehen, wer du bist."
+        hint="Alles freiwillig – hilft uns aber zu sehen, wer du bist."
       >
-        {handleInput("tiktok", "TikTok", true)}
-        {handleInput("instagram", "Instagram", true)}
-        {errorFor("socials")}
-
-        {showMoreSocials ? (
-          <>
-            {handleInput("snapchat", "Snapchat", false)}
-            {handleInput("youtube", "YouTube", false)}
-          </>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setShowMoreSocials(true)}
-            className="self-start rounded-lg py-1 text-sm font-medium text-[#B718EC] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC]"
-          >
-            + Snapchat oder YouTube hinzufügen
-          </button>
-        )}
+        {handleInput("tiktok", "TikTok")}
+        {handleInput("instagram", "Instagram")}
+        {handleInput("snapchat", "Snapchat")}
+        {handleInput("youtube", "YouTube")}
       </Section>
 
       {/* About + center */}
@@ -873,7 +899,7 @@ const ApplicationForm = ({
 
         <button
           type="submit"
-          disabled={submitting || fileBusy || uploadBlocked}
+          disabled={!hydrated || submitting || fileBusy || uploadBlocked}
           className="w-full rounded-2xl bg-[#B718EC] px-6 py-4 text-base font-bold text-white shadow-lg shadow-purple-200 motion-safe:transition motion-safe:duration-200 motion-safe:active:scale-[0.98] hover:bg-[#a514d6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? "Wird gesendet …" : "Bewerbung abschicken"}

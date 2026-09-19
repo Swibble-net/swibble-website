@@ -88,7 +88,6 @@ describe("validateApplication – adults", () => {
         "city",
         "email",
         "phone",
-        "socials",
         "contactConsent",
         "privacyAck",
       ]) {
@@ -141,18 +140,22 @@ describe("validateApplication – adults", () => {
     );
   });
 
-  it("requires TikTok or Instagram; other platforms are optional", () => {
-    expect(errorsOf({ ...adult, tiktok: "" })).toHaveProperty("socials");
+  it("treats all social handles as optional but validates given ones", () => {
     expect(
-      errorsOf({ ...adult, tiktok: "", snapchat: "testsnap" }),
-    ).toHaveProperty("socials");
+      errorsOf({ ...adult, tiktok: "", instagram: "", snapchat: "", youtube: "" }),
+    ).toEqual({});
     expect(errorsOf({ ...adult, tiktok: "", instagram: "@test.insta" })).toEqual(
       {},
     );
-    // An invalid handle gets its own message instead of the generic one.
-    const errors = errorsOf({ ...adult, tiktok: "not a handle" });
-    expect(errors).toHaveProperty("tiktok");
-    expect(errors).not.toHaveProperty("socials");
+    expect(errorsOf({ ...adult, tiktok: "not a handle" })).toHaveProperty(
+      "tiktok",
+    );
+    expect(errorsOf({ ...adult, youtube: "<script>" })).toHaveProperty("youtube");
+  });
+
+  it("accepts the camera operator role", () => {
+    const result = validateApplication({ ...adult, roles: ["kamera"] }, NOW);
+    expect(result.ok && result.value.roles).toEqual(["kamera"]);
   });
 
   it("requires both consents to be literally true", () => {

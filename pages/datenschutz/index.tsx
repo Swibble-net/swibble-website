@@ -212,11 +212,12 @@ const Datenschutz = () => {
               swibble.net/bewerben
             </Link>
             ) können Sie sich dafür bewerben, in unseren Social-Media-Videos
-            mitzuwirken oder für uns als Promoter:in oder Model tätig zu werden.
+            mitzuwirken oder für uns als Promoter:in, Model oder in der
+            Kamerabedienung tätig zu werden.
             Dabei verarbeiten wir folgende Daten: Vor- und Nachname,
             Geburtsdatum, Postleitzahl und Wohnort, E-Mail-Adresse,
-            Handynummer, die angegebenen Social-Media-Profilnamen (TikTok,
-            Instagram, ggf. Snapchat und YouTube), die gewählte Tätigkeit, das
+            Handynummer, die freiwillig angegebenen Social-Media-Profilnamen
+            (TikTok, Instagram, Snapchat, YouTube), die gewählte Tätigkeit, das
             Einkaufszentrum, über dessen Linkseite Sie zu uns gekommen sind,
             Ihren optionalen Freitext sowie Zeitpunkt und Wortlaut Ihrer
             Einwilligung.
