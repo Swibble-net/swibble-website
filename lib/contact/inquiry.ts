@@ -5,6 +5,7 @@ import {
   BUDGETS,
   COMPANY_MAX_LENGTH,
   GOALS,
+  LOCATION_MAX_LENGTH,
   NAME_MAX_LENGTH,
   NUMBER_MAX_LENGTH,
   SERVICES,
@@ -24,6 +25,8 @@ export interface Inquiry {
   message: string;
   name: string;
   company: string;
+  /** City or town, no full address. */
+  location: string;
   services: Service[];
   goal: Goal | "";
   budget: Budget | "";
@@ -36,7 +39,7 @@ export type InquiryResult =
   | { ok: true; inquiry: Inquiry }
   | { ok: false; error: string };
 
-const FUNNEL_FIELDS = ["services", "goal", "budget", "timeframe", "name", "company"] as const;
+const FUNNEL_FIELDS = ["services", "goal", "budget", "timeframe", "name", "company", "location"] as const;
 const SUBJECT_MAX_LENGTH = 200;
 
 /** Single line without control characters: safe for mail headers such as the subject. */
@@ -95,6 +98,9 @@ export function parseInquiry(body: unknown): InquiryResult {
   const company = optionalLine(data.company, COMPANY_MAX_LENGTH);
   if (company === null) return fail("Invalid company");
 
+  const location = optionalLine(data.location, LOCATION_MAX_LENGTH);
+  if (location === null) return fail("Invalid location");
+
   let services: Service[] = [];
   if (!legacy) {
     const allowed = SERVICES.map((option) => option.value) as string[];
@@ -129,6 +135,7 @@ export function parseInquiry(body: unknown): InquiryResult {
       message: rawMessage.trim(),
       name,
       company,
+      location,
       services,
       goal,
       budget,
@@ -171,6 +178,7 @@ export function buildText(inquiry: Inquiry): string {
     "KONTAKT",
     `Name:        ${orDash(inquiry.name)}`,
     `Unternehmen: ${orDash(inquiry.company)}`,
+    `Ort:         ${orDash(inquiry.location)}`,
     `E-Mail:      ${inquiry.email}`,
     `Telefon:     ${orDash(inquiry.number)}`,
     "",

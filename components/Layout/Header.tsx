@@ -3,7 +3,7 @@ import Image from "next/image";
 import BurgerMenu from "../BurgerMenu/BurgerMenu";
 import NavDropdown from "./NavDropdown";
 import Logo from "@/public/logo/SwibbleLogo.svg";
-import LogoText from "@/public/logo/SwibbleTextLogo.svg";
+import LogoText from "@/public/logo/SwibbleWordmark.svg";
 import { NAV_LINKS } from "@/lib/navLinks";
 import { CTA_LABEL, CTA_URL } from "@/lib/cta";
 import { useEffect, useState } from "react";
@@ -41,7 +41,7 @@ const Header = () => {
           <Link href={"/"}>
             <div className="w-full flex items-center hover:scale-95 transition duration-200">
               <Image src={Logo} alt="Swibble Logo" width={35} height={35} />
-              <Image src={LogoText} alt="" width={90} height={30} />
+              <Image src={LogoText} alt="" width={100} height={30} />
             </div>
           </Link>
         </div>

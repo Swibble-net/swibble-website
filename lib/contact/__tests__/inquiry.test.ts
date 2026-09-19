@@ -8,6 +8,7 @@ const FUNNEL_BODY = {
   message: "Wir planen einen Relaunch.",
   name: "Max Mustermann",
   company: "Muster GmbH",
+  location: "Aachen",
   services: ["design", "social-media"],
   goal: "reach",
   budget: "2k-5k",
@@ -51,6 +52,8 @@ describe("parseInquiry – funnel body", () => {
     expect(errorOf({ ...FUNNEL_BODY, name: { first: "Max" } })).toBe("Invalid name");
     expect(errorOf({ ...FUNNEL_BODY, name: "x".repeat(101) })).toBe("Invalid name");
     expect(errorOf({ ...FUNNEL_BODY, company: "x".repeat(121) })).toBe("Invalid company");
+    expect(errorOf({ ...FUNNEL_BODY, location: "x".repeat(101) })).toBe("Invalid location");
+    expect(errorOf({ ...FUNNEL_BODY, location: { city: "Aachen" } })).toBe("Invalid location");
     expect(errorOf({ ...FUNNEL_BODY, number: "1".repeat(41) })).toBe("Invalid number");
     expect(errorOf({ ...FUNNEL_BODY, number: 49241 })).toBe("Invalid number");
     expect(errorOf({ ...FUNNEL_BODY, message: "x".repeat(MESSAGE_MAX_LENGTH + 1) })).toBe("Message too long");
@@ -117,6 +120,7 @@ describe("mail", () => {
     expect(text).toContain("Budget:     2.000 – 5.000 €");
     expect(text).toContain("Start:      In 1–3 Monaten");
     expect(text).toContain("Unternehmen: Muster GmbH");
+    expect(text).toContain("Ort:         Aachen");
     expect(text).toContain("E-Mail:      max@example.com");
     expect(text).toContain("NACHRICHT\nWir planen einen Relaunch.");
 

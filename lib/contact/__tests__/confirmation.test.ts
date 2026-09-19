@@ -23,6 +23,7 @@ const FULL = parseOk({
   message: "Wir planen einen Relaunch.\nStart im Herbst.",
   name: "Max Mustermann",
   company: "Muster GmbH",
+  location: "Aachen",
   services: ["social-media", "design"],
   goal: "reach",
   budget: "2k-5k",
@@ -44,6 +45,7 @@ describe("confirmation mail", () => {
       "Gewünschter Start",
       "Name",
       "Unternehmen",
+      "Stadt / Ort",
       "E-Mail",
       "Telefon",
     ]);

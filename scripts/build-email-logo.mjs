@@ -22,8 +22,8 @@ const TEXT_COLOR = "#FBF3FE";
 
 // Both SVGs carry transparent margins: trim them before scaling.
 const mark = await sharp("public/logo/SwibbleLogo.svg", { density: 300 }).trim().resize({ height: HEIGHT }).png().toBuffer();
-// Current wordmark with the registered sign; black in the source, light on the navy header.
-const wordmark = readFileSync("public/logo/SwibbleWordmarkRegistered.svg", "utf8").replaceAll('"black"', `"${TEXT_COLOR}"`);
+// Current wordmark with the registered sign; navy in the source, light on the navy header.
+const wordmark = readFileSync("public/logo/SwibbleWordmark.svg", "utf8").replaceAll('"#000D36"', `"${TEXT_COLOR}"`);
 const text = await sharp(Buffer.from(wordmark), { density: 1800 }).trim().resize({ height: TEXT_HEIGHT }).png().toBuffer();
 const markWidth = (await sharp(mark).metadata()).width;
 const textWidth = (await sharp(text).metadata()).width;

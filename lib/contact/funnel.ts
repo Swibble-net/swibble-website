@@ -53,6 +53,7 @@ export type Timeframe = (typeof TIMEFRAMES)[number]["value"];
 // Field limits, enforced in the form (maxLength) and in /api/send-mail.
 export const NAME_MAX_LENGTH = 100;
 export const COMPANY_MAX_LENGTH = 120;
+export const LOCATION_MAX_LENGTH = 100;
 export const EMAIL_MAX_LENGTH = 254;
 export const NUMBER_MAX_LENGTH = 40;
 
