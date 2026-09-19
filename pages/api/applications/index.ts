@@ -65,6 +65,15 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     return res.status(200).json({ success: true });
   }
 
+  // Bot check before any further work (validation, decoding the upload). The
+  // form validates client-side first, so real users rarely lose a token here.
+  if (!(await verifyTurnstileToken(body.turnstileToken, ip))) {
+    return res.status(400).json({
+      message: "Die Spam-Prüfung ist fehlgeschlagen. Bitte versuch es noch einmal.",
+      errors: { turnstile: "Bitte bestätige die Spam-Prüfung noch einmal." },
+    });
+  }
+
   const result = validateApplication(body);
   if (!result.ok) {
     return res.status(400).json({
@@ -95,13 +104,6 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       });
     }
     upload = { buffer: file.buffer, type: file.type };
-  }
-
-  if (!(await verifyTurnstileToken(body.turnstileToken, ip))) {
-    return res.status(400).json({
-      message: "Die Spam-Prüfung ist fehlgeschlagen. Bitte versuch es noch einmal.",
-      errors: { turnstile: "Bitte bestätige die Spam-Prüfung noch einmal." },
-    });
   }
 
   if (!isApplicationStoreAvailable()) {
