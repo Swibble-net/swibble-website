@@ -50,7 +50,7 @@ const COLUMNS: [Tile, Tile][] = [
   ],
   [
     { kicker: "App & Web-App", title: "Konrat’s Welt", image: KonratsWeltImage },
-    { kicker: "Noch mehr Einblicke", title: "Alle Case Studies im Blog", href: "/blog", cta: "Zum Blog" },
+    { kicker: "Noch mehr Einblicke", title: "Alle Case Studies\nim Blog", href: "/blog", cta: "Zum Blog" },
   ],
 ];
 
@@ -142,7 +142,7 @@ const ProjectTile = ({ tile, tall, priority }: { tile: Tile; tall: boolean; prio
         <p className="text-sm font-normal leading-[1.313rem] lg:text-base lg:leading-7">
           {tile.kicker}
         </p>
-        <h3 className="text-lg font-semibold leading-[1.688rem] lg:text-2xl lg:font-medium lg:leading-8">
+        <h3 className="whitespace-pre-line text-lg font-semibold leading-[1.688rem] lg:text-2xl lg:font-medium lg:leading-8">
           {tile.title}
         </h3>
         {tile.cta && !tile.image && (
@@ -164,7 +164,7 @@ const ProjectTile = ({ tile, tall, priority }: { tile: Tile; tall: boolean; prio
   return tile.href ? (
     <Link
       href={tile.href}
-      aria-label={`${tile.title} – ${tile.cta}`}
+      aria-label={`${tile.title.replace(/\n/g, " ")} – ${tile.cta}`}
       className={`${className} transition-transform duration-200 hover:scale-[0.98]`}
     >
       {content}
