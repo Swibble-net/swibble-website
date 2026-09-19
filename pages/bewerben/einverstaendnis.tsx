@@ -97,15 +97,23 @@ const EinverstaendnisPage: NextPageWithLayout = () => (
         </ul>
         <ol className="mt-3 list-decimal space-y-2 pl-5">
           <li>
-            Ich bin / Wir sind damit einverstanden, dass Swibble die im
-            Bewerbungsformular angegebenen Daten meines / unseres Kindes sowie
-            meine / unsere oben genannten Kontaktdaten zur Bearbeitung der
-            Bewerbung verarbeitet und mein / unser Kind sowie mich / uns dazu
-            per E-Mail, Telefon/WhatsApp und über die angegebenen
-            Social-Media-Profile kontaktiert.
+            Ich willige / Wir willigen – auch stellvertretend für mein / unser
+            Kind – darin ein, dass Swibble die im Bewerbungsformular
+            angegebenen Daten meines / unseres Kindes (Name, Geburtsdatum,
+            Wohnort, E-Mail-Adresse, Handynummer, Social-Media-Profilnamen,
+            Freitext) sowie meine / unsere oben genannten Kontaktdaten
+            verarbeitet, in den Swibble-Bewerberpool aufnimmt und dort bis zum
+            Widerruf dieser Einwilligung speichert, um mein / unser Kind auch
+            für spätere Videos und Aktionen anfragen zu können.
           </li>
           <li>
-            Diese Erklärung betrifft ausschließlich die Bewerbung. Über eine
+            Swibble darf mein / unser Kind sowie mich / uns dazu per E-Mail,
+            Telefon/WhatsApp und über die angegebenen Social-Media-Profile
+            kontaktieren.
+          </li>
+          <li>
+            Diese Erklärung betrifft ausschließlich die Bewerbung und die
+            Aufnahme in den Bewerberpool. Über eine
             konkrete Mitwirkung (z. B. Drehtermine, Einsätze, Vergütung) sowie
             über die Anfertigung und Veröffentlichung von Foto- und
             Videoaufnahmen wird vorab eine gesonderte schriftliche Vereinbarung
@@ -115,7 +123,7 @@ const EinverstaendnisPage: NextPageWithLayout = () => (
             Diese Einwilligung ist freiwillig und kann jederzeit mit Wirkung
             für die Zukunft widerrufen werden, z. B. per E-Mail an
             info@swibble.net. In diesem Fall löscht Swibble die
-            Bewerbungsdaten. Die Datenschutzhinweise unter
+            Bewerbungsdaten einschließlich dieser Erklärung. Die Datenschutzhinweise unter
             www.swibble.net/datenschutz habe ich / haben wir zur Kenntnis
             genommen.
           </li>

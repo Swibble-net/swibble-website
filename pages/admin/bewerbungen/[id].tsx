@@ -352,7 +352,7 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
             Endgültig löschen
           </h2>
           <p className="mt-1 text-sm text-[#556987]">
-            Für Löschanfragen (DSGVO) oder nach Ablauf der Aufbewahrungsfrist:
+            Bei Widerruf der Einwilligung oder einer Löschanfrage (DSGVO):
             entfernt alle Angaben
             {file ? " und die hochgeladene Einverständniserklärung" : ""}{" "}
             unwiderruflich.

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { ABOUT_MAX_LENGTH } from "../config";
+import {
+  ABOUT_MAX_LENGTH,
+  CONTACT_CONSENT_TEXT,
+  GUARDIAN_CONFIRM_TEXT,
+  MIN_APPLICATION_AGE,
+} from "../config";
 import {
   normalizeEmail,
   normalizePhone,
@@ -227,6 +232,17 @@ describe("validateApplication – minors", () => {
     });
   });
 
+  it("has no minimum age: young children may apply with guardian consent", () => {
+    const result = validateApplication({ ...minor, birthDate: "2019-03-01" }, NOW);
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.age).toBe(7);
+    expect(result.ok && result.isMinor).toBe(true);
+    // …but never without the guardian section.
+    expect(
+      errorsOf({ ...minor, birthDate: "2019-03-01", guardian: undefined }),
+    ).toHaveProperty("guardianName");
+  });
+
   it("accepts an e-mail address instead of a phone number", () => {
     const result = validateApplication(
       {
@@ -275,5 +291,22 @@ describe("normalizePhone / normalizeEmail", () => {
     expect(normalizeEmail("test@example")).toBe("");
     expect(normalizeEmail(`${"a".repeat(250)}@example.com`)).toBe("");
     expect(normalizeEmail(null)).toBe("");
+  });
+});
+
+describe("consent wording", () => {
+  it("has no age limit configured", () => {
+    expect(MIN_APPLICATION_AGE).toBeNull();
+  });
+
+  it("covers the applicant pool and storage until withdrawal, without a fixed period", () => {
+    expect(CONTACT_CONSENT_TEXT).toMatch(/Bewerberpool/);
+    expect(CONTACT_CONSENT_TEXT).toMatch(/bis zu meinem Widerruf/);
+    expect(CONTACT_CONSENT_TEXT).toMatch(/info@swibble\.net/);
+    expect(CONTACT_CONSENT_TEXT).not.toMatch(/Monate|für immer|unbegrenzt/);
+  });
+
+  it("guardian confirmation covers processing of the child's data", () => {
+    expect(GUARDIAN_CONFIRM_TEXT).toMatch(/Verarbeitung meiner Daten/);
   });
 });

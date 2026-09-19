@@ -22,8 +22,9 @@ export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number]["id"];
 export const ADULT_AGE = 18;
 
 /**
- * Minimum age to apply at all. `null` = no lower limit (only plausibility is
- * checked). Set to a number (e.g. 14) to reject younger applicants.
+ * Minimum age to apply at all. Decided: no lower limit (`null`) — anyone may
+ * apply, only implausible birth dates are rejected. Everyone under ADULT_AGE
+ * needs the parental consent section. Set a number to introduce a limit.
  */
 export const MIN_APPLICATION_AGE: number | null = null;
 
@@ -31,11 +32,12 @@ export const MIN_APPLICATION_AGE: number | null = null;
 export const MAX_APPLICATION_AGE = 100;
 
 /**
- * How long applications are kept after the process is finished, in months.
- * Shown on /bewerben and in the privacy policy. Deletion itself is manual
- * (admin area → "Endgültig löschen").
+ * Retention: applications join the Swibble applicant pool and are kept until
+ * the consent is withdrawn or deletion is requested. There is no expiry and no
+ * automatic deletion — removal happens in the admin area ("Endgültig
+ * löschen"). Texts must therefore never promise a fixed deletion period.
  */
-export const APPLICATION_RETENTION_MONTHS = 6;
+export const WITHDRAWAL_EMAIL = "info@swibble.net";
 
 /**
  * The parental consent template (/bewerben/einverstaendnis) carries a visible
@@ -58,16 +60,16 @@ export const CONSENT_FILE_MAX_BYTES = 3 * 1024 * 1024;
  * Wording of the consents, stored verbatim with every application together
  * with the timestamp. Bump the version whenever the text changes.
  */
-export const CONSENT_VERSION = "2026-09-v1";
+export const CONSENT_VERSION = "2026-09-v2";
 
 export const CONTACT_CONSENT_TEXT =
-  "Ich bin damit einverstanden, dass Swibble mich zu meiner Bewerbung per E-Mail, per Telefon/WhatsApp und über die von mir angegebenen Social-Media-Profile kontaktiert. Diese Einwilligung kann ich jederzeit per E-Mail an info@swibble.net widerrufen.";
+  "Ich bin damit einverstanden, dass Swibble meine Bewerbung in den Swibble-Bewerberpool aufnimmt und dort dauerhaft bis zu meinem Widerruf speichert, um mich auch für spätere Videos und Aktionen anfragen zu können. Swibble darf mich dazu per E-Mail, per Telefon/WhatsApp und über die von mir angegebenen Social-Media-Profile kontaktieren. Diese Einwilligung kann ich jederzeit per E-Mail an info@swibble.net widerrufen; meine Daten werden dann gelöscht.";
 
 export const PRIVACY_ACK_TEXT =
   "Ich habe die Datenschutzerklärung zur Kenntnis genommen.";
 
 export const GUARDIAN_CONFIRM_TEXT =
-  "Meine Eltern bzw. Erziehungsberechtigten wissen von dieser Bewerbung und sind damit einverstanden, dass Swibble auch sie kontaktiert.";
+  "Meine Eltern bzw. Erziehungsberechtigten wissen von dieser Bewerbung. Sie sind mit der Bewerbung, mit der Speicherung und Verarbeitung meiner Daten im Swibble-Bewerberpool und damit einverstanden, dass Swibble auch sie kontaktiert – das bestätigen sie mit der hochgeladenen Einverständniserklärung.";
 
 export function roleLabel(id: string): string {
   return APPLICATION_ROLES.find((r) => r.id === id)?.label ?? id;
