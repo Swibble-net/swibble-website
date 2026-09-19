@@ -8,6 +8,7 @@ import MontisMedicalLogo from "@/public/companies_logos/montis_medical_logo.png"
 import OlympiaLogo from "@/public/companies_logos/olympia_einkaufszentrum_logo.png";
 import RushfoodLogo from "@/public/companies_logos/rushfood_logo.png";
 import RydeLogo from "@/public/companies_logos/ryde.png";
+import SmashupLogo from "@/public/companies_logos/smashup_am_dom_logo.webp";
 import SquareLogo from "@/public/companies_logos/square.svg";
 import WorldLogo from "@/public/companies_logos/world.png";
 
@@ -26,6 +27,7 @@ export const companyLogos: CompanyLogo[] = [
   { src: OlympiaLogo, alt: "Olympia Einkaufszentrum" },
   { src: RushfoodLogo, alt: "Rushfood" },
   { src: RydeLogo, alt: "RydeUp" },
+  { src: SmashupLogo, alt: "SmashUp am Dom" },
   { src: SquareLogo, alt: "Square" },
   { src: WorldLogo, alt: "Little World" },
 ];
