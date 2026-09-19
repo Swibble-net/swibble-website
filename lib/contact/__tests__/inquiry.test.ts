@@ -10,7 +10,7 @@ const FUNNEL_BODY = {
   company: "Muster GmbH",
   location: "Aachen",
   services: ["design", "social-media"],
-  goal: "reach",
+  goals: ["customers", "reach"],
   budget: "2k-5k",
   timeframe: "1-3-months",
 };
@@ -29,12 +29,12 @@ const errorOf = (body: unknown) => {
 describe("parseInquiry – funnel body", () => {
   it("accepts a complete inquiry and normalises the services", () => {
     const inquiry = parseOk({ ...FUNNEL_BODY, services: ["design", "social-media", "design"] });
-    expect(inquiry).toMatchObject({ legacy: false, services: ["social-media", "design"], goal: "reach", budget: "2k-5k" });
+    expect(inquiry).toMatchObject({ legacy: false, services: ["social-media", "design"], goals: ["reach", "customers"], budget: "2k-5k" });
   });
 
   it("needs only the e-mail and a service", () => {
     const inquiry = parseOk({ email: " max@example.com ", services: ["unsure"] });
-    expect(inquiry).toMatchObject({ email: "max@example.com", message: "", name: "", goal: "", budget: "", timeframe: "" });
+    expect(inquiry).toMatchObject({ email: "max@example.com", message: "", name: "", goals: [], budget: "", timeframe: "" });
   });
 
   it("rejects values outside the whitelists", () => {
@@ -43,9 +43,15 @@ describe("parseInquiry – funnel body", () => {
     expect(errorOf({ ...FUNNEL_BODY, services: "design" })).toBe("Invalid services");
     expect(errorOf({ ...FUNNEL_BODY, services: [{ value: "design" }] })).toBe("Invalid services");
     expect(errorOf({ ...FUNNEL_BODY, services: undefined })).toBe("Invalid services");
-    expect(errorOf({ ...FUNNEL_BODY, goal: "world-domination" })).toBe("Invalid goal");
+    expect(errorOf({ ...FUNNEL_BODY, goals: ["world-domination"] })).toBe("Invalid goal");
+    expect(errorOf({ ...FUNNEL_BODY, goals: "reach" })).toBe("Invalid goal");
+    expect(errorOf({ ...FUNNEL_BODY, goals: undefined, goal: "world-domination" })).toBe("Invalid goal");
     expect(errorOf({ ...FUNNEL_BODY, budget: "1 Mio" })).toBe("Invalid budget");
     expect(errorOf({ ...FUNNEL_BODY, timeframe: ["asap"] })).toBe("Invalid timeframe");
+  });
+
+  it("still accepts the single goal of earlier form versions", () => {
+    expect(parseOk({ email: "max@example.com", services: ["design"], goal: "branding" }).goals).toEqual(["branding"]);
   });
 
   it("rejects wrong types and overlong fields", () => {
@@ -116,7 +122,7 @@ describe("mail", () => {
   it("lists all answers in the text and marks empty ones", () => {
     const text = buildText(parseOk(FUNNEL_BODY));
     expect(text).toContain("Leistungen: Social Media, Design");
-    expect(text).toContain("Ziel:       Mehr Reichweite");
+    expect(text).toContain("Ziele:      Mehr Reichweite, Mehr Kunden / Besucher");
     expect(text).toContain("Budget:     2.000 – 5.000 €");
     expect(text).toContain("Start:      In 1–3 Monaten");
     expect(text).toContain("Unternehmen: Muster GmbH");

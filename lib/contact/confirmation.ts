@@ -14,7 +14,7 @@ const firstName = (name: string) => name.split(" ")[0] ?? "";
 export function summaryRows(inquiry: Inquiry): MailRow[] {
   return [
     { label: "Leistungen", value: inquiry.services.map((service) => labelOf(SERVICES, service)).join(", ") },
-    { label: "Ziel", value: labelOf(GOALS, inquiry.goal) },
+    { label: "Ziele", value: inquiry.goals.map((goal) => labelOf(GOALS, goal)).join(", ") },
     { label: "Budgetrahmen", value: labelOf(BUDGETS, inquiry.budget) },
     { label: "Gewünschter Start", value: labelOf(TIMEFRAMES, inquiry.timeframe) },
     { label: "Name", value: inquiry.name },

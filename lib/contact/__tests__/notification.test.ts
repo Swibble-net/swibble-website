@@ -16,7 +16,7 @@ describe("notification mail for Swibble", () => {
         name: "Max Mustermann",
         company: "Muster GmbH",
         services: ["social-media", "design"],
-        goal: "reach",
+        goals: ["reach", "customers"],
         budget: "2k-5k",
         message: "Wir planen einen Relaunch.",
       }),

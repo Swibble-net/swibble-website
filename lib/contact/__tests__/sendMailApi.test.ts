@@ -40,7 +40,7 @@ describe("/api/send-mail", () => {
       email: "max@example.com",
       name: "Max\r\nBcc: spam@evil.example",
       services: ["social-media", "design"],
-      goal: "reach",
+      goals: ["reach", "customers"],
       budget: "unknown",
     });
     expect(res.statusCode).toBe(200);
@@ -53,7 +53,7 @@ describe("/api/send-mail", () => {
       "Neue Anfrage: Social Media, Design – Budget Weiß ich noch nicht – Max Bcc: spam@evil.example",
     );
     expect(mail.subject).not.toMatch(/[\r\n]/);
-    expect(mail.text).toContain("Ziel:       Mehr Reichweite");
+    expect(mail.text).toContain("Ziele:      Mehr Reichweite, Mehr Kunden / Besucher");
     // Same look as the confirmation, with the inline logo.
     expect(mail.html).toContain("Neue Anfrage: Social Media, Design");
     expect(mail.html).toContain('href="mailto:max@example.com"');
