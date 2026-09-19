@@ -122,7 +122,9 @@ const Datenschutz = () => {
             Nachricht sowie Ihre Angaben zum Vorhaben: gewünschte Leistungen,
             Ziel, Budgetrahmen und Startzeitraum) verarbeitet, um Ihre
             Anfrage zu bearbeiten und zu beantworten. Diese Daten werden per
-            E-Mail an uns übermittelt und gespeichert.
+            E-Mail an uns übermittelt und gespeichert. Nach dem Absenden des
+            Kontaktformulars erhalten Sie an die angegebene E-Mail-Adresse
+            automatisch eine Bestätigung mit einer Zusammenfassung Ihrer Angaben.
           </p>
           <br />
           <p>
