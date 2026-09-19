@@ -2,7 +2,7 @@ import Image from "next/image";
 import worldIcon from "@/public/icons/swibble_icon_world.svg";
 import softIcon from "@/public/icons/swibble_icon_soft.svg";
 import bagIcon from "@/public/icons/swibble_icon_bag.svg";
-import IntroImage from "@/public/Swibble_Window_Mockup.svg";
+import IntroVisual from "@/components/IntroVisual";
 import styles from "@/styles/introduction.module.scss";
 
 const Introduction = () => {
@@ -46,13 +46,10 @@ const Introduction = () => {
             </div>
           </div>
         </div>
-        <Image
-          src={IntroImage}
-          alt="Swibble Software-Mockup: digitale Produkte in Fenster- und App-Ansicht"
-          width={823}
-          height={669}
-          loading="lazy"
-          className={`${styles.image} h-auto w-full`}
+        <IntroVisual
+          alt="Swibble Social-Media-Mockup: Kommentare der Community auf einem Tablet und ein TikTok-Video auf einem Smartphone"
+          sizes="(max-width: 1024px) 0px, min(50vw, 823px)"
+          className={styles.image}
         />
       </div>
     </section>
