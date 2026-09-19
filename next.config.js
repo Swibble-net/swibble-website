@@ -31,6 +31,12 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    // Blog covers uploaded through the CMS; used by next/image on the landing pages.
+    remotePatterns: [
+      { protocol: "https", hostname: "firebasestorage.googleapis.com", pathname: "/v0/b/**" },
+    ],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

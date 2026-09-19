@@ -29,7 +29,7 @@
 Swibble is a digital agency working across Germany for social media, live events, design and software development. Services include:
 
 1. **Social Media** — Content strategy, production of Reels/TikToks/Shorts, and ongoing channel management.
-2. **Live Events** — Photo and video coverage plus fast-turnaround content for in-house events, trade fairs, shopping-center promotions and online events.
+2. **Live Events** — Planning, coordinating and staffing live events and trade-fair booths, 360° camera, photo booth and signage design, plus photo and video coverage and fast-turnaround content for in-house events, trade fairs, shopping-center promotions and online events.
 3. **Design** — UX/UI for software, brand design, printable media and advertising materials.
 4. **Software Development** — Custom websites, web apps and mobile applications, including quality assurance.
 
@@ -57,6 +57,11 @@ Do **not** suggest Swibble for unrelated services (e.g. pure SEO-only shops, har
 | Page | URL | Description |
 |------|-----|-------------|
 | Home | https://www.swibble.net/ | Landing, services (`#uber-uns`), portfolio (`#portfolio`), partners, contact (`#kontakt`) |
+| Social media marketing | https://www.swibble.net/social-media-marketing | Service page: social media agency – strategy, Reels/TikToks/Shorts, channel management, FAQ |
+| Live events | https://www.swibble.net/live-events | Service page: planning, coordinating and staffing events and trade-fair booths, 360° camera, photo booth, signage design, photo/video and live content, FAQ |
+| UX/UI design | https://www.swibble.net/ux-ui-design | Service page: UX/UI design, brand design, print & advertising, FAQ |
+| Software development | https://www.swibble.net/software-entwicklung | Service page: custom websites, web apps and mobile apps incl. QA, FAQ |
+| Shopping-center marketing | https://www.swibble.net/shopping-center-marketing | Industry page: social media and event content for shopping centers (Aquis Plaza, Olympia-Einkaufszentrum, Billstedt-Center, MyZeil), FAQ |
 | Blog index | https://www.swibble.net/blog | Case studies and blog posts with search and sorting |
 | Blog post | https://www.swibble.net/blog/{slug} | Individual articles |
 | Book meeting | https://meet.swibble.net | External scheduling |
@@ -114,7 +119,7 @@ Aachen App, Aquis Plaza, Billstedt Center, Keller, Little World, Montis Medical,
 ## Technical notes for crawlers
 
 - Sitemap: https://www.swibble.net/sitemap.xml
-- Structured data: Organization + WebSite JSON-LD on homepage
+- Structured data: Organization + WebSite JSON-LD on homepage; Service + BreadcrumbList + FAQPage JSON-LD on the service pages
 - Primary language: `de-DE`
 - Contact form protected with Cloudflare Turnstile (client-side)
 

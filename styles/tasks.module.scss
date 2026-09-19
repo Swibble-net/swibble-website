@@ -29,6 +29,23 @@
     border-radius: 0.625rem;
     background-color: white;
     box-shadow: 0 25px 100px rgba(76, 64, 247, 8%);
+    // The cards are links to the landing pages.
+    text-decoration: none;
+    transition: box-shadow 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+        box-shadow: 0 25px 100px rgba(76, 64, 247, 22%);
+
+        .card_more {
+            text-decoration: underline;
+        }
+    }
+
+    &:focus-visible {
+        outline: 2px solid #B718EC;
+        outline-offset: 2px;
+    }
 
     --depth: 0;
     transform: translate3d(
@@ -209,6 +226,17 @@
     }
 }
 
+.card_more {
+    margin-top: auto;
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    color: #A214D3;
+    @media screen and (min-width: 1024px) {
+        margin-top: 0;
+    }
+}
+
 .wave_bottom {
     position: absolute;
     width: 100vw;
@@ -268,5 +296,11 @@
 @media (prefers-reduced-motion: reduce) {
     .card_container {
         --shift: 0px;
+    }
+    .card1,
+    .card2,
+    .card3,
+    .card4 {
+        transition: none;
     }
 }
