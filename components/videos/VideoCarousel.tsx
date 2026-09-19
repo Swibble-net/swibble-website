@@ -248,7 +248,10 @@ const VideoCarousel = ({ videos, soundEnabled = false }: Props) => {
   if (!videos.length) return null;
 
   return (
-    <section className="w-full py-16" id="videos">
+    // scroll-mt: the fixed header would cover the title after a jump to #videos.
+    // 4rem + this section's own 4rem top padding puts the title where the other
+    // sections land (8rem), just below the header.
+    <section className="w-full scroll-mt-16 py-16" id="videos">
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-[#000D36] lg:text-3xl">
