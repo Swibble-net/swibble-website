@@ -17,8 +17,9 @@ export const softwareEntwicklung: LandingPageContent = {
     kicker: "Websites · Web-Apps · Apps",
     title: "Die Idee steht – aber dir fehlt das Team für die Software-Entwicklung?",
     text: "Swibble entwickelt individuelle Websites, Web-Apps und mobile Apps: von der ersten Skizze über Design und Programmierung bis zum getesteten Release. Alles aus einem Haus statt von drei verschiedenen Dienstleistern.",
-    image: "aachenApp",
-    imageAlt: "Hand hält ein Smartphone mit der Aachen App und einer Event-Übersicht",
+    visual: "software",
+    visualAlt:
+      "Illustration: Code-Editor und Smartphone mit App, daneben die Stichworte Website, Web-App und Getestet",
   },
   proof: {
     title: "Software, die wir entwickelt haben",
@@ -50,7 +51,6 @@ export const softwareEntwicklung: LandingPageContent = {
         imageAlt: "Projektbild zur Qualitätssicherung für Square",
       },
     ],
-    logos: ["Aachen App", "Little World", "RydeUp", "Square"],
   },
   services: {
     title: "Was wir entwickeln",
@@ -58,22 +58,27 @@ export const softwareEntwicklung: LandingPageContent = {
     items: [
       {
         title: "Websites",
+        icon: "website",
         text: "Schnelle, suchmaschinenfreundliche Unternehmenswebsites, die auf jedem Gerät funktionieren und zu deiner Marke passen.",
       },
       {
         title: "Web-Apps",
+        icon: "webapp",
         text: "Portale, Plattformen und interne Tools, die im Browser laufen und genau das abbilden, was dein Unternehmen braucht.",
       },
       {
         title: "Mobile Apps",
+        icon: "mobile",
         text: "Apps für Smartphone und Tablet – vom ersten Prototyp bis zur Veröffentlichung.",
       },
       {
         title: "Design inklusive",
+        icon: "design",
         text: "UX/UI-Design kommt bei uns aus demselben Haus. So passt die Oberfläche von Anfang an zur Technik.",
       },
       {
         title: "Qualitätssicherung",
+        icon: "qa",
         text: "Wir testen jede Funktion, bevor sie live geht – und übernehmen Qualitätssicherung auch für Software, die nicht von uns stammt.",
       },
     ],
