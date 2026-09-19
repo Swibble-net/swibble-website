@@ -1,7 +1,7 @@
 // Renders the header logo of the confirmation mail (logo mark + white wordmark) as a
 // PNG and writes it base64-encoded to lib/contact/emailLogo.ts. Mail clients do not
 // render SVG, and an inline (CID) image also shows when remote images are blocked.
-// Run after a logo change: node scripts/build-email-logo.mjs
+// Mark and wordmark get the same height. Run after a logo change: node scripts/build-email-logo.mjs
 import { createRequire } from "node:module";
 import { writeFileSync } from "node:fs";
 
@@ -13,21 +13,22 @@ function require_resolve_next() {
   return createRequire(import.meta.url).resolve("next/package.json");
 }
 
-const SCALE = 3; // displayed at 140x40
-const WIDTH = 140 * SCALE;
-const HEIGHT = 40 * SCALE;
-const TEXT_WIDTH = 96 * SCALE;
+const SCALE = 3;
+const HEIGHT = 32 * SCALE; // displayed 32px high
+const GAP = 8 * SCALE;
 
-// The mark's SVG has a wide transparent margin: trim it so the mark matches the wordmark.
-const mark = await sharp("public/logo/SwibbleLogo.svg", { density: 300 }).trim().resize({ height: HEIGHT }).png().toBuffer();
+// Both SVGs carry transparent margins: trim them, then give mark and wordmark the same height.
+const render = (file, density) => sharp(file, { density }).trim().resize({ height: HEIGHT }).png().toBuffer();
+const mark = await render("public/logo/SwibbleLogo.svg", 300);
+const text = await render("public/logo/SwibbleTextLogoWhite.svg", 2400);
 const markWidth = (await sharp(mark).metadata()).width;
-const text = await sharp("public/logo/SwibbleTextLogoWhite.svg", { density: 1200 }).resize({ width: TEXT_WIDTH }).png().toBuffer();
-const textHeight = (await sharp(text).metadata()).height;
+const textWidth = (await sharp(text).metadata()).width;
+const WIDTH = Math.ceil((markWidth + GAP + textWidth) / SCALE) * SCALE;
 
 const png = await sharp({ create: { width: WIDTH, height: HEIGHT, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
   .composite([
     { input: mark, left: 0, top: 0 },
-    { input: text, left: markWidth + 8 * SCALE, top: Math.round((HEIGHT - textHeight) / 2) },
+    { input: text, left: markWidth + GAP, top: 0 },
   ])
   .png({ compressionLevel: 9, palette: true })
   .toBuffer();
