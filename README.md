@@ -183,7 +183,7 @@ and the CMS cannot save.
 Applications are stored in the Firestore collection `applications`; parental
 consent files go to the private bucket under `applications/consents/` and are
 only served through the admin-only route `/api/applications/[id]/file`. Age
-limits, retention period and consent wording live in
+limits and consent wording live in
 `lib/applications/config.ts`. For local development without Firebase set
 `APPLICATIONS_DEV_STORE=memory` (in-memory store, ignored in production).
 

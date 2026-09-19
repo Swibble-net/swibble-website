@@ -1,9 +1,6 @@
 import Link from "next/link";
 import SEO from "@/components/SEO";
-import {
-  ADULT_AGE,
-  APPLICATION_RETENTION_MONTHS,
-} from "@/lib/applications/config";
+import { ADULT_AGE } from "@/lib/applications/config";
 
 const Datenschutz = () => {
   return (
@@ -225,26 +222,32 @@ const Datenschutz = () => {
           <br />
           <p>
             <strong>Zweck und Rechtsgrundlage:</strong> Wir verarbeiten diese
-            Daten ausschließlich, um Ihre Bewerbung zu prüfen und mit Ihnen
-            darüber in Kontakt zu treten. Rechtsgrundlage ist Art. 6 Abs. 1
-            lit. b DSGVO (Durchführung vorvertraglicher Maßnahmen auf Ihre
-            Anfrage). Die Kontaktaufnahme per E-Mail, Telefon/WhatsApp und über
-            die angegebenen Social-Media-Profile erfolgt auf Grundlage Ihrer
-            Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Wenn wir Sie über
-            WhatsApp, TikTok oder Instagram kontaktieren, gelten zusätzlich die
+            Daten, um Ihre Bewerbung zu prüfen, Sie in unseren Bewerberpool
+            aufzunehmen und Sie für aktuelle sowie spätere Videos und Aktionen
+            anzufragen. Die Aufnahme in den Bewerberpool und die
+            Kontaktaufnahme per E-Mail, Telefon/WhatsApp und über die
+            angegebenen Social-Media-Profile erfolgen auf Grundlage Ihrer
+            Einwilligung (Art. 6 Abs. 1 lit. a DSGVO); soweit die Verarbeitung
+            der Anbahnung einer konkreten Zusammenarbeit dient, zusätzlich auf
+            Grundlage von Art. 6 Abs. 1 lit. b DSGVO (vorvertragliche Maßnahmen
+            auf Ihre Anfrage). Wenn wir Sie über WhatsApp, TikTok oder
+            Instagram kontaktieren, gelten zusätzlich die
             Datenschutzbestimmungen der jeweiligen Anbieter.
           </p>
           <br />
           <p>
-            <strong>Minderjährige:</strong> Bewerben sich Personen unter{" "}
+            <strong>Minderjährige:</strong> Eine Altersuntergrenze für
+            Bewerbungen besteht nicht. Bewerben sich Personen unter{" "}
             {ADULT_AGE} Jahren, benötigen wir das Einverständnis einer
-            erziehungsberechtigten Person. Dazu erheben wir zusätzlich deren
-            Namen und Telefonnummer oder E-Mail-Adresse sowie eine
-            unterschriebene Einverständniserklärung als hochgeladene Datei
-            (Foto oder PDF). Diese Datei wird nicht öffentlich zugänglich
-            gespeichert und ist nur für die mit der Bearbeitung betrauten
-            Personen bei uns abrufbar. Rechtsgrundlage ist die Einwilligung der
-            Erziehungsberechtigten (Art. 6 Abs. 1 lit. a, Art. 8 DSGVO).
+            erziehungsberechtigten Person – sowohl mit der Bewerbung selbst als
+            auch mit der Verarbeitung der Daten des Kindes im Bewerberpool.
+            Dazu erheben wir zusätzlich deren Namen und Telefonnummer oder
+            E-Mail-Adresse sowie eine unterschriebene Einverständniserklärung
+            als hochgeladene Datei (Foto oder PDF). Diese Datei wird nicht
+            öffentlich zugänglich gespeichert und ist nur für die mit der
+            Bearbeitung betrauten Personen bei uns abrufbar. Rechtsgrundlage
+            ist die Einwilligung der Erziehungsberechtigten (Art. 6 Abs. 1
+            lit. a, Art. 8 DSGVO).
           </p>
           <br />
           <p>
@@ -264,13 +267,13 @@ const Datenschutz = () => {
           </p>
           <br />
           <p>
-            <strong>Speicherdauer:</strong> Wir löschen Ihre Bewerbungsdaten
-            einschließlich hochgeladener Dateien spätestens{" "}
-            {APPLICATION_RETENTION_MONTHS} Monate nach Abschluss des
-            Bewerbungsverfahrens, sofern keine Zusammenarbeit zustande kommt
-            und Sie nicht in eine längere Speicherung eingewilligt haben. Kommt
-            eine Zusammenarbeit zustande, verarbeiten wir die erforderlichen
-            Daten zu deren Durchführung weiter.
+            <strong>Speicherdauer:</strong> Wir speichern Ihre Bewerbungsdaten
+            einschließlich hochgeladener Dateien in unserem Bewerberpool bis
+            zum Widerruf Ihrer Einwilligung bzw. bis zu einer Löschanfrage.
+            Nach einem Widerruf oder einer Löschanfrage löschen wir die Daten
+            unverzüglich, soweit keine gesetzlichen Aufbewahrungspflichten
+            entgegenstehen. Kommt eine Zusammenarbeit zustande, verarbeiten wir
+            die dafür erforderlichen Daten zu deren Durchführung weiter.
           </p>
           <br />
           <p>

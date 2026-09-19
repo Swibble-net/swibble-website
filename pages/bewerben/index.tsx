@@ -6,7 +6,7 @@ import type { NextPageWithLayout } from "@/pages/_app";
 import Logo from "@/public/logo/SwibbleLogo.svg";
 import SEO from "@/components/SEO";
 import ApplicationForm from "@/components/applications/ApplicationForm";
-import { APPLICATION_RETENTION_MONTHS } from "@/lib/applications/config";
+import { WITHDRAWAL_EMAIL } from "@/lib/applications/config";
 import {
   getCenterOptions,
   isApplicationStoreAvailable,
@@ -182,8 +182,9 @@ const BewerbenPage: NextPageWithLayout<Props> = ({
               )}
 
               <p className="text-center text-xs text-[#8a7791]">
-                Deine Daten nutzen wir nur für diese Bewerbung und löschen sie
-                spätestens {APPLICATION_RETENTION_MONTHS} Monate nach Abschluss.
+                Wir nehmen dich in unseren Bewerberpool auf und speichern deine
+                Angaben, bis du widerrufst – eine Mail an {WITHDRAWAL_EMAIL}{" "}
+                genügt, dann löschen wir alles.
                 Mehr dazu in der{" "}
                 <Link href="/datenschutz#bewerbungen" className="underline">
                   Datenschutzerklärung
