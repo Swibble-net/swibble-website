@@ -2,6 +2,7 @@ import nodemailer from "nodemailer";
 import { NextApiRequest, NextApiResponse } from "next";
 import { buildSubject, buildText, parseInquiry } from "@/lib/contact/inquiry";
 import {
+  EMAIL_LOGO_ATTACHMENT,
   buildConfirmationHtml,
   buildConfirmationSubject,
   buildConfirmationText,
@@ -69,6 +70,7 @@ export default async function handler(
       subject: buildConfirmationSubject(),
       text: buildConfirmationText(inquiry),
       html: buildConfirmationHtml(inquiry),
+      attachments: [EMAIL_LOGO_ATTACHMENT], // inline logo, referenced as cid: in the HTML
     });
   } catch (error) {
     console.error("[send-mail] confirmation", error);

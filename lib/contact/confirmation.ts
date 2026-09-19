@@ -1,12 +1,23 @@
 // Confirmation mail for the visitor: repeats the inquiry in the Swibble look.
 // Pure functions (no I/O). Every visitor input is HTML-escaped before it reaches the markup.
 import { CTA_URL, EMAIL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/cta";
+import { EMAIL_LOGO_HEIGHT, EMAIL_LOGO_PNG_BASE64, EMAIL_LOGO_WIDTH } from "@/lib/contact/emailLogo";
 import { BUDGETS, GOALS, SERVICES, TIMEFRAMES, labelOf } from "@/lib/contact/funnel";
 import { cleanLine, type Inquiry } from "@/lib/contact/inquiry";
 
 const SITE_URL = "https://www.swibble.net";
-// PNG on purpose: most mail clients do not render SVG.
-const LOGO_URL = `${SITE_URL}/icon-192.png`;
+
+// The real logo (mark + white wordmark) as an inline image: mail clients do not render
+// SVG, and a CID attachment also shows when remote images are blocked.
+const LOGO_CID = "swibble-logo";
+export const EMAIL_LOGO_ATTACHMENT = {
+  filename: "swibble-logo.png",
+  content: Buffer.from(EMAIL_LOGO_PNG_BASE64, "base64"),
+  contentType: "image/png",
+  cid: LOGO_CID,
+};
+/** For previews outside a mail client, where cid: references do not resolve. */
+export const EMAIL_LOGO_DATA_URI = `data:image/png;base64,${EMAIL_LOGO_PNG_BASE64}`;
 
 const PURPLE = "#B718EC";
 const NAVY = "#000D36";
@@ -89,7 +100,7 @@ const row = ({ label, value }: { label: string; value: string }) => `
               </tr>`;
 
 // Table layout and inline styles only: the common denominator of mail clients.
-export function buildConfirmationHtml(inquiry: Inquiry): string {
+export function buildConfirmationHtml(inquiry: Inquiry, logoSrc = `cid:${LOGO_CID}`): string {
   const message = inquiry.message
     ? `
           <tr>
@@ -117,8 +128,7 @@ export function buildConfirmationHtml(inquiry: Inquiry): string {
           <tr>
             <td style="background:${NAVY};padding:24px 32px;">
               <a href="${SITE_URL}" style="text-decoration:none;">
-                <img src="${LOGO_URL}" width="36" height="36" alt="" style="display:inline-block;vertical-align:middle;border:0;">
-                <span style="display:inline-block;vertical-align:middle;padding-left:10px;font-family:${FONT};font-size:24px;line-height:36px;font-weight:700;color:#FFFFFF;">Swibble</span>
+                <img src="${logoSrc}" width="${EMAIL_LOGO_WIDTH}" height="${EMAIL_LOGO_HEIGHT}" alt="Swibble" style="display:block;border:0;font-family:${FONT};font-size:24px;font-weight:700;color:#FFFFFF;">
               </a>
             </td>
           </tr>

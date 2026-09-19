@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { CTA_URL } from "@/lib/cta";
 import {
+  EMAIL_LOGO_ATTACHMENT,
+  EMAIL_LOGO_DATA_URI,
   buildConfirmationHtml,
   buildConfirmationSubject,
   buildConfirmationText,
@@ -63,6 +65,14 @@ describe("confirmation mail", () => {
     expect(text).toContain("Leistungen: Social Media, Design");
     expect(text).toContain("DEINE NACHRICHT\nWir planen einen Relaunch.");
     expect(text).toContain(CTA_URL);
+  });
+
+  it("shows the Swibble logo as an inline image, or from a given source in previews", () => {
+    expect(EMAIL_LOGO_ATTACHMENT).toMatchObject({ cid: "swibble-logo", contentType: "image/png" });
+    // PNG signature
+    expect(EMAIL_LOGO_ATTACHMENT.content.subarray(1, 4).toString()).toBe("PNG");
+    expect(buildConfirmationHtml(FULL)).toContain('<img src="cid:swibble-logo"');
+    expect(buildConfirmationHtml(FULL, EMAIL_LOGO_DATA_URI)).toContain('<img src="data:image/png;base64,');
   });
 
   it("works without a name and without a message", () => {

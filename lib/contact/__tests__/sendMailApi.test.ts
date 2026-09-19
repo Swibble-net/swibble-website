@@ -66,6 +66,8 @@ describe("/api/send-mail", () => {
     expect(confirmation.html).toContain("Danke für deine Anfrage, Max!");
     expect(confirmation.html).toContain("Hallo &lt;b&gt;Team&lt;/b&gt;");
     expect(confirmation.text).toContain("Leistungen: Design");
+    expect(confirmation.attachments).toHaveLength(1);
+    expect(confirmation.attachments[0].cid).toBe("swibble-logo");
   });
 
   it("still succeeds when only the confirmation fails", async () => {
