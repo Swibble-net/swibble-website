@@ -169,8 +169,8 @@ swapped without touching login.
 | `FIREBASE_PROJECT_ID` | Yes (CMS) | Firebase project id from the service account JSON |
 | `FIREBASE_CLIENT_EMAIL` | Yes (CMS) | Service account email |
 | `FIREBASE_PRIVATE_KEY` | Yes (CMS) | Service account private key (keep the `\n` escapes, wrap in quotes) |
-| `FIREBASE_STORAGE_BUCKET` | Yes (applications of minors) | Private Cloud Storage bucket for parental consent uploads from `/mitmachen`, e.g. `your-project.firebasestorage.app`. The service account needs *Storage Object Admin* on it. Without it minors cannot apply (the form says so; nothing is stored) |
-| `TURNSTILE_SECRET_KEY` | Recommended | Secret key of the Turnstile widget. Used to verify tokens from `/mitmachen` server-side; without it tokens are not checked |
+| `FIREBASE_STORAGE_BUCKET` | Yes (applications of minors) | Private Cloud Storage bucket for parental consent uploads from `/bewerben`, e.g. `your-project.firebasestorage.app`. The service account needs *Storage Object Admin* on it. Without it minors cannot apply (the form says so; nothing is stored) |
+| `TURNSTILE_SECRET_KEY` | Recommended | Secret key of the Turnstile widget. Used to verify tokens from `/bewerben` server-side; without it tokens are not checked |
 | `ADMIN_PASSWORD` | Yes (CMS) | Password for the `/admin` login |
 | `ADMIN_SESSION_SECRET` | Recommended | Random secret used to sign the admin session cookie |
 
@@ -178,7 +178,7 @@ Without valid SMTP credentials the contact form fails on submit. Without the
 `FIREBASE_*` variables the blog, linkhub and video sections render empty states
 and the CMS cannot save.
 
-### Applications (`/mitmachen`)
+### Applications (`/bewerben`)
 
 Applications are stored in the Firestore collection `applications`; parental
 consent files go to the private bucket under `applications/consents/` and are

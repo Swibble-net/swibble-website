@@ -25,7 +25,7 @@ export interface LinkhubProfile {
   links: LinkhubLink[];
   /**
    * Show the built-in "Jetzt bewerben" entry that leads to
-   * /mitmachen?center=<slug>. Documents without the field count as true.
+   * /bewerben?center=<slug>. Documents without the field count as true.
    */
   showApplyLink: boolean;
   /** Optional custom label for the apply entry; "" = default label */

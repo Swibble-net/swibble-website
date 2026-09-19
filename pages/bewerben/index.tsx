@@ -27,7 +27,7 @@ const STEPS = [
   ["3", "Kennenlernen & loslegen", "Wir sprechen alles mit dir ab. Du entscheidest, ob du dabei bist."],
 ];
 
-const MitmachenPage: NextPageWithLayout<Props> = ({
+const BewerbenPage: NextPageWithLayout<Props> = ({
   center,
   centers,
   storeAvailable,
@@ -49,7 +49,7 @@ const MitmachenPage: NextPageWithLayout<Props> = ({
       <SEO
         title="Mach mit bei unseren Videos"
         description="Du willst in TikTok- und Instagram-Videos aus deinem Einkaufszentrum dabei sein, als Promoter:in oder Model arbeiten? Bewirb dich in zwei Minuten bei Swibble."
-        canonical="/mitmachen"
+        canonical="/bewerben"
       />
 
       <div className="relative flex min-h-screen w-full flex-col items-center bg-gradient-to-b from-[#FDF5FF] to-[#F3D9FF] px-4 py-8 sm:py-12">
@@ -211,7 +211,7 @@ const MitmachenPage: NextPageWithLayout<Props> = ({
   );
 };
 
-MitmachenPage.getLayout = (page: ReactElement) => page;
+BewerbenPage.getLayout = (page: ReactElement) => page;
 
 export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const storeAvailable = isApplicationStoreAvailable();
@@ -236,4 +236,4 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   };
 };
 
-export default MitmachenPage;
+export default BewerbenPage;

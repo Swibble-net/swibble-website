@@ -38,8 +38,11 @@ const nextConfig = {
     ],
   },
   async redirects() {
-    // Alias for the application page; the query (?center=…) is carried over.
-    return [{ source: "/bewerben", destination: "/mitmachen", permanent: false }];
+    // Alias for the application page (/bewerben); the query (?center=…) is carried over.
+    return [
+      { source: "/mitmachen", destination: "/bewerben", permanent: false },
+      { source: "/mitmachen/:path*", destination: "/bewerben/:path*", permanent: false },
+    ];
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

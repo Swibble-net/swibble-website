@@ -35,7 +35,7 @@ describe("toProfile – backwards compatibility", () => {
 });
 
 describe("buildApplyLink", () => {
-  it("links to /mitmachen with the profile slug as center", () => {
+  it("links to /bewerben with the profile slug as center", () => {
     const link = buildApplyLink({
       slug: "demo-center",
       showApplyLink: true,
@@ -43,7 +43,7 @@ describe("buildApplyLink", () => {
     });
     expect(link).toMatchObject({
       label: APPLY_LINK_DEFAULT_LABEL,
-      href: "/mitmachen?center=demo-center",
+      href: "/bewerben?center=demo-center",
       external: false,
     });
   });
@@ -68,8 +68,8 @@ describe("buildApplyLink", () => {
   });
 
   it("encodes the slug and falls back to the plain page without one", () => {
-    expect(applyHref("a&b=c")).toBe("/mitmachen?center=a%26b%3Dc");
-    expect(applyHref("")).toBe("/mitmachen");
+    expect(applyHref("a&b=c")).toBe("/bewerben?center=a%26b%3Dc");
+    expect(applyHref("")).toBe("/bewerben");
   });
 });
 

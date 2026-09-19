@@ -21,7 +21,7 @@ const EinverstaendnisPage: NextPageWithLayout = () => (
     <SEO
       title="Einverständniserklärung der Eltern"
       description="Vorlage für die Einverständniserklärung der Erziehungsberechtigten zur Bewerbung bei Swibble."
-      canonical="/mitmachen/einverstaendnis"
+      canonical="/bewerben/einverstaendnis"
       noIndex
     />
 

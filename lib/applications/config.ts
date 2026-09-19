@@ -1,4 +1,4 @@
-// Central settings for the application page (/mitmachen). Everything that is a
+// Central settings for the application page (/bewerben). Everything that is a
 // business or legal decision lives here so it can be changed in one place.
 
 export const APPLICATION_ROLES = [
@@ -32,13 +32,13 @@ export const MAX_APPLICATION_AGE = 100;
 
 /**
  * How long applications are kept after the process is finished, in months.
- * Shown on /mitmachen and in the privacy policy. Deletion itself is manual
+ * Shown on /bewerben and in the privacy policy. Deletion itself is manual
  * (admin area → "Endgültig löschen").
  */
 export const APPLICATION_RETENTION_MONTHS = 6;
 
 /**
- * The parental consent template (/mitmachen/einverstaendnis) carries a visible
+ * The parental consent template (/bewerben/einverstaendnis) carries a visible
  * "ENTWURF" marker until it has been legally reviewed. Set to false afterwards.
  */
 export const CONSENT_TEMPLATE_IS_DRAFT = true;

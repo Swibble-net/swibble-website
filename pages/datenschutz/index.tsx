@@ -209,8 +209,8 @@ const Datenschutz = () => {
           </h4>
           <p>
             Über unser Bewerbungsformular (
-            <Link href="/mitmachen" className="text-[#0000EE] underline">
-              swibble.net/mitmachen
+            <Link href="/bewerben" className="text-[#0000EE] underline">
+              swibble.net/bewerben
             </Link>
             ) können Sie sich dafür bewerben, in unseren Social-Media-Videos
             mitzuwirken oder für uns als Promoter:in oder Model tätig zu werden.

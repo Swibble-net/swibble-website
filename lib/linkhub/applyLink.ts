@@ -7,7 +7,7 @@ export const APPLY_LINK_LABEL_MAX_LENGTH = 60;
 
 /** Path of the application page, pre-filled with the center it came from. */
 export function applyHref(slug: string): string {
-  return slug ? `/mitmachen?center=${encodeURIComponent(slug)}` : "/mitmachen";
+  return slug ? `/bewerben?center=${encodeURIComponent(slug)}` : "/bewerben";
 }
 
 /**

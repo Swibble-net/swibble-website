@@ -341,7 +341,7 @@ export async function readConsentFile(
   return { buffer, contentType: file.contentType, extension: file.extension };
 }
 
-/** Centers selectable on /mitmachen: Linkhub profiles with the apply entry on. */
+/** Centers selectable on /bewerben: Linkhub profiles with the apply entry on. */
 export async function getCenterOptions(): Promise<CenterOption[]> {
   if (!isApplicationStoreAvailable()) return [];
   return backend().centers();

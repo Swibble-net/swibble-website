@@ -717,7 +717,7 @@ const ApplicationForm = ({
             <ol className="mt-2 list-decimal space-y-1 pl-5">
               <li>
                 <a
-                  href="/mitmachen/einverstaendnis"
+                  href="/bewerben/einverstaendnis"
                   target="_blank"
                   rel="noopener"
                   className="font-medium text-[#B718EC] underline"
