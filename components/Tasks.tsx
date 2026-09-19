@@ -1,5 +1,7 @@
 // Import all required modules
+import { useRef } from "react";
 import styles from "@/styles/tasks.module.scss";
+import { usePointerParallax } from "@/hooks/usePointerParallax";
 import Image from "next/image";
 import BrushIcon from "@/public/icons/icon_brush.svg";
 import MonitorIcon from "@/public/icons/icon_monitor.svg";
@@ -7,6 +9,10 @@ import MobileIcon from "@/public/icons/mobile_icon.svg";
 import UserLocationIcon from "@/public/icons/user_location_icon.svg";
 // Render rthe component
 const Tasks = () => {
+  // Light mouse parallax: the four cards sit on different depths (see tasks.module.scss).
+  const cardsRef = useRef<HTMLDivElement>(null);
+  usePointerParallax(cardsRef);
+
   return (
     <section id="uber-uns" className={`${styles.container} scroll-mt-28 lg:scroll-mt-32`}>
       {/*Adding the "wave" on top of the component*/}
@@ -33,7 +39,7 @@ const Tasks = () => {
         </p>
       </div>
       {/* Render the container with cards */}
-      <div className={styles.card_container}>
+      <div ref={cardsRef} className={styles.card_container}>
         <div className={styles.card3}>
           <Image src={MobileIcon} alt="" width={32} height={32} />
           <h3 style={{ color: "#3ABD9E" }}>Social Media</h3>

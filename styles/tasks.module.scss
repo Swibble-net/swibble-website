@@ -29,6 +29,24 @@
     border-radius: 0.625rem;
     background-color: white;
     box-shadow: 0 25px 100px rgba(76, 64, 247, 8%);
+
+    --depth: 0;
+    transform: translate3d(
+        calc(var(--px) * var(--depth) * var(--shift)),
+        calc(var(--py) * var(--depth) * var(--shift)),
+        0
+    );
+    will-change: transform;
+
+    // The icon floats a little above its card.
+    img {
+        transform: translate3d(
+            calc(var(--px) * var(--depth) * var(--shift) * 0.6),
+            calc(var(--py) * var(--depth) * var(--shift) * 0.6),
+            0
+        );
+        will-change: transform;
+    }
 }
 
 .container {
@@ -106,7 +124,11 @@
     column-gap: 1rem;
     padding-top: 6rem;
     padding-bottom: 6rem;
-    
+
+    // Mouse parallax (usePointerParallax writes --px / --py, each -1 … 1).
+    --px: 0;
+    --py: 0;
+    --shift: 1px; // base unit; card offset = --shift × --depth
 
     @media screen and (min-width: 1024px) {
         column-gap: 2.5rem;
@@ -115,6 +137,7 @@
 }
 .card1 {
     @include card_wireframe;
+    --depth: -5; // Design — far
 
     h3 {
         @include card_header
@@ -133,6 +156,7 @@
 }
 .card2 {
     @include card_wireframe;
+    --depth: 10; // Development — near
 
     h3 {
         @include card_header
@@ -150,6 +174,7 @@
 }
 .card3 {
     @include card_wireframe;
+    --depth: 9; // Social Media — near
 
     h3 {
         @include card_header
@@ -167,6 +192,7 @@
 }
 .card4 {
     @include card_wireframe;
+    --depth: -6; // Live Events — far
 
     h3 {
         @include card_header
@@ -239,4 +265,8 @@
     }
 }
 
-
+@media (prefers-reduced-motion: reduce) {
+    .card_container {
+        --shift: 0px;
+    }
+}
