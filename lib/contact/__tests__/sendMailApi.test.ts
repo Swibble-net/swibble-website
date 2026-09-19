@@ -54,6 +54,10 @@ describe("/api/send-mail", () => {
     );
     expect(mail.subject).not.toMatch(/[\r\n]/);
     expect(mail.text).toContain("Ziel:       Mehr Reichweite");
+    // Same look as the confirmation, with the inline logo.
+    expect(mail.html).toContain("Neue Anfrage: Social Media, Design");
+    expect(mail.html).toContain('href="mailto:max@example.com"');
+    expect(mail.attachments[0].cid).toBe("swibble-logo");
   });
 
   it("confirms the inquiry to the visitor with an HTML mail", async () => {
@@ -85,6 +89,7 @@ describe("/api/send-mail", () => {
       subject: "Message from max@example.com. 0241 123",
       text: "Hallo!",
     });
+    expect(sendMail.mock.calls[0][0].html).toBeUndefined();
   });
 
   it("answers invalid bodies with 400 and sends nothing", async () => {
