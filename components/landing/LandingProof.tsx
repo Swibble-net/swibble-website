@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import ListOfCompanies from "@/components/ListOfCompanies";
 import { companyLogos } from "@/lib/companiesLogos";
 import { LANDING_IMAGES } from "@/components/landing/images";
 import type {
   LandingCaseStudy,
+  LandingFacts,
   LandingPageContent,
   LandingReference,
 } from "@/lib/landing/types";
@@ -73,13 +75,23 @@ const ReferenceCard = ({
         className={`object-cover ${wide ? "object-[50%_30%]" : ""}`}
       />
     </div>
-    <div className="flex flex-col p-4 lg:p-5">
+    <div className="flex flex-1 flex-col p-4 lg:p-5">
       <span className="mb-1 text-xs font-medium uppercase tracking-[0.12em] text-[#8A1FD6]">
         {reference.kicker}
       </span>
       <h3 className="text-base font-bold text-[#000D36] lg:text-lg">
         {reference.title}
       </h3>
+      {reference.text && (
+        <p className="mt-2 text-sm leading-relaxed text-[#556987]">
+          {reference.text}
+        </p>
+      )}
+      {reference.note && (
+        <p className="mt-auto pt-4 text-sm font-medium text-[#556987]">
+          {reference.note}
+        </p>
+      )}
     </div>
   </div>
 );
@@ -87,13 +99,18 @@ const ReferenceCard = ({
 interface Props {
   proof: LandingPageContent["proof"];
   caseStudies: LandingCaseStudy[];
+  facts: LandingFacts | null;
 }
 
-const LandingProof = ({ proof, caseStudies }: Props) => {
+const LandingProof = ({ proof, caseStudies, facts }: Props) => {
   const references = proof.references ?? [];
   const mixed = caseStudies.length > 0;
   const total = caseStudies.length + references.length;
-  const logos = companyLogos.filter((logo) => proof.logos.includes(logo.alt));
+  // Keeps the order given in the content file (clients with the most followers first).
+  const logos = (proof.logos ?? []).flatMap((alt) =>
+    companyLogos.filter((logo) => logo.alt === alt),
+  );
+  const factCols = facts?.items.length === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3";
 
   const gridClass = mixed
     ? total === 4
@@ -102,7 +119,10 @@ const LandingProof = ({ proof, caseStudies }: Props) => {
     : "grid-cols-2 lg:grid-cols-4";
 
   return (
-    <section aria-labelledby="referenzen" className="w-full py-10 lg:py-16">
+    <section
+      aria-labelledby="referenzen"
+      className={`w-full pt-10 lg:pt-16 ${logos.length > 0 ? "pb-10 lg:pb-16" : ""}`}
+    >
       <div className="mb-8 max-w-3xl">
         <h2
           id="referenzen"
@@ -128,15 +148,20 @@ const LandingProof = ({ proof, caseStudies }: Props) => {
         ))}
       </ul>
 
-      {proof.facts && (
+      {facts && (
         <>
-          <dl className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-6">
-            {proof.facts.map(({ value, label }) => (
+          <dl className={`mt-8 grid grid-cols-1 gap-4 lg:gap-6 ${factCols}`}>
+            {facts.items.map(({ value, label, start }) => (
               <div
                 key={label}
                 className="flex flex-col-reverse rounded-2xl bg-[#FDF5FF] p-5 text-center"
               >
-                <dt className="mt-1 text-sm text-[#556987]">{label}</dt>
+                <dt className="mt-1 text-sm text-[#556987]">
+                  {label}
+                  <span className="mt-1 block text-xs text-[#6B6B6B]">
+                    Gestartet bei {start}
+                  </span>
+                </dt>
                 <dd className="text-3xl font-bold text-[#8A1FD6] lg:text-4xl">
                   {value}
                 </dd>
@@ -144,7 +169,7 @@ const LandingProof = ({ proof, caseStudies }: Props) => {
             ))}
           </dl>
           <p className="mt-3 text-xs text-[#6B6B6B]">
-            Zahlen zum Zeitpunkt der jeweiligen Veröffentlichung im Blog.
+            Öffentliche TikTok-Profile, Stand {facts.date} – wird täglich aktualisiert.
           </p>
         </>
       )}
@@ -165,6 +190,8 @@ const LandingProof = ({ proof, caseStudies }: Props) => {
           </figcaption>
         </figure>
       )}
+
+      {logos.length === 0 && <ListOfCompanies compact />}
 
       {logos.length > 0 && (
         <div className="mt-10">

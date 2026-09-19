@@ -17,8 +17,9 @@ export const liveEvents: LandingPageContent = {
     kicker: "Live-Events · Messen · Aktionen",
     title: "Viel Aufwand für dein Live-Event – und am nächsten Tag ist alles vorbei?",
     text: "Swibble plant, koordiniert und betreut Live-Events und Messestände und produziert vor Ort Fotos, Videos und Social-Media-Content. Mit 360°-Kamera, Fotobox und Live-Berichterstattung wird aus einem Veranstaltungstag Material für Wochen.",
-    image: "fynn",
-    imageAlt: "Fynn Frings von Swibble mit professioneller Kamera",
+    visual: "events",
+    visualAlt:
+      "Fynn Frings von Swibble mit professioneller Kamera, umgeben von den Modulen 360°-Kamera, Fotobox und Messestand",
   },
   proof: {
     title: "Live-Events, die wir umgesetzt haben",
@@ -28,7 +29,6 @@ export const liveEvents: LandingPageContent = {
       "live-content-events-social-media",
       "360-grad-video-station-von-swibble",
     ],
-    logos: ["Aquis Plaza", "Olympia Einkaufszentrum", "Billstedt Center"],
   },
   services: {
     title: "Was wir für dein Live-Event übernehmen",
@@ -37,26 +37,32 @@ export const liveEvents: LandingPageContent = {
     items: [
       {
         title: "Messestand: Planung & Betreuung",
+        icon: "booth",
         text: "Wir planen deinen Messestand, koordinieren Ablauf und Beteiligte und betreuen den Stand vor Ort – damit du Zeit für Gespräche hast.",
       },
       {
         title: "Eventkonzept & Programm",
+        icon: "program",
         text: "Bühnenprogramm, Panel-Talk oder Mitmach-Stationen wie ein digitales Glücksrad: Wir entwickeln Programmpunkte, die Gäste aktiv einbinden.",
       },
       {
         title: "360°-Kamera",
+        icon: "camera360",
         text: "Gäste stehen auf einer Plattform, die Kamera fährt um sie herum. Heraus kommen kurze Rundum-Clips – auf Wunsch mit Logo und Overlay im Look deiner Marke.",
       },
       {
         title: "Fotobox",
+        icon: "photobox",
         text: "Der unkomplizierte Mitmach-Moment: Gäste fotografieren sich selbst, und dein Event bekommt Bilder, die gern geteilt werden.",
       },
       {
         title: "Werbetafeln & Eventdesign",
+        icon: "signage",
         text: "Werbetafeln, Druckmaterial und digitale Grafiken gestalten wir passend zu deiner Marke, damit Stand und Event wie aus einem Guss wirken.",
       },
       {
         title: "Foto, Video & Live-Content",
+        icon: "live",
         text: "Live-Berichterstattung während des Events, Interviews, Reels in Echtzeit und ein Recap – plus ein Redaktionspaket für die Wochen danach.",
       },
     ],

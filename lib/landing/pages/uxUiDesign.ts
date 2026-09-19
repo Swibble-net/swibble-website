@@ -17,8 +17,9 @@ export const uxUiDesign: LandingPageContent = {
     kicker: "UX/UI · Brand Design · Print",
     title: "Dein Produkt kann viel – aber ohne gutes UX/UI-Design merkt es keiner?",
     text: "Swibble gestaltet Oberflächen, in denen sich Nutzer auf Anhieb zurechtfinden, und Marken, die man wiedererkennt. Vom ersten Wireframe bis zum fertigen Screen, vom Logo bis zur Werbetafel – auf Wunsch direkt zusammen mit der Entwicklung.",
-    image: "konratsWelt",
-    imageAlt: "Hand hält ein Smartphone mit der App Konrat’s Welt",
+    visual: "design",
+    visualAlt:
+      "Illustration: App-Oberfläche als Entwurf mit Farbpalette, Schriftmuster und Zeichenwerkzeug",
   },
   proof: {
     title: "Digitale Produkte aus unserem Portfolio",
@@ -50,7 +51,6 @@ export const uxUiDesign: LandingPageContent = {
         imageAlt: "Älteres Paar blickt auf einen Laptop mit der Anmeldeseite von Little World",
       },
     ],
-    logos: ["Aachen App", "RydeUp", "Little World"],
   },
   services: {
     title: "Design-Leistungen im Überblick",
@@ -58,26 +58,32 @@ export const uxUiDesign: LandingPageContent = {
     items: [
       {
         title: "UX-Konzept",
+        icon: "ux",
         text: "Wer nutzt dein Produkt, und was will diese Person erreichen? Daraus entstehen Struktur, Nutzerführung und Wireframes.",
       },
       {
         title: "UI-Design",
+        icon: "ui",
         text: "Screens und Komponenten für App, Web-App oder Website – konsistent, responsiv und gut lesbar.",
       },
       {
         title: "Prototypen",
+        icon: "prototype",
         text: "Klickbare Entwürfe zeigen früh, wie sich dein Produkt anfühlt – bevor eine Zeile Code geschrieben ist.",
       },
       {
         title: "Brand Design",
+        icon: "brand",
         text: "Logo, Farben, Typografie und Bildsprache: ein Erscheinungsbild, das auf jedem Kanal zusammenpasst.",
       },
       {
         title: "Print & Werbung",
+        icon: "print",
         text: "Druckbare Medien und Werbematerialien wie Flyer, Plakate oder Werbetafeln – abgestimmt auf deinen digitalen Auftritt.",
       },
       {
         title: "Übergabe an die Entwicklung",
+        icon: "handoff",
         text: "Saubere Design-Dateien für dein Entwicklerteam – oder wir setzen das Design gleich selbst als Software um.",
       },
     ],
