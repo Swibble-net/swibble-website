@@ -31,7 +31,7 @@ describe("applicationsToCsv", () => {
     expect(lines).toHaveLength(2);
     expect(lines[0]).toContain('"Vorname";"Nachname"');
     expect(lines[1]).toContain('"Testina";"Testperson"');
-    expect(lines[1]).toContain('"Im Video mitmachen, Promoter:in"');
+    expect(lines[1]).toContain('"Im Video mitmachen, Promoter:in für Events"');
     expect(lines[1]).toContain('"Kontaktiert"');
   });
 });
