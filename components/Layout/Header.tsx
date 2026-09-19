@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import BurgerMenu from "../BurgerMenu/BurgerMenu";
+import NavDropdown from "./NavDropdown";
 import Logo from "@/public/logo/SwibbleLogo.svg";
 import LogoText from "@/public/logo/SwibbleTextLogo.svg";
 import { NAV_LINKS } from "@/lib/navLinks";
@@ -45,11 +46,15 @@ const Header = () => {
           </Link>
         </div>
         <nav className="hidden lg:flex items-center gap-8" aria-label="Hauptnavigation">
-          {NAV_LINKS.map(({ href, label }) => (
-            <Link key={href} href={href} className={navLinkClass}>
-              {label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((item) =>
+            item.children ? (
+              <NavDropdown key={item.href} item={item} className={navLinkClass} />
+            ) : (
+              <Link key={item.href} href={item.href} className={navLinkClass}>
+                {item.label}
+              </Link>
+            ),
+          )}
         </nav>
         <div className="hidden lg:block">
           <a

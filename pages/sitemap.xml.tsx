@@ -2,13 +2,9 @@ import type { GetServerSideProps } from "next";
 import { getAllPosts } from "@/lib/blog/posts";
 import { isFirebaseConfigured } from "@/lib/firebaseAdmin";
 import { toIsoDate } from "@/lib/blog/format";
+import { crawlablePaths } from "@/lib/sitemapPaths";
 
 const SITE_URL = "https://www.swibble.net";
-
-const crawlablePaths = [
-  { path: "", priority: "1.0", changefreq: "weekly" },
-  { path: "/blog", priority: "0.8", changefreq: "weekly" },
-];
 
 function Sitemap() {
   return null;

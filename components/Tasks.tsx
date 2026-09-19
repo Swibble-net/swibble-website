@@ -3,6 +3,7 @@ import { useRef } from "react";
 import styles from "@/styles/tasks.module.scss";
 import { usePointerParallax } from "@/hooks/usePointerParallax";
 import Image from "next/image";
+import Link from "next/link";
 import BrushIcon from "@/public/icons/icon_brush.svg";
 import MonitorIcon from "@/public/icons/icon_monitor.svg";
 import MobileIcon from "@/public/icons/mobile_icon.svg";
@@ -38,28 +39,32 @@ const Tasks = () => {
           Wir repräsentieren deine Marke im besten Licht auf Social Media, auf Events oder im Web!
         </p>
       </div>
-      {/* Render the container with cards */}
+      {/* Render the container with cards; each card links to its landing page */}
       <div ref={cardsRef} className={styles.card_container}>
-        <div className={styles.card3}>
+        <Link href="/social-media-marketing" className={styles.card3}>
           <Image src={MobileIcon} alt="" width={32} height={32} />
           <h3 style={{ color: "#3ABD9E" }}>Social Media</h3>
           <p>Viraler Content auf deinen Social Media Kanälen.</p>
-        </div>
-        <div className={styles.card4}>
+          <span className={styles.card_more}>Mehr erfahren →</span>
+        </Link>
+        <Link href="/live-events" className={styles.card4}>
           <Image src={UserLocationIcon} alt="" width={32} height={32} />
           <h3 style={{ color: "#C43B7D" }}>Live Events</h3>
           <p>Live Events in deinem Unternehmen, Messen oder Online.</p>
-        </div>
-        <div className={styles.card1}>
+          <span className={styles.card_more}>Mehr erfahren →</span>
+        </Link>
+        <Link href="/ux-ui-design" className={styles.card1}>
           <Image src={BrushIcon} alt="" width={32} height={32} />
           <h3 style={{ color: "#B718EC" }}>Design</h3>
           <p>Entwurf des Designs von Software, druckbaren Medien & Werbung.</p>
-        </div>
-        <div className={styles.card2}>
+          <span className={styles.card_more}>Mehr erfahren →</span>
+        </Link>
+        <Link href="/software-entwicklung" className={styles.card2}>
           <Image src={MonitorIcon} alt="" width={32} height={32} />
           <h3 style={{ color: "#5F3BC4" }}>Development</h3>
           <p>Entwicklung persönlicher Softwarelösungen.</p>
-        </div>
+          <span className={styles.card_more}>Mehr erfahren →</span>
+        </Link>
       </div>
       {/*Adding the "wave" in the bottom of the component*/}
       <div className={styles.wave_bottom} aria-hidden>

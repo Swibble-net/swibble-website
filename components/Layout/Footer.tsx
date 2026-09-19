@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import SwibbleLogoText from "@/public/logo/SwibbleTextLogoWhite.svg";
 import LinkedInIcon from "@/public/icons/LinkedIn.svg";
-import { NAV_LINKS } from "@/lib/navLinks";
+import { NAV_LINKS, SERVICE_LINKS } from "@/lib/navLinks";
 import {
   CTA_LABEL,
   CTA_URL,
@@ -74,8 +74,8 @@ const Footer = () => {
         </svg>
       </div>
 
-      <div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-x-6 gap-y-10 text-sm lg:grid-cols-[1.4fr_1fr_1.3fr_1.3fr_1.2fr]">
-        <div className="col-span-2 flex flex-col gap-5 lg:col-span-1">
+      <div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-x-6 gap-y-10 text-sm lg:grid-cols-3 xl:grid-cols-[1.4fr_0.9fr_1.2fr_1.3fr_1.3fr_1.2fr]">
+        <div className="col-span-2 flex flex-col gap-5 lg:col-span-3 xl:col-span-1">
           <Link
             href={"/"}
             className="w-fit hover:scale-95 transition duration-200"
@@ -106,6 +106,19 @@ const Footer = () => {
           <h2 className={columnTitleClass}>Swibble</h2>
           <ul className="flex flex-col gap-3 font-light">
             {NAV_LINKS.map(({ href, label }) => (
+              <li key={href}>
+                <Link href={href} className={footerLinkClass}>
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <nav aria-label="Leistungen">
+          <h2 className={columnTitleClass}>Leistungen</h2>
+          <ul className="flex flex-col gap-3 font-light">
+            {SERVICE_LINKS.map(({ href, label }) => (
               <li key={href}>
                 <Link href={href} className={footerLinkClass}>
                   {label}

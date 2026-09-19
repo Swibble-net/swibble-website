@@ -82,3 +82,61 @@ export const webSiteJsonLd = {
   publisher: { "@id": `${SITE_URL}/#organization` },
   inLanguage: "de-DE",
 };
+
+/** Service offered by Swibble, linked to the organization node of the home page. */
+export function serviceJsonLd({
+  name,
+  serviceType,
+  description,
+  path,
+}: {
+  name: string;
+  serviceType: string;
+  description: string;
+  path: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": `${SITE_URL}${path}#service`,
+    name,
+    serviceType,
+    description,
+    url: `${SITE_URL}${path}`,
+    provider: {
+      "@type": "ProfessionalService",
+      "@id": `${SITE_URL}/#organization`,
+      name: organizationJsonLd.name,
+      url: SITE_URL,
+    },
+    areaServed: organizationJsonLd.areaServed,
+    inLanguage: "de-DE",
+  };
+}
+
+/** Breadcrumb trail; `path` is site-relative ("/" for the home page). */
+export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map(({ name, path }, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name,
+      item: `${SITE_URL}${path === "/" ? "" : path}`,
+    })),
+  };
+}
+
+/** FAQPage; the answers must match the text visible on the page. */
+export function faqJsonLd(faq: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map(({ question, answer }) => ({
+      "@type": "Question",
+      name: question,
+      acceptedAnswer: { "@type": "Answer", text: answer },
+    })),
+  };
+}
