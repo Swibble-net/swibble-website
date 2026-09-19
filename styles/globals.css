@@ -4,36 +4,17 @@
 @source "../components/**/*.{js,ts,jsx,tsx}";
 
 @theme {
-  --animate-fill: fill 2s ease-out forwards;
-  --animate-popup: popup 0.5s ease-in-out forwards,
-    popupDelay 0.5s ease-in-out 4s forwards;
+  /* Step change of the inquiry form; applied with motion-safe: only. */
+  --animate-step-in: step-in 0.3s ease-out both;
 
-  @keyframes fill {
+  @keyframes step-in {
     0% {
-      width: 0%;
-      border-bottom-right-radius: 0rem;
+      opacity: 0;
+      transform: translateY(0.5rem);
     }
     100% {
-      width: 100%;
-      border-bottom-right-radius: 0.5rem;
-    }
-  }
-
-  @keyframes popup {
-    0% {
-      bottom: -100%;
-    }
-    100% {
-      bottom: 1rem;
-    }
-  }
-
-  @keyframes popupDelay {
-    0% {
-      bottom: 1rem;
-    }
-    100% {
-      bottom: -100%;
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 }

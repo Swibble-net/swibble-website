@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import { NextApiRequest, NextApiResponse } from "next";
-import { MESSAGE_MAX_LENGTH } from "@/lib/cta";
+import { buildSubject, buildText, parseInquiry } from "@/lib/contact/inquiry";
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,15 +10,12 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed" });
   }
 
-  const { email, message, number } = req.body;
-
-  if (!email || !message) {
-    return res.status(400).json({ message: "Bad request!" });
+  // Types, whitelisted choices and length limits: see lib/contact/inquiry.
+  const parsed = parseInquiry(req.body);
+  if (!parsed.ok) {
+    return res.status(400).json({ message: parsed.error });
   }
-
-  if (typeof message !== "string" || message.length > MESSAGE_MAX_LENGTH) {
-    return res.status(400).json({ message: "Message too long" });
-  }
+  const { inquiry } = parsed;
 
   const transporter = nodemailer.createTransport({
     host: String(process.env.SMTP_HOST),
@@ -31,10 +28,10 @@ export default async function handler(
 
   const mail = {
     from: process.env.SMTP_USER,      // your Netcup email, e.g. contact@swibble.net
-    replyTo: email,                    // visitor's email goes here
+    replyTo: inquiry.email,            // visitor's email goes here
     to: process.env.SMTP_USER,
-    subject: `Message from ${email}. ${number ?? ""}`,
-    text: message,
+    subject: buildSubject(inquiry),    // single line, control characters removed
+    text: buildText(inquiry),
   };
 
   try {

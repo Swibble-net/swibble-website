@@ -1,101 +1,10 @@
 // Importing necessary React components
-import { FormEvent, useEffect, useReducer, useState } from "react";
-import Link from "next/link";
-import sendEmail from "@/lib/sendMail";
-import ContactResponseMessage from "./ContactResponseMessage";
-import TurnstileWidget from "./TurnstileWidget";
-import { CTA_LABEL, EMAIL, MESSAGE_MAX_LENGTH, PHONE_DISPLAY, PHONE_TEL } from "@/lib/cta";
+import ContactFunnel from "@/components/contact/ContactFunnel";
+import { EMAIL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/cta";
 import { MdOutlineEmail, MdOutlineLocationOn, MdOutlinePhone } from "react-icons/md";
-
-// Defining expected input properties for `updateEvent` reducer
-interface Input {
-	email: string;
-	message: string;
-	number: string;
-	alert: boolean;
-}
 
 // Defining the main component
 const ContactForm = () => {
-	// Creating state and updating function using `useReducer`
-	const [event, updateEvent] = useReducer(
-		(prev: Input, next: Partial<Input>) => {
-			return { ...prev, ...next };
-		},
-		{ email: "", message: "", number: "", alert: false },
-	);
-
-	const [responseMessage, setResponseMessage] = useState({
-		backgroundColor: "",
-		alertMessage: "",
-		fillColor: "",
-	});
-	const [turnstileVerified, setTurnstileVerified] = useState(false);
-	const [turnstileKey, setTurnstileKey] = useState(0);
-
-	const resetTurnstile = () => {
-		setTurnstileVerified(false);
-		setTurnstileKey((key) => key + 1);
-	};
-
-	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-
-		if (!turnstileVerified) {
-			setResponseMessage({
-				alertMessage: "Bitte bestätige, dass du kein Roboter bist.",
-				backgroundColor: "bg-red-500",
-				fillColor: "bg-red-300",
-			});
-			updateEvent({ alert: true });
-			return;
-		}
-
-		try {
-			const req = await sendEmail(
-				event.email,
-				event.number,
-				event.message,
-			);
-			if (req.status === 200) {
-				setResponseMessage({
-					alertMessage: "Abgeschickt!",
-					backgroundColor: "bg-[#B718EC]",
-					fillColor: "bg-[#e7a1ff]",
-				});
-				updateEvent({ email: "" });
-				updateEvent({ number: "" });
-				updateEvent({ message: "" });
-			}
-		} catch (e) {
-			console.log(e);
-			setResponseMessage({
-				alertMessage: "Fehlgeschlagen",
-				backgroundColor: "bg-red-500",
-				fillColor: "bg-red-300",
-			});
-		}
-
-		resetTurnstile();
-		updateEvent({ alert: true });
-	};
-
-	// Setting variables for alert message props
-	const alertMessage: string = responseMessage.alertMessage;
-	const backgroundColor: string = responseMessage.backgroundColor;
-	const fillColor: string = responseMessage.fillColor;
-
-	//useEffect with timer for closing alert message wich react on "alert" state
-	useEffect(() => {
-		if (!event.alert) return;
-
-		const timer = setTimeout(() => {
-			updateEvent({ alert: false });
-		}, 7000);
-
-		return () => clearTimeout(timer);
-	}, [event.alert]);
-
 	// Rendering the component
 	return (
 		<>
@@ -137,47 +46,9 @@ const ContactForm = () => {
 					</div>
 				</div>
 
-				{/* Displaying a form for submitting messages */}
-				<form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full lg:w-5/12">
-					<div>
-						<label htmlFor="email">E-Mail*</label>
-						<br />
-						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:outline-none! pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" id="email" name="email" type="email" autoComplete="email" placeholder="Deine E-Mail Adresse" required value={event.email} onChange={(e) => updateEvent({ email: e.target.value })} />
-					</div>
-					<div>
-						<label htmlFor="Telefonnummer">Telefonnummer (Optional)</label>
-						<br />
-						<input className="w-full bg-[#F6F6F6] h-12 rounded-lg focus:outline-none! pl-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" id="Telefonnummer" type="tel" name="Telefonnummer" autoComplete="tel" placeholder="Deine Telefonnummer" value={event.number} onChange={(e) => updateEvent({ number: e.target.value })} />
-					</div>
-					<div>
-						<label htmlFor="text">Nachricht*</label>
-						<br />
-						<textarea className="w-full bg-[#F6F6F6] h-32 rounded-lg resize-none focus:outline-none! pl-2 pt-2 mt-3 placeholder:font-normal placeholder:text-sm placeholder:text-[#CEC3D2]" id="text" name="text" maxLength={MESSAGE_MAX_LENGTH} placeholder="Vor welchen Herausforderungen steht dein Unternehmen?" required value={event.message} onChange={(e) => updateEvent({ message: e.target.value })} />
-					</div>
-					<TurnstileWidget
-						key={turnstileKey}
-						onVerify={() => setTurnstileVerified(true)}
-						onExpire={() => setTurnstileVerified(false)}
-						onError={() => setTurnstileVerified(false)}
-					/>
-					<button
-						type="submit"
-						disabled={!turnstileVerified}
-						className="w-fit min-w-44 lg:self-center text-center text-sm font-medium bg-[#B718EC] text-[#F0FDF4] py-[0.781rem] px-5 rounded-[10px] hover:scale-95 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50"
-					>
-						{CTA_LABEL}
-					</button>
-					<p className="text-xs text-[#556987] lg:text-center">
-						Wir verwenden deine Angaben ausschließlich, um deine Anfrage zu bearbeiten. Mehr dazu in unserer{" "}
-						<Link href="/datenschutz" className="underline hover:text-[#B718EC]">
-							Datenschutzerklärung
-						</Link>
-						.
-					</p>
-				</form>
+				{/* Multi-step inquiry form (services → goal → contact details → thank you) */}
+				<ContactFunnel />
 			</section>
-			{/* Dispalying alert message depending on event.alert state */}
-			{event.alert ? <ContactResponseMessage alertMessage={alertMessage} background={backgroundColor} fill={fillColor} /> : ""}
 		</>
 	);
 };
