@@ -12,10 +12,18 @@ export interface InquiryPayload {
   goal: Goal | "";
   budget: Budget | "";
   timeframe: Timeframe | "";
+  /** Checked server-side once TURNSTILE_SECRET_KEY is configured. */
+  turnstileToken: string;
+}
+
+export interface SendMailResponse {
+  success: boolean;
+  /** False when the inquiry arrived but the confirmation mail could not be sent. */
+  confirmationSent?: boolean;
 }
 
 const sendEmail = async (payload: InquiryPayload) => {
-  return axios({
+  return axios<SendMailResponse>({
     method: "post",
     url: "/api/send-mail",
     headers: {

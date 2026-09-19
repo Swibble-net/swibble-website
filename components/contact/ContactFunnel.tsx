@@ -71,7 +71,8 @@ const ContactFunnel = () => {
   const [emailError, setEmailError] = useState("");
   const [submitError, setSubmitError] = useState<"" | "turnstile" | "send">("");
   const [submitting, setSubmitting] = useState(false);
-  const [turnstileVerified, setTurnstileVerified] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [confirmationSent, setConfirmationSent] = useState(false);
   const [turnstileKey, setTurnstileKey] = useState(0);
 
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -116,7 +117,7 @@ const ContactFunnel = () => {
   };
 
   const resetTurnstile = () => {
-    setTurnstileVerified(false);
+    setTurnstileToken("");
     setTurnstileKey((key) => key + 1);
   };
 
@@ -133,14 +134,15 @@ const ContactFunnel = () => {
     }
     setEmailError("");
 
-    if (!turnstileVerified) {
+    if (!turnstileToken) {
       setSubmitError("turnstile");
       return;
     }
 
     setSubmitting(true);
     try {
-      await sendEmail({ ...answers, ...contact, email });
+      const response = await sendEmail({ ...answers, ...contact, email, turnstileToken });
+      setConfirmationSent(response.data.confirmationSent === true);
       track("contact_funnel_submit", {
         services: answers.services.join(","),
         goal: answers.goal,
@@ -334,13 +336,13 @@ const ContactFunnel = () => {
             </div>
             <TurnstileWidget
               key={turnstileKey}
-              onVerify={() => {
-                setTurnstileVerified(true);
+              onVerify={(token) => {
+                setTurnstileToken(token);
                 // The widget re-verifies after a failed send: keep that error visible.
                 setSubmitError((error) => (error === "turnstile" ? "" : error));
               }}
-              onExpire={() => setTurnstileVerified(false)}
-              onError={() => setTurnstileVerified(false)}
+              onExpire={() => setTurnstileToken("")}
+              onError={() => setTurnstileToken("")}
             />
             {submitError === "turnstile" && (
               <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -363,7 +365,7 @@ const ContactFunnel = () => {
           <div className="flex flex-col items-start gap-4">
             <MdCheckCircle className="h-12 w-12 text-[#B718EC]" aria-hidden />
             <p className="text-base text-[#556987]">
-              Deine Anfrage ist bei uns angekommen – wir melden uns so schnell wie möglich bei dir. Du möchtest nicht warten? Dann such dir direkt einen Termin für dein kostenloses Erstgespräch aus.
+              Deine Anfrage ist bei uns angekommen – wir melden uns so schnell wie möglich bei dir.{confirmationSent && " Eine Bestätigung mit deinen Angaben ist unterwegs in dein Postfach."} Du möchtest nicht warten? Dann such dir direkt einen Termin für dein kostenloses Erstgespräch aus.
             </p>
             <a
               href={CTA_URL}
