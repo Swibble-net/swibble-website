@@ -18,17 +18,17 @@ export const shoppingCenterMarketing: LandingPageContent = {
     title:
       "Shopping-Center-Marketing: Dein Center ist voller Leben – nur online sieht es niemand?",
     text: "Neue Stores, Aktionen, Events: In deinem Center passiert jede Woche etwas. Swibble macht daraus TikToks und Reels, die Menschen aus der Region erreichen und ihnen einen Grund geben, vorbeizukommen – in Aachen, München, Hamburg und Frankfurt bereits im Einsatz.",
-    image: "aquis",
-    imageAlt:
-      "Smartphone mit einem TikTok-Video aus dem Aquis Plaza Aachen: Moderator Fynn Frings interviewt zwei Besucherinnen",
+    visual: "map",
+    visualAlt:
+      "Deutschlandkarte mit vier Centern, die Swibble betreut: Billstedt-Center in Hamburg, Aquis Plaza in Aachen, MyZeil in Frankfurt und Olympia-Einkaufszentrum in München",
   },
   proof: {
     title: "Vier Center, die auf Swibble setzen",
     text: "Drei ausführliche Case Studies zeigen, wie wir für Einkaufszentren arbeiten – von der Store-Vorstellung bis zur TikTok-Challenge mit Gutscheinen.",
     caseStudies: [
       "case-study-aquis-plaza-aachen",
-      "case-study-olympia-einkaufszentrum-munchen",
       "case-study-billstedt-center-hamburg",
+      "case-study-olympia-einkaufszentrum-munchen",
     ],
     references: [
       {
@@ -36,24 +36,22 @@ export const shoppingCenterMarketing: LandingPageContent = {
         title: "MyZeil Frankfurt",
         image: "myzeil",
         imageAlt: "Smartphone mit einem Social-Media-Video für das MyZeil in Frankfurt",
+        text: "Seit dem 1. September 2026 betreuen wir die Social-Media-Kanäle des MyZeil – gestartet sind wir bei 5.293 Abonnenten.",
+        note: "Case Study folgt in Kürze",
       },
     ],
     facts: [
-      { value: "105.000+", label: "TikTok-Follower – Aquis Plaza Aachen" },
-      { value: "56.000+", label: "TikTok-Follower – Billstedt-Center Hamburg" },
-      { value: "48.000+", label: "TikTok-Follower – Olympia-Einkaufszentrum München" },
+      { account: "aquis", label: "TikTok-Follower – Aquis Plaza Aachen" },
+      { account: "billstedt", label: "TikTok-Follower – Billstedt-Center Hamburg" },
+      { account: "olympia", label: "TikTok-Follower – Olympia-Einkaufszentrum München" },
+      { account: "myzeil", label: "TikTok-Follower – MyZeil Frankfurt" },
     ],
     quote: {
       text: "Dank Swibble – Der größte aktive ECE Shopping Center TikTok Kanal Deutschlands!",
       author: "Gregory Hedderich, ehemaliger Center Manager Aquis Plaza Aachen",
       href: "/blog/case-study-aquis-plaza-aachen",
     },
-    logos: [
-      "Aquis Plaza",
-      "Olympia Einkaufszentrum",
-      "Billstedt Center",
-      "MyZeil",
-    ],
+    logos: ["Aquis Plaza", "Billstedt Center", "Olympia Einkaufszentrum", "MyZeil"],
   },
   services: {
     title: "Was wir für dein Center tun",
@@ -61,26 +59,32 @@ export const shoppingCenterMarketing: LandingPageContent = {
     items: [
       {
         title: "Store-Vorstellungen",
+        icon: "store",
         text: "Neueröffnungen, neue Kollektionen und saisonale Aktionen deiner Mieter bekommen zusätzliche Reichweite in der Region.",
       },
       {
         title: "Ein Gesicht für dein Center",
+        icon: "face",
         text: "Ein fester Moderator spricht mit Besuchern, führt durch Aktionen und sorgt dafür, dass man deinen Kanal sofort wiedererkennt.",
       },
       {
         title: "Challenges mit Gewinnanreiz",
+        icon: "trophy",
         text: "Wer mitmacht, gewinnt Gutscheine oder Produkte aus dem Center. So wird aus Aufrufen echte Bewegung in der Mall.",
       },
       {
         title: "Event- und Aktionsbegleitung",
+        icon: "live",
         text: "Von der Store-Eröffnung bis zum Jubiläum: Live-Berichterstattung, Reels in Echtzeit, 360°-Video-Station oder digitales Glücksrad.",
       },
       {
         title: "Blick hinter die Kulissen",
+        icon: "behind",
         text: "Trendformate mit regionalem Bezug und Einblicke in den Center-Alltag – Inhalte, die nicht wie Werbung wirken.",
       },
       {
         title: "Redaktionsplanung",
+        icon: "plan",
         text: "Wir planen Themen und Drehs vorausschauend und stimmen sie mit dem Center-Management ab.",
       },
     ],

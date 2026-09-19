@@ -126,7 +126,7 @@ describe("/api/send-mail with TURNSTILE_SECRET_KEY", () => {
   });
 
   it("sends mails only for a token Cloudflare accepts", async () => {
-    siteverify.mockResolvedValue({ json: async () => ({ success: true }) });
+    siteverify.mockResolvedValue({ ok: true, json: async () => ({ success: true }) });
     const res = await call({ ...BODY, turnstileToken: "valid-token" });
     expect(res.statusCode).toBe(200);
     expect(sendMail).toHaveBeenCalledTimes(2);
@@ -140,7 +140,7 @@ describe("/api/send-mail with TURNSTILE_SECRET_KEY", () => {
     expect((await call(BODY)).statusCode).toBe(400);
     expect(siteverify).not.toHaveBeenCalled();
 
-    siteverify.mockResolvedValue({ json: async () => ({ success: false }) });
+    siteverify.mockResolvedValue({ ok: true, json: async () => ({ success: false }) });
     expect((await call({ ...BODY, turnstileToken: "used-token" })).statusCode).toBe(400);
 
     siteverify.mockRejectedValue(new Error("network"));

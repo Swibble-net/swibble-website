@@ -4,19 +4,22 @@ import { getAllPosts } from "@/lib/blog/posts";
 import { isFirebaseConfigured } from "@/lib/firebaseAdmin";
 import { LANDING_PAGES, getLandingPage } from "@/lib/landing";
 import { resolveCaseStudies } from "@/lib/landing/caseStudies";
+import { getFollowerSnapshot, resolveFacts } from "@/lib/landing/followers";
 import type { BlogPost } from "@/lib/blog/types";
 import type {
   LandingCaseStudy,
+  LandingFacts,
   LandingPageContent,
 } from "@/lib/landing/types";
 
 interface Props {
   page: LandingPageContent;
   caseStudies: LandingCaseStudy[];
+  facts: LandingFacts | null;
 }
 
-export default function Landing({ page, caseStudies }: Props) {
-  return <LandingPage page={page} caseStudies={caseStudies} />;
+export default function Landing({ page, caseStudies, facts }: Props) {
+  return <LandingPage page={page} caseStudies={caseStudies} facts={facts} />;
 }
 
 // Only the slugs registered in lib/landing exist; everything else stays a 404.
@@ -41,10 +44,25 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
     });
   }
 
+  let facts: LandingFacts | null = null;
+  if (page.proof.facts?.length) {
+    const snapshot = await getFollowerSnapshot();
+    facts = {
+      items: resolveFacts(page.proof.facts, snapshot),
+      date: new Intl.DateTimeFormat("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        timeZone: "Europe/Berlin",
+      }).format(snapshot.fetchedAt),
+    };
+  }
+
   return {
     props: {
       page,
       caseStudies: resolveCaseStudies(page.proof.caseStudies, posts),
+      facts,
     },
     revalidate: REVALIDATE_SECONDS,
   };

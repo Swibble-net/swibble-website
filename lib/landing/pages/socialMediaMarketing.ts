@@ -18,29 +18,24 @@ export const socialMediaMarketing: LandingPageContent = {
     title:
       "Dein Social-Media-Marketing kostet Zeit, bringt aber keine Reichweite?",
     text: "Swibble übernimmt Strategie, Dreh, Schnitt und Kanalbetreuung. Du bekommst Reels, TikToks und Shorts, die nach echten Menschen aussehen statt nach Werbung – und einen Kanal, der regelmäßig bespielt wird, ohne dass dein Team dafür Überstunden macht.",
-    image: "rushfood",
-    imageAlt:
-      "Smartphone mit einem TikTok-Video von Swibble für RushFood Aachen: Gruppe vor dem Restaurant",
+    visual: "social",
+    visualAlt:
+      "Illustration: Smartphone mit einem Kurzvideo, umgeben von den Formaten Reels, TikTok und Shorts und einem Redaktionsplan",
   },
   proof: {
     title: "Kanäle, die wir betreuen",
-    text: "Vom Restaurant bis zum Einkaufszentrum: Diese Marken setzen beim Social-Media-Marketing auf Swibble. In den Case Studies liest du, wie wir vorgegangen sind.",
+    text: "Vom Einkaufszentrum bis zum Restaurant: Diese Marken setzen beim Social-Media-Marketing auf Swibble. In den Case Studies liest du, wie wir vorgegangen sind.",
     caseStudies: [
-      "case-study-rushfood-aachen",
       "case-study-aquis-plaza-aachen",
       "case-study-billstedt-center-hamburg",
+      "case-study-olympia-einkaufszentrum-munchen",
+      "case-study-rushfood-aachen",
     ],
     facts: [
-      { value: "23.822", label: "TikTok-Follower – RushFood Aachen" },
-      { value: "56.000+", label: "TikTok-Follower – Billstedt-Center Hamburg" },
-      { value: "105.000+", label: "TikTok-Follower – Aquis Plaza Aachen" },
-    ],
-    logos: [
-      "Rushfood",
-      "Aquis Plaza",
-      "Billstedt Center",
-      "Olympia Einkaufszentrum",
-      "MyZeil",
+      { account: "aquis", label: "TikTok-Follower – Aquis Plaza Aachen" },
+      { account: "billstedt", label: "TikTok-Follower – Billstedt-Center Hamburg" },
+      { account: "olympia", label: "TikTok-Follower – Olympia-Einkaufszentrum" },
+      { account: "rushfood", label: "TikTok-Follower – RushFood Aachen" },
     ],
   },
   services: {
@@ -50,26 +45,32 @@ export const socialMediaMarketing: LandingPageContent = {
     items: [
       {
         title: "Content-Strategie",
+        icon: "strategy",
         text: "Wir klären Zielgruppe, Themen und Formate und übersetzen sie in einen Redaktionsplan, der zu deinem Alltag passt.",
       },
       {
         title: "Reels, TikToks & Shorts",
+        icon: "video",
         text: "Idee, Dreh, Schnitt und Untertitel aus einer Hand – hochkant gedacht und auf die jeweilige Plattform zugeschnitten.",
       },
       {
         title: "Moderation & Darsteller",
+        icon: "mic",
         text: "Ein festes Gesicht schafft Wiedererkennung. Auf Wunsch stehen wir selbst vor der Kamera oder binden dein Team ein.",
       },
       {
         title: "Kanalbetreuung",
+        icon: "channel",
         text: "Wir veröffentlichen die Beiträge, behalten Kommentare im Blick und halten den Redaktionsplan aktuell.",
       },
       {
         title: "Challenges & Aktionen",
+        icon: "trophy",
         text: "Interaktive Formate mit Gewinnanreiz verbinden deinen Kanal mit dem Besuch vor Ort – erprobt bei RushFood und im Billstedt-Center.",
       },
       {
         title: "Auswertung",
+        icon: "chart",
         text: "Wir schauen regelmäßig, welche Formate funktionieren, und richten die nächste Produktion daran aus.",
       },
     ],

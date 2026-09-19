@@ -7,7 +7,7 @@ import {
   buildConfirmationSubject,
   buildConfirmationText,
 } from "@/lib/contact/confirmation";
-import { verifyTurnstile } from "@/lib/contact/turnstile";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export default async function handler(
   req: NextApiRequest,
@@ -25,7 +25,7 @@ export default async function handler(
   const { inquiry } = parsed;
 
   // No-op until TURNSTILE_SECRET_KEY is configured.
-  if (!(await verifyTurnstile(req.body.turnstileToken))) {
+  if (!(await verifyTurnstileToken(req.body.turnstileToken))) {
     return res.status(400).json({ message: "Turnstile verification failed" });
   }
 

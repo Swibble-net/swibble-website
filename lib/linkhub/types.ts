@@ -23,6 +23,13 @@ export interface LinkhubProfile {
   /** Optional absolute URL for a custom logo image; falls back to the Swibble logo */
   logoUrl: string;
   links: LinkhubLink[];
+  /**
+   * Show the built-in "Jetzt bewerben" entry that leads to
+   * /bewerben?center=<slug>. Documents without the field count as true.
+   */
+  showApplyLink: boolean;
+  /** Optional custom label for the apply entry; "" = default label */
+  applyLinkLabel: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -33,6 +40,9 @@ export interface LinkhubProfileInput {
   slug?: string;
   subtitle?: string;
   logoUrl?: string;
+  /** Omitted = keep the stored value (true for new profiles) */
+  showApplyLink?: boolean;
+  applyLinkLabel?: string;
   links: Array<{
     id?: string;
     icon: string;

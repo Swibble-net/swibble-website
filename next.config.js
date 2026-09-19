@@ -37,6 +37,13 @@ const nextConfig = {
       { protocol: "https", hostname: "firebasestorage.googleapis.com", pathname: "/v0/b/**" },
     ],
   },
+  async redirects() {
+    // Alias for the application page (/bewerben); the query (?center=…) is carried over.
+    return [
+      { source: "/mitmachen", destination: "/bewerben", permanent: false },
+      { source: "/mitmachen/:path*", destination: "/bewerben/:path*", permanent: false },
+    ];
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

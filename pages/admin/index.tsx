@@ -124,7 +124,7 @@ const AdminDashboard = ({ posts, configured }: Props) => {
 
       <section className="mx-auto w-full max-w-5xl">
         {/* Section nav */}
-        <div className="mb-6 flex gap-2">
+        <div className="mb-6 flex flex-wrap gap-2">
           <span className="rounded-lg bg-[#B718EC] px-3 py-1.5 text-sm font-medium text-white">
             Blog
           </span>
@@ -139,6 +139,12 @@ const AdminDashboard = ({ posts, configured }: Props) => {
             className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
           >
             Videos
+          </Link>
+          <Link
+            href="/admin/bewerbungen"
+            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
+          >
+            Bewerbungen
           </Link>
         </div>
 

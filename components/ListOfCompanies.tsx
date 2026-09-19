@@ -22,9 +22,14 @@ const CompanyLogoSlide = ({
   </div>
 );
 
-const ListOfCompanies = () => {
+interface Props {
+  /** Tighter vertical spacing for pages where the carousel sits between other sections. */
+  compact?: boolean;
+}
+
+const ListOfCompanies = ({ compact = false }: Props) => {
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${compact ? styles.compact : ""}`}>
       <div className={styles.wave_top} aria-hidden>
         <svg
           data-name="Layer 1"

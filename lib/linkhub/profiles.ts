@@ -11,11 +11,17 @@ interface ProfileDocument {
   subtitle: string;
   logoUrl?: string;
   links: LinkhubLink[];
+  /** Missing on documents created before the apply entry existed */
+  showApplyLink?: boolean;
+  applyLinkLabel?: string;
   createdAt: number;
   updatedAt: number;
 }
 
-function toProfile(id: string, data: ProfileDocument): LinkhubProfile {
+export function toProfile(
+  id: string,
+  data: Partial<ProfileDocument>,
+): LinkhubProfile {
   return {
     id,
     slug: data.slug ?? "",
@@ -31,6 +37,9 @@ function toProfile(id: string, data: ProfileDocument): LinkhubProfile {
       external: l.external ?? false,
       accent: l.accent ?? false,
     })),
+    // Default on: existing profiles get the apply entry without a migration.
+    showApplyLink: data.showApplyLink ?? true,
+    applyLinkLabel: data.applyLinkLabel ?? "",
     createdAt: data.createdAt ?? 0,
     updatedAt: data.updatedAt ?? data.createdAt ?? 0,
   };
@@ -118,6 +127,8 @@ export async function createProfile(
     subtitle: input.subtitle?.trim() ?? "",
     logoUrl: input.logoUrl?.trim() ?? "",
     links: normaliseLinks(input.links),
+    showApplyLink: input.showApplyLink ?? true,
+    applyLinkLabel: input.applyLinkLabel?.trim() ?? "",
     createdAt: now,
     updatedAt: now,
   };
@@ -151,6 +162,9 @@ export async function updateProfile(
     subtitle: input.subtitle?.trim() ?? "",
     logoUrl: input.logoUrl?.trim() ?? "",
     links: normaliseLinks(input.links),
+    showApplyLink: input.showApplyLink ?? current.showApplyLink ?? true,
+    applyLinkLabel:
+      input.applyLinkLabel?.trim() ?? current.applyLinkLabel ?? "",
     createdAt: current.createdAt,
     updatedAt: Date.now(),
   };
