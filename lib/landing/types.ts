@@ -76,7 +76,7 @@ export interface LandingPageContent {
     /** TikTok follower counts; the numbers come from lib/landing/followers.ts (refreshed daily). */
     facts?: { account: FollowerAccount; label: string }[];
     /** Only real, published customer quotes. */
-    quote?: { text: string; author: string; href: string };
+    quote?: { text: string; author: string; role: string; href: string };
     /**
      * `alt` values from lib/companiesLogos.ts for a fixed logo row. Without it the page
      * shows the logo carousel of the home page with all clients.

@@ -48,7 +48,8 @@ export const shoppingCenterMarketing: LandingPageContent = {
     ],
     quote: {
       text: "Dank Swibble – Der größte aktive ECE Shopping Center TikTok Kanal Deutschlands!",
-      author: "Gregory Hedderich, ehemaliger Center Manager Aquis Plaza Aachen",
+      author: "Gregory Hedderich",
+      role: "ehemaliger Center Manager, Aquis Plaza Aachen",
       href: "/blog/case-study-aquis-plaza-aachen",
     },
     logos: ["Aquis Plaza", "Billstedt Center", "Olympia Einkaufszentrum", "MyZeil"],

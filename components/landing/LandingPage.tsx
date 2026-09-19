@@ -133,15 +133,14 @@ const Services = ({ services }: { services: LandingPageContent["services"] }) =>
           {services.intro}
         </p>
       </div>
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-8">
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
         {services.items.map(({ title, text, icon }, index) => {
           const Icon = LANDING_ICONS[icon];
           const accent = ACCENTS[index % ACCENTS.length];
           return (
             <li
               key={title}
-              // The middle column sits lower, like the staggered cards on the home page.
-              className={`${styles.float} ${index % 3 === 1 ? "lg:translate-y-8" : ""}`}
+              className={styles.float}
               style={depth(CARD_DEPTHS[index % CARD_DEPTHS.length])}
             >
               <div className="group relative flex h-full flex-col gap-4 overflow-hidden rounded-2xl border border-[#F0E4F5] bg-white p-6 shadow-[0_25px_100px_rgba(76,64,247,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_25px_80px_rgba(76,64,247,0.18)] motion-reduce:transform-none motion-reduce:transition-none">
