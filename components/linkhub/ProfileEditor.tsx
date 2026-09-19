@@ -2,6 +2,12 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import type { LinkhubProfile, LinkhubLink } from "@/lib/linkhub/types";
+import {
+  APPLY_LINK_DEFAULT_LABEL,
+  APPLY_LINK_LABEL_MAX_LENGTH,
+  APPLY_LINK_SUBLABEL,
+  applyHref,
+} from "@/lib/linkhub/applyLink";
 
 interface Props {
   profile?: LinkhubProfile;
@@ -31,6 +37,12 @@ const ProfileEditor = ({ profile }: Props) => {
   const [slug, setSlug] = useState(profile?.slug ?? "");
   const [subtitle, setSubtitle] = useState(profile?.subtitle ?? "");
   const [logoUrl, setLogoUrl] = useState(profile?.logoUrl ?? "");
+  const [showApplyLink, setShowApplyLink] = useState(
+    profile?.showApplyLink ?? true,
+  );
+  const [applyLinkLabel, setApplyLinkLabel] = useState(
+    profile?.applyLinkLabel ?? "",
+  );
   const [links, setLinks] = useState<LinkhubLink[]>(
     profile?.links.length ? profile.links : [newLink()],
   );
@@ -83,6 +95,8 @@ const ProfileEditor = ({ profile }: Props) => {
             slug: slug.trim() || undefined,
             subtitle: subtitle.trim() || undefined,
             logoUrl: logoUrl.trim() || undefined,
+            showApplyLink,
+            applyLinkLabel: applyLinkLabel.trim(),
             links: links.map(({ id, ...rest }) => ({ id, ...rest })),
           }),
         },
@@ -302,6 +316,44 @@ const ProfileEditor = ({ profile }: Props) => {
         >
           + Link hinzufügen
         </button>
+      </div>
+
+      {/* Built-in apply entry */}
+      <div className="mt-8 rounded-xl border border-[#F0E4F5] bg-[#FDF5FF] p-4">
+        <label className="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            checked={showApplyLink}
+            onChange={(e) => setShowApplyLink(e.target.checked)}
+            className="mt-1 accent-[#b718ec]"
+          />
+          <span>
+            <span className="block text-sm font-semibold text-[#000D36]">
+              Eintrag „{APPLY_LINK_DEFAULT_LABEL}“ anzeigen
+            </span>
+            <span className="mt-0.5 block text-xs text-[#556987]">
+              Fester Eintrag am Ende der Linkliste („{APPLY_LINK_SUBLABEL}“). Führt
+              zu <code>{applyHref(slug.trim() || "slug")}</code>, damit bei der
+              Bewerbung das Center mitgespeichert wird.
+            </span>
+          </span>
+        </label>
+
+        {showApplyLink && (
+          <div className="mt-3">
+            <label className={labelClass} htmlFor="applyLinkLabel">
+              Eigener Linktext (optional)
+            </label>
+            <input
+              id="applyLinkLabel"
+              className={`${inputClass} bg-white`}
+              value={applyLinkLabel}
+              onChange={(e) => setApplyLinkLabel(e.target.value)}
+              maxLength={APPLY_LINK_LABEL_MAX_LENGTH}
+              placeholder={APPLY_LINK_DEFAULT_LABEL}
+            />
+          </div>
+        )}
       </div>
 
       {/* Save */}

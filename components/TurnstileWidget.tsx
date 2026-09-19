@@ -2,7 +2,8 @@ import Script from "next/script";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type TurnstileWidgetProps = {
-  onVerify: () => void;
+  /** Receives the token, to be verified server-side (see lib/turnstile.ts). */
+  onVerify: (token: string) => void;
   onExpire?: () => void;
   onError?: () => void;
 };
@@ -61,7 +62,7 @@ const TurnstileWidget = ({
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: siteKey,
       theme: "light",
-      callback: () => onVerifyRef.current(),
+      callback: (token) => onVerifyRef.current(token),
       "expired-callback": () => onExpireRef.current?.(),
       "error-callback": () => onErrorRef.current?.(),
     });

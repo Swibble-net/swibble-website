@@ -1,4 +1,9 @@
+import Link from "next/link";
 import SEO from "@/components/SEO";
+import {
+  ADULT_AGE,
+  APPLICATION_RETENTION_MONTHS,
+} from "@/lib/applications/config";
 
 const Datenschutz = () => {
   return (
@@ -14,7 +19,7 @@ const Datenschutz = () => {
           Datenschutzerklärung
         </h1>
 
-        <p className="mt-5 text-sm text-[#556987]">Stand: Juni 2026</p>
+        <p className="mt-5 text-sm text-[#556987]">Stand: September 2026</p>
 
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
@@ -198,9 +203,96 @@ const Datenschutz = () => {
           </p>
         </div>
 
+        <div className="my-5 scroll-mt-32" id="bewerbungen">
+          <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
+            8. Bewerbungen für Videos, Promotion und Modeltätigkeit
+          </h4>
+          <p>
+            Über unser Bewerbungsformular (
+            <Link href="/mitmachen" className="text-[#0000EE] underline">
+              swibble.net/mitmachen
+            </Link>
+            ) können Sie sich dafür bewerben, in unseren Social-Media-Videos
+            mitzuwirken oder für uns als Promoter:in oder Model tätig zu werden.
+            Dabei verarbeiten wir folgende Daten: Vor- und Nachname,
+            Geburtsdatum, Postleitzahl und Wohnort, E-Mail-Adresse,
+            Handynummer, die angegebenen Social-Media-Profilnamen (TikTok,
+            Instagram, ggf. Snapchat und YouTube), die gewählte Tätigkeit, das
+            Einkaufszentrum, über dessen Linkseite Sie zu uns gekommen sind,
+            Ihren optionalen Freitext sowie Zeitpunkt und Wortlaut Ihrer
+            Einwilligung.
+          </p>
+          <br />
+          <p>
+            <strong>Zweck und Rechtsgrundlage:</strong> Wir verarbeiten diese
+            Daten ausschließlich, um Ihre Bewerbung zu prüfen und mit Ihnen
+            darüber in Kontakt zu treten. Rechtsgrundlage ist Art. 6 Abs. 1
+            lit. b DSGVO (Durchführung vorvertraglicher Maßnahmen auf Ihre
+            Anfrage). Die Kontaktaufnahme per E-Mail, Telefon/WhatsApp und über
+            die angegebenen Social-Media-Profile erfolgt auf Grundlage Ihrer
+            Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Wenn wir Sie über
+            WhatsApp, TikTok oder Instagram kontaktieren, gelten zusätzlich die
+            Datenschutzbestimmungen der jeweiligen Anbieter.
+          </p>
+          <br />
+          <p>
+            <strong>Minderjährige:</strong> Bewerben sich Personen unter{" "}
+            {ADULT_AGE} Jahren, benötigen wir das Einverständnis einer
+            erziehungsberechtigten Person. Dazu erheben wir zusätzlich deren
+            Namen und Telefonnummer oder E-Mail-Adresse sowie eine
+            unterschriebene Einverständniserklärung als hochgeladene Datei
+            (Foto oder PDF). Diese Datei wird nicht öffentlich zugänglich
+            gespeichert und ist nur für die mit der Bearbeitung betrauten
+            Personen bei uns abrufbar. Rechtsgrundlage ist die Einwilligung der
+            Erziehungsberechtigten (Art. 6 Abs. 1 lit. a, Art. 8 DSGVO).
+          </p>
+          <br />
+          <p>
+            <strong>Speicherort und Empfänger:</strong> Die Bewerbungsdaten und
+            hochgeladenen Dateien speichern wir bei Google Firebase (Cloud
+            Firestore und Cloud Storage; Google Ireland Limited, Gordon House,
+            Barrow Street, Dublin 4, Irland) als Auftragsverarbeiter. Eine
+            Übermittlung in Drittländer (insbesondere die USA) kann dabei nicht
+            ausgeschlossen werden; sie erfolgt auf Grundlage des EU-U.S. Data
+            Privacy Framework bzw. von Standardvertragsklauseln. Bei Eingang
+            einer Bewerbung erhalten wir intern eine Benachrichtigung per
+            E-Mail, die lediglich Namen, gewählte Tätigkeit und das
+            Einkaufszentrum enthält. Eine Weitergabe Ihrer Bewerbungsdaten an
+            Dritte – auch an die Betreiber der Einkaufszentren – erfolgt nicht
+            ohne Ihre gesonderte Zustimmung. Das Formular ist durch Cloudflare
+            Turnstile vor Missbrauch geschützt (siehe Abschnitt 6).
+          </p>
+          <br />
+          <p>
+            <strong>Speicherdauer:</strong> Wir löschen Ihre Bewerbungsdaten
+            einschließlich hochgeladener Dateien spätestens{" "}
+            {APPLICATION_RETENTION_MONTHS} Monate nach Abschluss des
+            Bewerbungsverfahrens, sofern keine Zusammenarbeit zustande kommt
+            und Sie nicht in eine längere Speicherung eingewilligt haben. Kommt
+            eine Zusammenarbeit zustande, verarbeiten wir die erforderlichen
+            Daten zu deren Durchführung weiter.
+          </p>
+          <br />
+          <p>
+            <strong>Widerruf und Löschung:</strong> Sie können Ihre
+            Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen und
+            die Löschung Ihrer Bewerbung verlangen – formlos per E-Mail an{" "}
+            <a
+              href="mailto:info@swibble.net"
+              className="text-[#0000EE] underline"
+            >
+              info@swibble.net
+            </a>
+            . Bei Minderjährigen können dies auch die Erziehungsberechtigten
+            verlangen. Die Bereitstellung der Daten ist freiwillig; ohne die
+            Pflichtangaben können wir eine Bewerbung jedoch nicht
+            berücksichtigen.
+          </p>
+        </div>
+
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            8. Cookies
+            9. Cookies
           </h4>
           <p>
             Wir verwenden auf unserer Website keine Cookies zu Analyse-, Tracking-
@@ -221,7 +313,7 @@ const Datenschutz = () => {
 
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            9. Schriftarten
+            10. Schriftarten
           </h4>
           <p>
             Zur einheitlichen Darstellung von Schriftarten verwenden wir
@@ -234,7 +326,7 @@ const Datenschutz = () => {
 
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            10. SSL- bzw. TLS-Verschlüsselung
+            11. SSL- bzw. TLS-Verschlüsselung
           </h4>
           <p>
             Diese Seite nutzt aus Sicherheitsgründen und zum Schutz der
@@ -247,7 +339,7 @@ const Datenschutz = () => {
 
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            11. Ihre Rechte als betroffene Person
+            12. Ihre Rechte als betroffene Person
           </h4>
           <p>Ihnen stehen hinsichtlich Ihrer personenbezogenen Daten zu:</p>
           <ul className="mt-2 list-disc pl-6">
@@ -271,7 +363,7 @@ const Datenschutz = () => {
 
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            12. Beschwerderecht bei der Aufsichtsbehörde
+            13. Beschwerderecht bei der Aufsichtsbehörde
           </h4>
           <p>
             Unbeschadet anderweitiger Rechtsbehelfe steht Ihnen ein
@@ -285,7 +377,7 @@ const Datenschutz = () => {
 
         <div className="my-5">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            13. Aktualität und Änderung dieser Datenschutzerklärung
+            14. Aktualität und Änderung dieser Datenschutzerklärung
           </h4>
           <p>
             Diese Datenschutzerklärung ist aktuell gültig. Durch die

@@ -5,6 +5,7 @@ import {
   getProfileById,
   updateProfile,
 } from "@/lib/linkhub/profiles";
+import { parseApplyFields } from "@/lib/linkhub/applyLink";
 import type { LinkhubProfileInput } from "@/lib/linkhub/types";
 
 export default async function handler(
@@ -31,11 +32,18 @@ export default async function handler(
         return res.status(400).json({ message: "Name ist erforderlich." });
       }
 
+      const applyFields = parseApplyFields(body);
+      if (!applyFields.ok) {
+        return res.status(400).json({ message: applyFields.message });
+      }
+
       const profile = await updateProfile(id, {
         name: body.name,
         slug: body.slug,
         subtitle: body.subtitle,
         logoUrl: body.logoUrl,
+        showApplyLink: applyFields.showApplyLink,
+        applyLinkLabel: applyFields.applyLinkLabel,
         links: body.links ?? [],
       });
 

@@ -7,6 +7,7 @@ import Image from "next/image";
 import Logo from "@/public/logo/SwibbleLogo.svg";
 import { Poppins } from "next/font/google";
 import { getProfileBySlug } from "@/lib/linkhub/profiles";
+import { buildApplyLink } from "@/lib/linkhub/applyLink";
 import type { LinkhubProfile, LinkhubLink } from "@/lib/linkhub/types";
 
 const poppins = Poppins({
@@ -17,6 +18,8 @@ const poppins = Poppins({
 
 interface Props {
   profile: LinkhubProfile;
+  /** The profile's links plus the built-in "Jetzt bewerben" entry, if enabled */
+  links: LinkhubLink[];
 }
 
 /* ── Link card ─────────────────────────────────────────────────────────── */
@@ -85,7 +88,7 @@ const LinkCard = ({ link }: { link: LinkhubLink }) => {
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
 
-const LinkHubPage: NextPageWithLayout<Props> = ({ profile }) => (
+const LinkHubPage: NextPageWithLayout<Props> = ({ profile, links }) => (
   <>
     <Head>
       <title>{profile.name} – Links</title>
@@ -131,9 +134,9 @@ const LinkHubPage: NextPageWithLayout<Props> = ({ profile }) => (
         </div>
 
         {/* Links */}
-        {profile.links.length > 0 ? (
+        {links.length > 0 ? (
           <div className="flex w-full flex-col gap-3">
-            {profile.links.map((link) => (
+            {links.map((link) => (
               <LinkCard key={link.id} link={link} />
             ))}
           </div>
@@ -178,7 +181,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const profile = await getProfileBySlug(slug);
   if (!profile) return { notFound: true };
 
-  return { props: { profile } };
+  const applyLink = buildApplyLink(profile);
+  const links = applyLink ? [...profile.links, applyLink] : profile.links;
+
+  return { props: { profile, links } };
 };
 
 export default LinkHubPage;
