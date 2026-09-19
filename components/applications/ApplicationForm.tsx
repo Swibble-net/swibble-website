@@ -34,7 +34,8 @@ interface Props {
   centers: CenterOption[];
   /** False when the private file storage isn't configured */
   uploadsAvailable: boolean;
-  onSuccess: () => void;
+  /** Called with the slug of the center the application was sent for ("" = none) */
+  onSuccess: (centerSlug: string) => void;
 }
 
 const inputClass =
@@ -294,7 +295,7 @@ const ApplicationForm = ({
       });
 
       if (res.ok) {
-        onSuccess();
+        onSuccess(fields.center);
         return;
       }
 
@@ -379,7 +380,14 @@ const ApplicationForm = ({
   /* ── render ───────────────────────────────────────────────────────── */
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+    // method="post": if someone submits before hydration, the browser must not
+    // fall back to a GET that would put field values into the URL.
+    <form
+      onSubmit={handleSubmit}
+      method="post"
+      noValidate
+      className="flex flex-col gap-5"
+    >
       {/* Roles */}
       <Section title="Wofür bewirbst du dich?" hint="Du kannst mehrere auswählen.">
         <fieldset {...errorProps("roles")}>

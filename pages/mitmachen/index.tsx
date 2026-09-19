@@ -34,6 +34,8 @@ const MitmachenPage: NextPageWithLayout<Props> = ({
   uploadsAvailable,
 }) => {
   const [done, setDone] = useState(false);
+  // Center for the "back to …" link: from the URL or chosen in the form.
+  const [doneCenter, setDoneCenter] = useState<CenterOption | null>(center);
   const doneHeading = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -45,7 +47,7 @@ const MitmachenPage: NextPageWithLayout<Props> = ({
   return (
     <>
       <SEO
-        title="Mach mit bei unseren Videos – Swibble"
+        title="Mach mit bei unseren Videos"
         description="Du willst in TikTok- und Instagram-Videos aus deinem Einkaufszentrum dabei sein, als Promoter:in oder Model arbeiten? Bewirb dich in zwei Minuten bei Swibble."
         canonical="/mitmachen"
       />
@@ -73,7 +75,7 @@ const MitmachenPage: NextPageWithLayout<Props> = ({
 
             {!done && (
               <>
-                <h1 className="text-3xl font-bold leading-tight text-[#000D36] sm:text-4xl">
+                <h1 className="text-balance text-3xl font-bold leading-tight text-[#000D36] sm:text-4xl">
                   Mach mit bei unseren Videos 🎬
                 </h1>
                 <p className="max-w-md text-base text-[#556987]">
@@ -113,12 +115,12 @@ const MitmachenPage: NextPageWithLayout<Props> = ({
                 , dann löschen wir deine Daten.
               </p>
               <div className="mt-6 flex flex-col gap-3">
-                {center && (
+                {doneCenter && (
                   <Link
-                    href={`/linkhub/${center.slug}`}
+                    href={`/linkhub/${doneCenter.slug}`}
                     className="rounded-2xl bg-[#B718EC] px-6 py-3.5 text-base font-bold text-white shadow-lg shadow-purple-200 hover:bg-[#a514d6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC]"
                   >
-                    Zurück zu {center.name}
+                    Zurück zu {doneCenter.name}
                   </Link>
                 )}
                 <Link
@@ -160,7 +162,10 @@ const MitmachenPage: NextPageWithLayout<Props> = ({
                   center={center}
                   centers={centers}
                   uploadsAvailable={uploadsAvailable}
-                  onSuccess={() => setDone(true)}
+                  onSuccess={(slug) => {
+                    setDoneCenter(centers.find((c) => c.slug === slug) ?? null);
+                    setDone(true);
+                  }}
                 />
               ) : (
                 <p
