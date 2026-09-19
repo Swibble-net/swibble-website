@@ -1,10 +1,12 @@
 import Link from "next/link";
 import {
   useCallback,
+  useEffect,
   useId,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ChangeEvent,
   type FormEvent,
   type ReactNode,
@@ -68,6 +70,8 @@ const ERROR_TARGETS: Array<[string, string]> = [
   ["privacyAck", "f-privacyAck"],
   ["turnstile", "f-turnstile"],
 ];
+
+const subscribeNever = () => () => {};
 
 const FieldError = ({ id, message }: { id: string; message?: string }) =>
   message ? (
@@ -136,6 +140,47 @@ const ApplicationForm = ({
   const [errors, setErrors] = useState<ApplicationErrors>({});
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  // False in the server HTML, true once React runs in the browser. Until then
+  // the submit button stays disabled so nobody can trigger a native submit.
+  const hydrated = useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
+
+  // On slow connections people start typing (or the browser autofills) before
+  // React has taken over. Adopt those values instead of showing filled fields
+  // that the form state knows nothing about.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const valueOf = (id: string) =>
+        (document.getElementById(id) as HTMLInputElement | null)?.value ?? "";
+      const isChecked = (id: string) =>
+        (document.getElementById(id) as HTMLInputElement | null)?.checked ??
+        false;
+
+      setFields((prev) => {
+        const next = { ...prev };
+        for (const key of Object.keys(prev) as Array<keyof typeof prev>) {
+          let domValue = valueOf(`f-${key}`);
+          if (key.startsWith("birth")) domValue = domValue.replace(/\D/g, "");
+          if (domValue && !prev[key]) next[key] = domValue;
+        }
+        return next;
+      });
+      setRoles((prev) =>
+        prev.length > 0
+          ? prev
+          : APPLICATION_ROLES.map((r) => r.id).filter((id) =>
+              isChecked(`f-role-${id}`),
+            ),
+      );
+      if (isChecked("f-contactConsent")) setContactConsent(true);
+      if (isChecked("f-privacyAck")) setPrivacyAck(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const monthRef = useRef<HTMLInputElement>(null);
   const yearRef = useRef<HTMLInputElement>(null);
 
@@ -861,7 +906,7 @@ const ApplicationForm = ({
 
         <button
           type="submit"
-          disabled={submitting || fileBusy || uploadBlocked}
+          disabled={!hydrated || submitting || fileBusy || uploadBlocked}
           className="w-full rounded-2xl bg-[#B718EC] px-6 py-4 text-base font-bold text-white shadow-lg shadow-purple-200 motion-safe:transition motion-safe:duration-200 motion-safe:active:scale-[0.98] hover:bg-[#a514d6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? "Wird gesendet …" : "Bewerbung abschicken"}
