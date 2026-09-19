@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { NextApiRequest, NextApiResponse } from "next";
+import { EMAIL } from "@/lib/cta";
 import { buildSubject, buildText, parseInquiry } from "@/lib/contact/inquiry";
 import {
   EMAIL_LOGO_ATTACHMENT,
@@ -71,7 +72,7 @@ export default async function handler(
     await transporter.sendMail({
       from: { name: "Swibble", address: String(process.env.SMTP_USER) },
       to: inquiry.email,
-      replyTo: process.env.SMTP_USER,
+      replyTo: EMAIL,                  // answers go to the team, not to the form mailbox
       subject: buildConfirmationSubject(),
       text: buildConfirmationText(inquiry),
       html: buildConfirmationHtml(inquiry),

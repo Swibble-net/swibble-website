@@ -66,6 +66,7 @@ describe("/api/send-mail", () => {
 
     const confirmation = sendMail.mock.calls[1][0];
     expect(confirmation.to).toBe("max@example.com");
+    expect(confirmation.replyTo).toBe("info@swibble.net");
     expect(confirmation.subject).toBe("Deine Anfrage bei Swibble ist angekommen");
     expect(confirmation.html).toContain("Danke für deine Anfrage, Max!");
     expect(confirmation.html).toContain("Hallo &lt;b&gt;Team&lt;/b&gt;");
