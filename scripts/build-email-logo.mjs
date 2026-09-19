@@ -1,9 +1,9 @@
-// Renders the header logo of the confirmation mail (logo mark + white wordmark) as a
+// Renders the header logo of the confirmation mail (logo mark + light wordmark with ®) as a
 // PNG and writes it base64-encoded to lib/contact/emailLogo.ts. Mail clients do not
 // render SVG, and an inline (CID) image also shows when remote images are blocked.
-// Mark and wordmark get the same height. Run after a logo change: node scripts/build-email-logo.mjs
+// Run after a logo change: node scripts/build-email-logo.mjs
 import { createRequire } from "node:module";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 // sharp ships with next, it is not a direct dependency.
 const require = createRequire(require_resolve_next());
@@ -14,13 +14,17 @@ function require_resolve_next() {
 }
 
 const SCALE = 3;
-const HEIGHT = 32 * SCALE; // displayed 32px high
-const GAP = 8 * SCALE;
+const HEIGHT = 40 * SCALE; // displayed 40px high
+// Proportions of the official logo lockup: wordmark at ~71% of the mark's height.
+const TEXT_HEIGHT = Math.round(HEIGHT * 0.714);
+const GAP = Math.round(HEIGHT * 0.4);
+const TEXT_COLOR = "#FBF3FE";
 
-// Both SVGs carry transparent margins: trim them, then give mark and wordmark the same height.
-const render = (file, density) => sharp(file, { density }).trim().resize({ height: HEIGHT }).png().toBuffer();
-const mark = await render("public/logo/SwibbleLogo.svg", 300);
-const text = await render("public/logo/SwibbleTextLogoWhite.svg", 2400);
+// Both SVGs carry transparent margins: trim them before scaling.
+const mark = await sharp("public/logo/SwibbleLogo.svg", { density: 300 }).trim().resize({ height: HEIGHT }).png().toBuffer();
+// Current wordmark with the registered sign; black in the source, light on the navy header.
+const wordmark = readFileSync("public/logo/SwibbleWordmarkRegistered.svg", "utf8").replaceAll('"black"', `"${TEXT_COLOR}"`);
+const text = await sharp(Buffer.from(wordmark), { density: 1800 }).trim().resize({ height: TEXT_HEIGHT }).png().toBuffer();
 const markWidth = (await sharp(mark).metadata()).width;
 const textWidth = (await sharp(text).metadata()).width;
 const WIDTH = Math.ceil((markWidth + GAP + textWidth) / SCALE) * SCALE;
@@ -28,7 +32,7 @@ const WIDTH = Math.ceil((markWidth + GAP + textWidth) / SCALE) * SCALE;
 const png = await sharp({ create: { width: WIDTH, height: HEIGHT, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
   .composite([
     { input: mark, left: 0, top: 0 },
-    { input: text, left: markWidth + GAP, top: 0 },
+    { input: text, left: markWidth + GAP, top: Math.round((HEIGHT - TEXT_HEIGHT) / 2) },
   ])
   .png({ compressionLevel: 9, palette: true })
   .toBuffer();
