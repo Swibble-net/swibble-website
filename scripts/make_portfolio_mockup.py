@@ -1,26 +1,27 @@
-"""Usage: python3 scripts/make_portfolio_mockup.py <cover.jpg> public/projects_photo/<Name>_Image.webp
-Needs Pillow. The cover is the TikTok cover of the video (thumbnail_url from https://www.tiktok.com/oembed?url=<video url>).
+"""Usage: python3 scripts/make_portfolio_mockup.py <frame.jpg> public/projects_photo/<Name>_Image.webp [tilt] [focus_x]
+Needs Pillow. <frame.jpg> is a full-height (9:16) frame of the video at the moment its TikTok cover shows.
+tilt: degrees, positive = counter-clockwise. focus_x: 0..1, shifts the crop window to centre an off-centre title.
+In use: Aquis 7 0.371, Olympia -5, Billstedt 3, MyZeil -7, Rushfood 9.
 
 Builds an 800x1000 portfolio mockup: a tilted phone with real iPhone proportions on a blurred,
-purple-tinted backdrop. The cover keeps its own format at full width, centred on a blurred copy of itself.
+purple-tinted backdrop. The picture must be a full-height (9:16) video frame; it fills the whole display.
 
-The screen is 18:9. Island, status bar and home indicator use iOS point sizes (screen width = 393 pt):
+The screen is 19.5:9, like a real iPhone. Island, status bar and home indicator use iOS point sizes (screen width = 393 pt):
 island 126 x 37 pt at 11 pt, status bar 54 pt, home indicator 139 x 5 pt at 8 pt from the bottom."""
 import sys
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageFont
 
 W, H = 800, 1000
 SS = 3                                     # supersampling for clean edges
-BODY_W, BODY_H = 360, 698                  # screen is exactly 18:9 (338 x 676), a middle ground between 16:9 and a real 19.5:9 iPhone
+BODY_W, BODY_H = 360, 754                  # screen 338 x 732 = 19.5:9, the real iPhone display
 BEZEL = 11
 SCREEN_W, SCREEN_H = BODY_W - 2 * BEZEL, BODY_H - 2 * BEZEL     # 338 x 676 = 0.5
 K = SCREEN_W / 393                         # px per iOS point
 R_BODY, R_SCREEN = 60, 50
 BTN = 3                                    # how far the side buttons stick out
-ANGLE = 6.0                                # counter-clockwise, like the existing mockups
-CENTER = (470, 520)
+ANGLE = 6.0                                # default tilt; positive = counter-clockwise. Pass another angle per tile for variety.
+CENTER = (470, 515)
 CLOCK = "17:11"
-COVER_RATIO = 1048 / 1518                  # TikTok's cover format; every cover is shown in exactly this shape
 
 def P(v):                                  # iOS points -> supersampled px
     return v * K * SS
@@ -30,11 +31,13 @@ def rounded_mask(size, radius):
     ImageDraw.Draw(m).rounded_rectangle([0, 0, size[0] - 1, size[1] - 1], radius=radius, fill=255)
     return m
 
-def cover_fit(im, size):
+def cover_fit(im, size, focus_x=0.5):
+    """Resize and crop to fill `size`. focus_x shifts the horizontal crop window (0 = left, 1 = right),
+    e.g. to centre a title that sits off-centre in the frame."""
     tw, th = size
     scale = max(tw / im.width, th / im.height)
     im = im.resize((round(im.width * scale), round(im.height * scale)), Image.LANCZOS)
-    x, y = (im.width - tw) // 2, (im.height - th) // 2
+    x, y = round((im.width - tw) * focus_x), (im.height - th) // 2
     return im.crop((x, y, x + tw, y + th))
 
 def clock_font(px):
@@ -71,28 +74,28 @@ def draw_status_bar(screen):
     d.rounded_rectangle([bx + P(2), cy - P(4), bx + P(22.5), cy + P(4)], radius=P(2.2), fill=white)
     d.rounded_rectangle([bx + P(25.6), cy - P(2), bx + P(27), cy + P(2)], radius=P(0.7), fill=(255, 255, 255, 115))
 
-def make_screen(cover):
+def make_screen(cover, focus_x=0.5):
+    """Full-height (9:16) video frames fill the whole display. Trimmed TikTok covers keep their full
+    width on a blurred copy of themselves, so no hook text is cut off. The status bar lies on top."""
     sw, sh = SCREEN_W * SS, SCREEN_H * SS
-    back = cover_fit(cover, (sw, sh)).filter(ImageFilter.GaussianBlur(sw / 16))
-    screen = ImageEnhance.Brightness(back).enhance(0.72).convert("RGBA")
-
-    # One format for all: full 9:16 covers are centre-cropped top and bottom, like TikTok's profile grid does.
-    cover_h = round(sw / COVER_RATIO)
-    sharp, top = cover_fit(cover, (sw, cover_h)), (sh - cover_h) // 2
-    screen.paste(sharp.convert("RGBA"), (0, top))
-
-    if top < P(54) / 2:                                      # status bar lies on the sharp picture: soft dark fade
-        fade_h = int(P(54) * 2)
-        col = Image.new("L", (1, fade_h), 0)
-        for y in range(fade_h):
-            col.putpixel((0, y), int(125 * (1 - y / fade_h) ** 1.6))
-        dark = Image.new("RGBA", (sw, fade_h), (0, 0, 0, 255))
-        dark.putalpha(col.resize((sw, fade_h)))
-        screen.alpha_composite(dark, (0, 0))
+    if cover.width / cover.height <= 0.6:
+        screen = cover_fit(cover, (sw, sh), focus_x).convert("RGBA")
+    else:
+        back = cover_fit(cover, (sw, sh)).filter(ImageFilter.GaussianBlur(sw / 16))
+        screen = ImageEnhance.Brightness(back).enhance(0.72).convert("RGBA")
+        h = round(cover.height * sw / cover.width)
+        screen.paste(cover.resize((sw, h), Image.LANCZOS).convert("RGBA"), (0, (sh - h) // 2))
+    fade_h = int(P(54) * 2)                                  # soft dark fade so the status bar stays legible
+    col = Image.new("L", (1, fade_h), 0)
+    for y in range(fade_h):
+        col.putpixel((0, y), int(125 * (1 - y / fade_h) ** 1.6))
+    dark = Image.new("RGBA", (sw, fade_h), (0, 0, 0, 255))
+    dark.putalpha(col.resize((sw, fade_h)))
+    screen.alpha_composite(dark, (0, 0))
     draw_status_bar(screen)
     return screen
 
-def build(cover_path, out_path):
+def build(cover_path, out_path, angle=ANGLE, focus_x=0.5):
     cover = Image.open(cover_path).convert("RGB")
 
     bg = cover_fit(cover, (W, H)).filter(ImageFilter.GaussianBlur(42))
@@ -113,14 +116,14 @@ def build(cover_path, out_path):
     d.rounded_rectangle([ox + 2.5 * SS, 2.5 * SS, ox + bw_ - 1 - 2.5 * SS, ph - 1 - 2.5 * SS], radius=(R_BODY - 2.5) * SS, fill=(6, 6, 9, 255))  # bezel
     sx, sy = ox + BEZEL * SS, BEZEL * SS
     sw, sh = SCREEN_W * SS, SCREEN_H * SS
-    phone.paste(make_screen(cover), (sx, sy), rounded_mask((sw, sh), R_SCREEN * SS))
+    phone.paste(make_screen(cover, focus_x), (sx, sy), rounded_mask((sw, sh), R_SCREEN * SS))
     d = ImageDraw.Draw(phone)
     iw, ih = P(126), P(37)                                                                                        # dynamic island
     d.rounded_rectangle([sx + (sw - iw) / 2, sy + P(11), sx + (sw + iw) / 2, sy + P(11) + ih], radius=ih / 2, fill=(0, 0, 0, 255))
     hw, hh = P(139), P(5)                                                                                         # home indicator
     d.rounded_rectangle([sx + (sw - hw) / 2, sy + sh - P(8) - hh, sx + (sw + hw) / 2, sy + sh - P(8)], radius=hh / 2, fill=(255, 255, 255, 235))
 
-    phone = phone.rotate(ANGLE, resample=Image.BICUBIC, expand=True)
+    phone = phone.rotate(angle, resample=Image.BICUBIC, expand=True)
     phone = phone.resize((phone.width // SS, phone.height // SS), Image.LANCZOS)
 
     shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -135,5 +138,7 @@ def build(cover_path, out_path):
     out.convert("RGB").save(out_path, "WEBP", quality=84, method=6)
 
 if __name__ == "__main__":
-    build(sys.argv[1], sys.argv[2])
-    print("screen %dx%d = %.4f (18:9 = 0.5)" % (SCREEN_W, SCREEN_H, SCREEN_W / SCREEN_H))
+    build(sys.argv[1], sys.argv[2],
+          float(sys.argv[3]) if len(sys.argv) > 3 else ANGLE,
+          float(sys.argv[4]) if len(sys.argv) > 4 else 0.5)
+    print("screen %dx%d = %.4f (19.5:9 = 0.4615)" % (SCREEN_W, SCREEN_H, SCREEN_W / SCREEN_H))
