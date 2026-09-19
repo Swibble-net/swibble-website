@@ -175,17 +175,48 @@ const LandingProof = ({ proof, caseStudies, facts }: Props) => {
       )}
 
       {proof.quote && (
-        <figure className="mt-8 rounded-2xl border-l-4 border-[#B718EC] bg-[#FDF5FF] p-6 lg:p-8">
-          <blockquote className="text-lg font-medium leading-relaxed text-[#000D36] lg:text-2xl">
-            „{proof.quote.text}“
+        <figure className="relative mt-8 overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#2A0B5E_0%,#8A1FD6_55%,#5F3BC4_100%)] p-7 text-white shadow-[0_25px_80px_rgba(95,59,196,0.35)] sm:p-10 lg:p-14">
+          <span
+            aria-hidden
+            className="absolute -right-16 -top-24 h-72 w-72 rounded-full bg-[#FF8AD8]/30 blur-3xl"
+          />
+          <span
+            aria-hidden
+            className="absolute -bottom-28 left-1/4 h-64 w-64 rounded-full bg-[#3BC4A3]/20 blur-3xl"
+          />
+          <svg
+            aria-hidden
+            viewBox="0 0 48 36"
+            className="relative mb-5 h-9 w-12 fill-white/25 lg:h-12 lg:w-16"
+          >
+            <path d="M0 36V22.4C0 9.6 6.8 2 19.2 0l2 5.2C14.8 7 11.6 10.8 11.2 16H20v20H0zm27 0V22.4C27 9.6 33.8 2 46.2 0l1.8 5.2C41.8 7 38.6 10.8 38.2 16H47v20H27z" />
+          </svg>
+          <blockquote className="relative max-w-4xl text-xl font-medium leading-snug sm:text-2xl lg:text-[2rem] lg:leading-tight">
+            {proof.quote.text}
           </blockquote>
-          <figcaption className="mt-4 text-sm text-[#556987]">
-            – {proof.quote.author} ·{" "}
+          <figcaption className="relative mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+            <span className="flex items-center gap-4">
+              <span
+                aria-hidden
+                className="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-white/15 text-base font-bold ring-1 ring-white/30"
+              >
+                {proof.quote.author
+                  .split(" ")
+                  .map((part) => part[0])
+                  .join("")}
+              </span>
+              <span className="flex flex-col">
+                <cite className="text-base font-bold not-italic">
+                  {proof.quote.author}
+                </cite>
+                <span className="text-sm text-[#E9D5FF]">{proof.quote.role}</span>
+              </span>
+            </span>
             <Link
               href={proof.quote.href}
-              className="font-medium text-[#A214D3] underline underline-offset-2 hover:no-underline"
+              className="rounded-full bg-white px-5 py-2.5 text-sm font-medium text-[#5B12A8] transition duration-200 hover:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:transform-none motion-reduce:transition-none sm:ml-auto"
             >
-              zur Case Study
+              Case Study lesen →
             </Link>
           </figcaption>
         </figure>
