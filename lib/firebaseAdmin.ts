@@ -5,6 +5,7 @@ import {
   type App,
 } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 
 /**
  * Lazily initialises a single Firebase Admin app and returns its Firestore
@@ -63,4 +64,31 @@ export function getDb(): Firestore {
   }
   cachedDb = getFirestore(getApp());
   return cachedDb;
+}
+
+/** Bucket name for private uploads, e.g. "my-project.firebasestorage.app". */
+function getStorageBucketName(): string | null {
+  const name = process.env.FIREBASE_STORAGE_BUCKET?.trim()
+    .replace(/^gs:\/\//, "")
+    .replace(/\/$/, "");
+  return name || null;
+}
+
+/** True when Firebase credentials and FIREBASE_STORAGE_BUCKET are present. */
+export function isStorageConfigured(): boolean {
+  return isFirebaseConfigured() && getStorageBucketName() !== null;
+}
+
+/**
+ * Returns the private storage bucket. Objects are only ever read and written
+ * through the Admin SDK on the server — never made public, never signed URLs.
+ */
+export function getPrivateBucket() {
+  const name = getStorageBucketName();
+  if (!name) {
+    throw new Error(
+      "Storage is not configured. Set FIREBASE_STORAGE_BUCKET in your environment.",
+    );
+  }
+  return getStorage(getApp()).bucket(name);
 }
