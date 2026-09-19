@@ -13,6 +13,7 @@ import AachenAppImage from "@/public/projects_photo/AachenApp_Image.webp";
 import RydeUpImage from "@/public/projects_photo/RydeUp_Image.webp";
 import SquareImage from "@/public/projects_photo/Square_Image.webp";
 import KonratsWeltImage from "@/public/projects_photo/KonratsWelt_Image.webp";
+import LogoMark from "@/public/favicon.svg";
 
 interface Tile {
   kicker: string;
@@ -53,6 +54,57 @@ const COLUMNS: [Tile, Tile][] = [
   ],
 ];
 
+// Miniature "article" for the closing tile; the cover colours are the clients' brand colours.
+const ARTICLE_CARDS = [
+  {
+    cover: "linear-gradient(135deg,#F47807,#FDBA4D)",
+    className:
+      "left-[4%] z-10 -rotate-[10deg] bg-white/55 group-hover:-translate-x-[6%] group-hover:-rotate-[15deg]",
+  },
+  {
+    cover: "linear-gradient(135deg,#E2000F,#FF6B81)",
+    className:
+      "right-[4%] z-10 rotate-[10deg] bg-white/55 group-hover:translate-x-[6%] group-hover:rotate-[15deg]",
+  },
+  {
+    cover: "linear-gradient(135deg,#2F3192,#6E7BF2)",
+    className:
+      "left-1/2 z-20 -translate-x-1/2 bg-white shadow-[0_18px_40px_rgba(27,11,74,0.45)] group-hover:-translate-y-[7%]",
+  },
+] as const;
+
+// Decorative background of the tile that has no photo: layered gradient, the logo
+// as a watermark and a fanned stack of article cards. Pure CSS/SVG, so it stays
+// crisp at any size and needs no extra request.
+const BlogTileArt = () => (
+  <span className="absolute inset-0 overflow-hidden" aria-hidden>
+    <span className="absolute inset-0 bg-[linear-gradient(160deg,#2A0B5E_0%,#8A1FD6_48%,#5F3BC4_100%)]" />
+    <span className="absolute -left-[30%] top-[18%] h-[70%] w-[110%] rounded-full bg-[radial-gradient(closest-side,rgba(231,161,255,0.55),transparent)] blur-2xl" />
+    <Image
+      src={LogoMark}
+      alt=""
+      unoptimized
+      className="absolute -right-[22%] top-[14%] h-auto w-[95%] max-w-none rotate-[8deg] opacity-[0.13] brightness-0 invert transition-transform duration-700 group-hover:rotate-[2deg] group-hover:scale-105"
+    />
+    <span className="absolute inset-x-0 bottom-[-6%] h-[52%]">
+      {ARTICLE_CARDS.map(({ cover, className }) => (
+        <span
+          key={cover}
+          className={`absolute bottom-0 flex aspect-[3/4] w-[46%] flex-col gap-[7%] rounded-[10%/7.5%] p-[5%] backdrop-blur-sm transition-transform duration-500 ease-out ${className}`}
+        >
+          <span
+            className="block h-[42%] w-full rounded-[8%/14%]"
+            style={{ backgroundImage: cover }}
+          />
+          <span className="block h-[5%] w-[85%] rounded-full bg-[#000D36]/70" />
+          <span className="block h-[5%] w-[60%] rounded-full bg-[#000D36]/25" />
+          <span className="mt-auto block h-[5%] w-[38%] rounded-full bg-[#B718EC]" />
+        </span>
+      ))}
+    </span>
+  </span>
+);
+
 const TALL = "h-[16.25rem] lg:h-[26rem]";
 const SHORT = "h-[12.5rem] lg:h-[19rem]";
 
@@ -71,10 +123,7 @@ const ProjectTile = ({ tile, tall, priority }: { tile: Tile; tall: boolean; prio
           }`}
         />
       ) : (
-        <span
-          className="absolute inset-0 bg-[linear-gradient(135deg,#B718EC_0%,#5F3BC4_100%)]"
-          aria-hidden
-        />
+        <BlogTileArt />
       )}
       {/* Scrim keeps the white text readable on any photo. */}
       <span
@@ -96,7 +145,12 @@ const ProjectTile = ({ tile, tall, priority }: { tile: Tile; tall: boolean; prio
         <h3 className="text-lg font-semibold leading-[1.688rem] lg:text-2xl lg:font-medium lg:leading-8">
           {tile.title}
         </h3>
-        {tile.cta && (
+        {tile.cta && !tile.image && (
+          <span className="mt-2 w-fit rounded-full bg-white px-3 py-1 text-xs font-medium text-[#8A1FD6] shadow-sm transition duration-300 group-hover:translate-x-1 lg:mt-3 lg:px-4 lg:py-1.5 lg:text-sm">
+            {tile.cta} →
+          </span>
+        )}
+        {tile.cta && tile.image && (
           <span className="mt-1 text-xs font-medium opacity-0 transition duration-300 group-hover:translate-x-1 group-hover:opacity-100 group-focus-visible:opacity-100 [@media(hover:none)]:opacity-100 lg:text-sm">
             {tile.cta} →
           </span>
