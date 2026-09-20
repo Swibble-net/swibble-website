@@ -7,6 +7,10 @@ export const socialMediaMarketing: LandingPageContent = {
     description:
       "Social-Media-Agentur für Strategie, Reels, TikToks und Kanalbetreuung – bundesweit im Einsatz. Sieh dir unsere Case Studies an und buche dein Erstgespräch.",
   },
+  og: {
+    kicker: "Social-Media-Agentur",
+    title: "Reels, TikToks & Kanalbetreuung",
+  },
   service: {
     name: "Social-Media-Marketing",
     serviceType: "Social-Media-Marketing",

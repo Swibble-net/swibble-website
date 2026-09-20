@@ -44,6 +44,15 @@ const nextConfig = {
       { source: "/mitmachen/:path*", destination: "/bewerben/:path*", permanent: false },
     ];
   },
+  // Short links printed on business cards and posters. Real redirects (instead of pages
+  // that redirect in the browser) keep them out of search results; the UTM source keeps
+  // the scans visible in analytics.
+  async redirects() {
+    return [
+      { source: "/card", destination: "/?utm_source=visitenkarte&utm_medium=qr", permanent: true },
+      { source: "/redirect/poster", destination: "/?utm_source=poster&utm_medium=qr", permanent: true },
+    ];
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

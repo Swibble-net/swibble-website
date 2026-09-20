@@ -7,6 +7,10 @@ export const liveEvents: LandingPageContent = {
     description:
       "Swibble plant, koordiniert und betreut Live-Events und Messestände – mit 360°-Kamera, Fotobox, Werbetafel-Design und Foto- und Video-Content direkt vor Ort.",
   },
+  og: {
+    kicker: "Live-Events & Messen",
+    title: "Events, Messestände & Live-Content",
+  },
   service: {
     name: "Live-Events",
     serviceType: "Eventplanung, Messestand-Betreuung und Event-Content",

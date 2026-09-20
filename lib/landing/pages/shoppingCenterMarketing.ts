@@ -7,6 +7,10 @@ export const shoppingCenterMarketing: LandingPageContent = {
     description:
       "Social Media und Event-Content für Einkaufszentren: So arbeiten Aquis Plaza, Olympia-Einkaufszentrum, Billstedt-Center und MyZeil mit Swibble.",
   },
+  og: {
+    kicker: "Für Einkaufszentren",
+    title: "Shopping-Center-Marketing auf TikTok",
+  },
   service: {
     name: "Shopping-Center-Marketing",
     serviceType: "Social-Media-Marketing und Event-Content für Einkaufszentren",

@@ -324,6 +324,7 @@ const LandingPage = ({ page, caseStudies, facts }: Props) => {
         title={page.seo.title}
         description={page.seo.description}
         canonical={path}
+        ogImage={`https://www.swibble.net/og/${page.slug}.png`}
         jsonLd={[
           serviceJsonLd({ ...page.service, path }),
           breadcrumbJsonLd([

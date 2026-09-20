@@ -7,6 +7,10 @@ export const softwareEntwicklung: LandingPageContent = {
     description:
       "Individuelle Software-Entwicklung aus Aachen: Swibble baut Websites, Web-Apps und mobile Apps inklusive Design und Qualitätssicherung. Kostenloses Erstgespräch.",
   },
+  og: {
+    kicker: "Software-Entwicklung",
+    title: "Websites, Web-Apps & Apps",
+  },
   service: {
     name: "Software-Entwicklung",
     serviceType: "Individuelle Software-Entwicklung",

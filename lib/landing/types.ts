@@ -52,6 +52,14 @@ export interface LandingPageContent {
     /** ~150 characters. */
     description: string;
   };
+  /**
+   * Text on the share image (public/og/<slug>.png, built by scripts/build-og-images.mjs).
+   * Keep the title short: it is set in large type on three lines at most.
+   */
+  og: {
+    kicker: string;
+    title: string;
+  };
   /** Feeds the Service JSON-LD. */
   service: {
     name: string;

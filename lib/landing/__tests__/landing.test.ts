@@ -1,3 +1,4 @@
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { LANDING_PAGES, getLandingPage } from "@/lib/landing";
 import { LANDING_LINKS, landingPath } from "@/lib/landing/links";
@@ -7,6 +8,8 @@ import {
 } from "@/lib/landing/caseStudies";
 import { companyLogos } from "@/lib/companiesLogos";
 import { crawlablePaths } from "@/lib/sitemapPaths";
+import { LLMS_FAQ_END, LLMS_FAQ_START, renderLlmsFaq } from "@/lib/landing/llms";
+import { relatedServices } from "@/lib/landing/related";
 import { NAV_LINKS, SERVICE_LINKS } from "@/lib/navLinks";
 import { breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "@/lib/jsonLd";
 import {
@@ -232,5 +235,69 @@ describe("follower counts", () => {
         expect(FOLLOWER_ACCOUNTS[fact.account].fallback).toBeGreaterThan(0);
       }
     }
+  });
+});
+
+describe("share images", () => {
+  it.each(LANDING_PAGES.map((page) => [page.slug, page] as const))(
+    "%s has a share image and short og texts",
+    (slug, page) => {
+      expect(existsSync(`public/og/${slug}.png`)).toBe(true);
+      expect(page.og.kicker.length).toBeLessThanOrEqual(24);
+      expect(page.og.title.length).toBeLessThanOrEqual(40);
+    },
+  );
+});
+
+describe("related services on blog posts", () => {
+  it("leads case studies to the pages that feature them, most specific first", () => {
+    const related = relatedServices({
+      slug: "case-study-aquis-plaza-aachen",
+      title: "Case Study: Aquis Plaza Aachen",
+    });
+    expect(related.map((service) => service.href)).toEqual([
+      "/shopping-center-marketing",
+      "/social-media-marketing",
+    ]);
+    expect(related[0]).toMatchObject({ title: "Shopping-Center-Marketing" });
+  });
+
+  it("falls back to keywords for posts no page references", () => {
+    expect(
+      relatedServices({ slug: "neue-app-fuer-aachen", title: "Eine App für Aachen" }).map(
+        (service) => service.href,
+      ),
+    ).toEqual(["/software-entwicklung"]);
+    expect(
+      relatedServices({
+        slug: "einkaufszentren-auf-social-media",
+        title: "Einkaufszentren auf Social Media",
+      }).map((service) => service.href),
+    ).toEqual(["/shopping-center-marketing", "/social-media-marketing"]);
+    expect(relatedServices({ slug: "frohe-weihnachten", title: "Frohe Weihnachten" })).toEqual([]);
+  });
+
+  it("never returns more than two services", () => {
+    for (const page of LANDING_PAGES) {
+      for (const slug of page.proof.caseStudies) {
+        expect(relatedServices({ slug, title: "" }).length).toBeLessThanOrEqual(2);
+      }
+    }
+  });
+});
+
+describe("llms-full.txt", () => {
+  it("carries the FAQ of every landing page (UPDATE_LLMS=1 pnpm test rewrites it)", () => {
+    const file = "public/llms-full.txt";
+    const current = readFileSync(file, "utf8");
+    const start = current.indexOf(LLMS_FAQ_START);
+    const end = current.indexOf(LLMS_FAQ_END);
+    expect(start).toBeGreaterThan(-1);
+    expect(end).toBeGreaterThan(start);
+
+    const expected =
+      current.slice(0, start) + renderLlmsFaq() + current.slice(end + LLMS_FAQ_END.length);
+    if (process.env.UPDATE_LLMS === "1") writeFileSync(file, expected);
+    else expect(current).toBe(expected);
   });
 });
