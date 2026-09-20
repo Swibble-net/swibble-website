@@ -1,18 +1,21 @@
 import Link from "next/link";
 import type { GetServerSideProps } from "next";
 import SEO from "@/components/SEO";
+import RelatedServices from "@/components/blog/RelatedServices";
 import { formatDate, toIsoDate } from "@/lib/blog/format";
 import { getPostBySlug } from "@/lib/blog/posts";
 import { isAuthenticated } from "@/lib/adminAuth";
+import { relatedServices, type RelatedService } from "@/lib/landing/related";
 import type { BlogPost } from "@/lib/blog/types";
 
 interface Props {
   post: BlogPost;
+  related: RelatedService[];
 }
 
 const SITE_URL = "https://www.swibble.net";
 
-const BlogPostPage = ({ post }: Props) => {
+const BlogPostPage = ({ post, related }: Props) => {
   const changed = post.updatedAt && post.updatedAt > post.createdAt;
 
   const articleJsonLd = {
@@ -100,6 +103,8 @@ const BlogPostPage = ({ post }: Props) => {
           dangerouslySetInnerHTML={{ __html: post.contentHtml }}
         />
       </article>
+
+      <RelatedServices services={related} />
     </>
   );
 };
@@ -120,7 +125,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     return { notFound: true };
   }
 
-  return { props: { post } };
+  // Resolved on the server, so the landing page texts stay out of the client bundle.
+  return { props: { post, related: relatedServices(post) } };
 };
 
 export default BlogPostPage;

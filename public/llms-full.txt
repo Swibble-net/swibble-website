@@ -116,6 +116,114 @@ Aachen App, Aquis Plaza, Billstedt Center, Keller, Little World, Montis Medical,
 
 ---
 
+## Frequently asked questions (German, per service page)
+
+<!-- faq:start (generated from lib/landing, do not edit by hand) -->
+
+### Social-Media-Marketing — https://www.swibble.net/social-media-marketing
+
+**Für welche Unternehmen eignet sich Social-Media-Marketing mit Swibble?**
+Für Start-ups genauso wie für etablierte Unternehmen, Einkaufszentren, Gastronomie und lokale Marken. Entscheidend ist, dass du Menschen erreichen willst, die ihre Zeit auf TikTok, Instagram oder YouTube verbringen.
+
+**Auf welchen Plattformen seid ihr unterwegs?**
+Unser Schwerpunkt sind Kurzvideos: TikTok, Instagram Reels und YouTube Shorts. Welche Plattform für dich die richtige ist, hängt von deiner Zielgruppe ab – das klären wir in der Strategie.
+
+**Müssen wir selbst vor die Kamera?**
+Nein. Wir können Moderation und Darsteller stellen. Oft wirken Videos aber besonders glaubwürdig, wenn Mitarbeitende oder Kundinnen und Kunden zu sehen sind – wir binden sie so ein, dass es sich für alle gut anfühlt.
+
+**Wie schnell sehen wir Ergebnisse?**
+Ein erfolgreicher Kanal entsteht nicht über Nacht. Reichweite, Vertrauen und Wiedererkennung wachsen, wenn regelmäßig gute Inhalte erscheinen – deshalb planen wir von Anfang an langfristig.
+
+**Was kostet eine Social-Media-Agentur?**
+Das hängt vom Umfang ab: Anzahl der Videos, Drehtage und wie viel Kanalbetreuung wir übernehmen. Nach dem kostenlosen Erstgespräch bekommst du ein Angebot, das zu deinen Zielen passt.
+
+**Arbeitet ihr nur in Aachen?**
+Nein. Swibble sitzt in Aachen, ist aber bundesweit im Einsatz – unter anderem für Kunden in Hamburg, Frankfurt und München.
+
+### Live-Events — https://www.swibble.net/live-events
+
+**Welche Live-Events betreut ihr?**
+Konferenzen, Messen, Produktvorstellungen, Jubiläen, Fachpanels, interne Veranstaltungen und Aktionen in Shopping-Centern. Entscheidend ist nicht die Gästezahl, sondern wie viele gute Geschichten und Gesprächspartner dein Event bietet.
+
+**Übernehmt ihr auch die komplette Planung eines Messestands?**
+Ja. Wir planen den Messestand, koordinieren die Beteiligten und betreuen den Stand während der Messe. Dazu kommen auf Wunsch Werbetafel-Design, 360°-Kamera, Fotobox und Content-Produktion.
+
+**Was ist der Unterschied zwischen 360°-Kamera und Fotobox?**
+Bei der 360°-Kamera bewegt sich die Kamera um die Gäste und erzeugt kurze, dynamische Rundum-Videos. Die Fotobox liefert klassische Fotos. Beides sorgt für einen Treffpunkt auf deinem Event – was besser passt, klären wir im Erstgespräch.
+
+**Wie schnell bekommen wir Fotos und Videos?**
+Live-Content veröffentlichen wir schon während des Events. Nach unserem Praxisplan ist der stärkste Clip innerhalb von 24 Stunden geschnitten und untertitelt, weitere Formate folgen in den ersten 72 Stunden.
+
+**Können wir nur die Foto- und Videobegleitung buchen?**
+Ja. Das Angebot reicht vom kompakten Interview-Setup bis zur vollständigen Begleitung mit Same-Day-Content und mehrwöchigem Redaktionspaket. Planung und Standbetreuung sind optional.
+
+**Seid ihr bundesweit im Einsatz?**
+Ja. Swibble sitzt in Aachen und arbeitet für Kunden in ganz Deutschland – unter anderem in Hamburg, Frankfurt und München.
+
+### UX/UI-Design & Brand Design — https://www.swibble.net/ux-ui-design
+
+**Was ist der Unterschied zwischen UX- und UI-Design?**
+UX-Design kümmert sich darum, dass ein Produkt logisch aufgebaut ist und Nutzer ihr Ziel schnell erreichen. UI-Design gestaltet die sichtbare Oberfläche: Farben, Schriften, Buttons und Abstände. Gute Produkte brauchen beides.
+
+**Können wir nur das Design beauftragen?**
+Ja. Design und Software-Entwicklung sind bei Swibble eigenständige Leistungen. Du kannst nur das UX/UI-Design buchen und mit deinem eigenen Team entwickeln – oder beides bei uns kombinieren.
+
+**Wir haben schon ein Corporate Design. Arbeitet ihr damit?**
+Klar. Wir bauen auf deinem bestehenden Erscheinungsbild auf und übertragen es auf App, Website oder Werbemittel. Wenn etwas fehlt, ergänzen wir es behutsam.
+
+**Gestaltet ihr auch Logos und komplette Marken?**
+Ja, Brand Design gehört zu unseren Leistungen – vom Logo über Farben und Typografie bis zur Bildsprache.
+
+**Macht ihr auch Printdesign?**
+Ja. Wir gestalten druckbare Medien und Werbematerialien, zum Beispiel für Messen, Events oder Aktionen im Handel.
+
+**Was kostet UX/UI-Design?**
+Der Preis hängt davon ab, wie viele Screens, Varianten und Abstimmungsrunden dein Projekt braucht. Im kostenlosen Erstgespräch grenzen wir den Umfang ein, danach erhältst du ein Angebot.
+
+### Software-Entwicklung — https://www.swibble.net/software-entwicklung
+
+**Welche Software entwickelt Swibble?**
+Individuelle Websites, Web-Apps und mobile Apps. In unserem Portfolio findest du zum Beispiel die Aachen App, die Web-App Little World und die App RydeUp.
+
+**Website, Web-App oder App – was brauche ich?**
+Eine Website informiert, eine Web-App lässt Nutzer im Browser etwas erledigen, und eine mobile App lohnt sich, wenn dein Angebot regelmäßig auf dem Smartphone genutzt wird. Was zu deinem Vorhaben passt, klären wir im Erstgespräch.
+
+**Was kostet individuelle Software-Entwicklung?**
+Das hängt vom Funktionsumfang ab. Deshalb legen wir im Konzept gemeinsam fest, was in die erste Version gehört. Danach bekommst du ein Angebot mit klar beschriebenem Umfang.
+
+**Wie lange dauert die Entwicklung?**
+Eine Website ist schneller fertig als eine Plattform mit vielen Funktionen. Einen realistischen Zeitplan erhältst du zusammen mit dem Konzept – vorher wäre jede Zahl geraten.
+
+**Können wir mit einer kleinen ersten Version starten?**
+Ja, das empfehlen wir oft. Eine erste Version mit den wichtigsten Funktionen ist schneller bei deinen Nutzern, und ihr Feedback zeigt, was als Nächstes wirklich gebraucht wird.
+
+**Übernehmt ihr auch nur die Qualitätssicherung?**
+Ja. Qualitätssicherung bieten wir auch als eigene Leistung an – für Square haben wir genau das übernommen.
+
+### Shopping-Center-Marketing — https://www.swibble.net/shopping-center-marketing
+
+**Warum lohnt sich TikTok für ein Einkaufszentrum?**
+Viele Menschen entdecken Geschäfte, Restaurants und Events heute zuerst auf Social Media. TikTok-Videos erreichen nicht nur bestehende Follower, sondern auch neue Menschen in der Region – und geben ihnen einen konkreten Anlass für den nächsten Besuch.
+
+**Wie werden unsere Mieter eingebunden?**
+Stores sind fester Bestandteil des Contents: Neueröffnungen, Kollektionen, Aktionen und Interviews mit Mitarbeitenden. So profitieren Center und Händler gemeinsam von der Reichweite.
+
+**Habt ihr Erfahrung mit Centern großer Betreiber?**
+Ja. Mit dem Aquis Plaza Aachen, dem Billstedt-Center Hamburg und dem Olympia-Einkaufszentrum München betreuen wir mehrere ECE-Center. Abstimmungen und Freigaben im Center-Umfeld gehören für uns zum Alltag.
+
+**Könnt ihr auch Center-Events umsetzen?**
+Ja. Zum zehnjährigen Jubiläum des Aquis Plaza haben Swibble & Partner Konzept, Organisation und Live-Content übernommen – inklusive 360°-Video-Station, digitalem Glücksrad, Bühnenprogramm und Panel-Talk.
+
+**Unser Center liegt nicht in Aachen. Ist das ein Problem?**
+Nein. Wir arbeiten bundesweit und sind für Center in Hamburg, Frankfurt und München im Einsatz.
+
+**Was kostet Social Media für ein Shopping-Center?**
+Das richtet sich nach der Zahl der Videos, der Drehtage und danach, ob wir auch Events begleiten. Nach dem kostenlosen Erstgespräch erhältst du ein Angebot, das zu eurem Aktionskalender passt.
+
+<!-- faq:end -->
+
+---
+
 ## Technical notes for crawlers
 
 - Sitemap: https://www.swibble.net/sitemap.xml

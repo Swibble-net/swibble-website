@@ -7,6 +7,10 @@ export const uxUiDesign: LandingPageContent = {
     description:
       "UX/UI-Design für Apps und Websites, Brand Design sowie Print- und Werbemittel: Swibble gestaltet Oberflächen, die man sofort versteht. Kostenloses Erstgespräch.",
   },
+  og: {
+    kicker: "UX/UI & Brand Design",
+    title: "Design, das man sofort versteht",
+  },
   service: {
     name: "UX/UI-Design & Brand Design",
     serviceType: "UX/UI-Design",
