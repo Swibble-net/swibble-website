@@ -1,3 +1,4 @@
+import CtaLink from "@/components/CtaLink";
 import Image from "next/image";
 import Link from "next/link";
 import SwibbleLogoText from "@/public/logo/SwibbleWordmarkWhite.svg";
@@ -5,7 +6,6 @@ import LinkedInIcon from "@/public/icons/LinkedIn.svg";
 import { NAV_LINKS, SERVICE_LINKS } from "@/lib/navLinks";
 import {
   CTA_LABEL,
-  CTA_URL,
   EMAIL,
   PHONE_DISPLAY,
   PHONE_TEL,
@@ -192,12 +192,11 @@ const Footer = () => {
             </Link>
           </li>
           <li>
-            <a
-              href={CTA_URL}
+            <CtaLink
               className="inline-block rounded-xl bg-[#B718EC] px-4 py-2 font-normal text-[#F0FDF4] hover:scale-95 transition duration-200"
             >
               {CTA_LABEL}
-            </a>
+            </CtaLink>
           </li>
         </ul>
       </div>

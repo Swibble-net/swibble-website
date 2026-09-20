@@ -1,3 +1,4 @@
+import CtaLink from "@/components/CtaLink";
 import Link from "next/link";
 import Image from "next/image";
 import BurgerMenu from "../BurgerMenu/BurgerMenu";
@@ -5,7 +6,7 @@ import NavDropdown from "./NavDropdown";
 import Logo from "@/public/logo/SwibbleLogo.svg";
 import LogoText from "@/public/logo/SwibbleWordmark.svg";
 import { NAV_LINKS } from "@/lib/navLinks";
-import { CTA_LABEL, CTA_URL } from "@/lib/cta";
+import { CTA_LABEL } from "@/lib/cta";
 import { useEffect, useState } from "react";
 import { useScrollPosition } from "@/hooks/useScrollPostion";
 import { RxHamburgerMenu } from "react-icons/rx";
@@ -57,12 +58,11 @@ const Header = () => {
           )}
         </nav>
         <div className="hidden lg:block">
-          <a
-            href={CTA_URL}
+          <CtaLink
             className="inline-block text-center bg-[#B718EC] text-[#F0FDF4] py-3 px-5 rounded-2xl hover:scale-95 transition duration-200"
           >
             {CTA_LABEL}
-          </a>
+          </CtaLink>
         </div>
         <div className="relative z-60 block lg:hidden">
           <button

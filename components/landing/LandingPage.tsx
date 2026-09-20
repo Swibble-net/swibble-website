@@ -1,3 +1,4 @@
+import CtaLink from "@/components/CtaLink";
 import { useRef, type CSSProperties } from "react";
 import Link from "next/link";
 import { LuLightbulb, LuPhoneCall, LuRocket } from "react-icons/lu";
@@ -9,7 +10,7 @@ import LandingVisual from "@/components/landing/LandingVisual";
 import { LANDING_ICONS } from "@/components/landing/icons";
 import { usePointerParallax } from "@/hooks/usePointerParallax";
 import styles from "@/styles/landing.module.scss";
-import { CTA_LABEL, CTA_URL } from "@/lib/cta";
+import { CTA_LABEL } from "@/lib/cta";
 import { breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "@/lib/jsonLd";
 import { LANDING_LINKS, landingPath } from "@/lib/landing/links";
 import type {
@@ -59,9 +60,9 @@ const Hero = ({ page }: { page: LandingPageContent }) => {
           {page.hero.text}
         </p>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          <a href={CTA_URL} className={primaryButtonClass}>
+          <CtaLink className={primaryButtonClass}>
             {CTA_LABEL}
-          </a>
+          </CtaLink>
           <a
             href="#kontakt"
             className="py-2 text-base font-medium text-[#A214D3] underline underline-offset-4 hover:no-underline"
@@ -248,9 +249,9 @@ const Process = ({ process }: { process: LandingPageContent["process"] }) => (
       })}
     </ol>
     <p className="mt-10 text-center">
-      <a href={CTA_URL} className={`inline-block ${primaryButtonClass}`}>
+      <CtaLink className={`inline-block ${primaryButtonClass}`}>
         Mit Schritt 1 starten: {CTA_LABEL}
-      </a>
+      </CtaLink>
     </p>
   </section>
 );
@@ -270,12 +271,11 @@ const Closing = ({ page }: { page: LandingPageContent }) => {
           </p>
         </div>
         <div className="flex flex-none flex-col items-start gap-3 lg:items-center">
-          <a
-            href={CTA_URL}
+          <CtaLink
             className={`${primaryButtonClass} focus-visible:outline-white`}
           >
             {CTA_LABEL}
-          </a>
+          </CtaLink>
           <a
             href="#kontakt"
             className="text-sm font-medium text-[#E7A1FF] underline underline-offset-4 hover:no-underline"
