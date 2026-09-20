@@ -1,5 +1,6 @@
+import CtaLink from "@/components/CtaLink";
 import HeroVisual from "@/components/HeroVisual";
-import { CTA_LABEL, CTA_URL } from "@/lib/cta";
+import { CTA_LABEL } from "@/lib/cta";
 
 const LandingPart = () => {
   return (
@@ -17,12 +18,11 @@ const LandingPart = () => {
           Marke mit viralem Content, Live-Events, Design und individueller
           Software auf das nächste Level.
         </p>
-        <a
-          href={CTA_URL}
+        <CtaLink
           className="w-fit text-center text-base font-medium bg-[#B718EC] text-[#F0FDF4] py-3 px-6 rounded-2xl hover:scale-95 transition duration-200"
         >
           {CTA_LABEL}
-        </a>
+        </CtaLink>
       </div>
       <div className="w-full flex justify-center">
         <HeroVisual

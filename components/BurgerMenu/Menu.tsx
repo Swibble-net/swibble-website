@@ -1,8 +1,9 @@
+import CtaLink from "@/components/CtaLink";
 import { useId, useState } from "react";
 import Link from "next/link";
 import { IoChevronDown } from "react-icons/io5";
 import { NAV_LINKS } from "@/lib/navLinks";
-import { CTA_LABEL, CTA_URL } from "@/lib/cta";
+import { CTA_LABEL } from "@/lib/cta";
 
 interface MenuProps {
   handleOnClick: () => void;
@@ -71,13 +72,12 @@ export default function Menu({ handleOnClick }: MenuProps) {
       >
         Impressum
       </Link>
-      <a
-        href={CTA_URL}
+      <CtaLink
         onClick={handleOnClick}
         className="block text-center w-full bg-[#B718EC] text-[#F0FDF4] rounded-lg py-3 hover:scale-95 transition duration-200"
       >
         {CTA_LABEL}
-      </a>
+      </CtaLink>
     </div>
   );
 }

@@ -1,7 +1,8 @@
+import CtaLink from "@/components/CtaLink";
 import Image from "next/image";
 import Link from "next/link";
 import GermanyMap from "@/public/map_germany.webp";
-import { CTA_LABEL, CTA_URL } from "@/lib/cta";
+import { CTA_LABEL } from "@/lib/cta";
 
 interface Location {
   city: string;
@@ -95,12 +96,11 @@ const Nationwide = () => {
         </ul>
         <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-3 text-sm text-[#556987]">
           <span>Deine Stadt fehlt noch auf der Karte?</span>
-          <a
-            href={CTA_URL}
+          <CtaLink
             className="inline-block rounded-2xl bg-[#B718EC] px-5 py-3 text-center font-medium text-[#F0FDF4] transition duration-200 hover:scale-95"
           >
             {CTA_LABEL}
-          </a>
+          </CtaLink>
         </p>
       </div>
       <div className="relative w-full lg:w-7/12">

@@ -1,3 +1,4 @@
+import CtaLink from "@/components/CtaLink";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,7 +7,7 @@ import { MdCheck, MdCheckCircle, MdHelpOutline } from "react-icons/md";
 import sendEmail from "@/lib/sendMail";
 import TurnstileWidget from "@/components/TurnstileWidget";
 import ChoiceChip from "@/components/contact/ChoiceChip";
-import { CTA_URL, EMAIL, MESSAGE_MAX_LENGTH } from "@/lib/cta";
+import { EMAIL, MESSAGE_MAX_LENGTH } from "@/lib/cta";
 import {
   BUDGETS,
   COMPANY_MAX_LENGTH,
@@ -381,15 +382,11 @@ const ContactFunnel = () => {
             <p className="text-base text-[#556987]">
               Deine Anfrage ist bei uns angekommen – wir melden uns so schnell wie möglich bei dir.{confirmationSent && " Eine Bestätigung mit deinen Angaben ist unterwegs in dein Postfach."} Du möchtest nicht warten? Dann such dir direkt einen Termin für dein kostenloses Erstgespräch aus.
             </p>
-            <a
-              href={CTA_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <CtaLink
               className="w-full text-center text-base font-medium bg-[#B718EC] text-[#F0FDF4] py-3 px-6 rounded-2xl hover:scale-95 transition duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] sm:w-fit"
             >
               Jetzt Termin buchen
-              <span className="sr-only"> (öffnet in neuem Tab)</span>
-            </a>
+            </CtaLink>
             <p className="text-sm text-[#556987]">
               Neugierig, wie wir arbeiten?{" "}
               <Link href={CASE_STUDY.href} className="font-medium text-[#B718EC] underline">
