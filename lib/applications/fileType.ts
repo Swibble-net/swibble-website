@@ -1,4 +1,4 @@
-import { CONSENT_FILE_MAX_BYTES } from "./config";
+import { CONSENT_FILE_MAX_BYTES, PHOTO_MAX_BYTES } from "./config";
 
 export type ConsentFileType =
   | { mime: "application/pdf"; extension: "pdf" }
@@ -60,13 +60,18 @@ export type ConsentFileResult =
 
 const BASE64_PATTERN = /^[A-Za-z0-9+/]+={0,2}$/;
 
-/** Decodes and checks an uploaded consent file (base64 payload). */
-export function parseConsentFile(
-  base64: unknown,
-  maxBytes: number = CONSENT_FILE_MAX_BYTES,
-): ConsentFileResult {
+interface ParseOptions {
+  maxBytes: number;
+  /** Allowed MIME types (checked against the magic bytes) */
+  allowed: ReadonlyArray<ConsentFileType["mime"]>;
+  missingMessage: string;
+  typeMessage: string;
+}
+
+function parseUpload(base64: unknown, options: ParseOptions): ConsentFileResult {
+  const { maxBytes } = options;
   if (typeof base64 !== "string" || base64.length === 0) {
-    return { ok: false, error: "Bitte lade die Einverständniserklärung hoch." };
+    return { ok: false, error: options.missingMessage };
   }
 
   // Reject oversized payloads before allocating a buffer for them.
@@ -86,14 +91,41 @@ export function parseConsentFile(
   }
 
   const type = detectConsentFileType(buffer);
-  if (!type) {
-    return {
-      ok: false,
-      error: "Bitte lade ein PDF oder ein Foto (JPG, PNG, HEIC) hoch.",
-    };
+  if (!type || !options.allowed.includes(type.mime)) {
+    return { ok: false, error: options.typeMessage };
   }
 
   return { ok: true, buffer, type };
+}
+
+/** Decodes and checks an uploaded consent file (base64 payload). */
+export function parseConsentFile(
+  base64: unknown,
+  maxBytes: number = CONSENT_FILE_MAX_BYTES,
+): ConsentFileResult {
+  return parseUpload(base64, {
+    maxBytes,
+    allowed: ["application/pdf", "image/jpeg", "image/png", "image/heic"],
+    missingMessage: "Bitte lade die Einverständniserklärung hoch.",
+    typeMessage: "Bitte lade ein PDF oder ein Foto (JPG, PNG, HEIC) hoch.",
+  });
+}
+
+/**
+ * Decodes and checks an optional applicant photo. JPEG/PNG only: the browser
+ * converts every photo to JPEG, and these are the formats the admin area can
+ * display.
+ */
+export function parsePhoto(
+  base64: unknown,
+  maxBytes: number = PHOTO_MAX_BYTES,
+): ConsentFileResult {
+  return parseUpload(base64, {
+    maxBytes,
+    allowed: ["image/jpeg", "image/png"],
+    missingMessage: "Das Foto konnte nicht gelesen werden.",
+    typeMessage: "Bitte lade Fotos als JPG oder PNG hoch.",
+  });
 }
 
 function tooLargeMessage(maxBytes: number): string {

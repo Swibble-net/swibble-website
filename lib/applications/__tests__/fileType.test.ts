@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { detectConsentFileType, parseConsentFile } from "../fileType";
+import { detectConsentFileType, parseConsentFile, parsePhoto } from "../fileType";
 
 const ascii = (s: string) => [...s].map((c) => c.charCodeAt(0));
 const pad = (values: number[], length = 32) =>
@@ -67,5 +67,23 @@ describe("parseConsentFile", () => {
     const result = parseConsentFile(b64(overLimit), 2048);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toMatch(/zu groß/);
+  });
+});
+
+describe("parsePhoto", () => {
+  const b64 = (data: Uint8Array) => Buffer.from(data).toString("base64");
+
+  it("accepts JPEG and PNG only", () => {
+    expect(parsePhoto(b64(JPEG)).ok).toBe(true);
+    expect(parsePhoto(b64(PNG)).ok).toBe(true);
+    expect(parsePhoto(b64(PDF)).ok).toBe(false);
+    expect(parsePhoto(b64(isoBmff("heic"))).ok).toBe(false);
+    expect(parsePhoto(b64(pad(ascii("<svg xmlns=")))).ok).toBe(false);
+  });
+
+  it("enforces the per-photo size limit", () => {
+    const tooBig = new Uint8Array(1025);
+    tooBig.set(JPEG);
+    expect(parsePhoto(b64(tooBig), 1024).ok).toBe(false);
   });
 });

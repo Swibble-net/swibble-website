@@ -181,8 +181,10 @@ and the CMS cannot save.
 ### Applications (`/bewerben`)
 
 Applications are stored in the Firestore collection `applications`; parental
-consent files go to the private bucket under `applications/consents/` and are
-only served through the admin-only route `/api/applications/[id]/file`. Age
+consent files (uploaded paper form or the document generated from the online
+signature) go to the private bucket under `applications/consents/`, optional
+applicant photos under `applications/photos/`. Both are only served through the
+admin-only route `/api/applications/[id]/file` (`?photo=<index>` for photos). Age
 limits and consent wording live in
 `lib/applications/config.ts`. For local development without Firebase set
 `APPLICATIONS_DEV_STORE=memory` (in-memory store, ignored in production).

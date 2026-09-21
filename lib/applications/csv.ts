@@ -29,7 +29,15 @@ const COLUMNS: Array<[string, (a: Application) => string | number | boolean]> = 
   ["Erziehungsberechtigte:r", (a) => a.guardian?.name ?? ""],
   ["Eltern Telefon", (a) => a.guardian?.phone ?? ""],
   ["Eltern E-Mail", (a) => a.guardian?.email ?? ""],
+  ["Eltern Anschrift", (a) => a.guardian?.address ?? ""],
+  [
+    "Einverständnis Eltern",
+    (a) =>
+      !a.guardian ? "" : a.guardian.method === "signature" ? "online unterschrieben" : "Foto/PDF",
+  ],
   ["Muttizettel vorhanden", (a) => (a.consentFile ? "ja" : "nein")],
+  ["Fotos", (a) => a.photos.length],
+  ["Einwilligung Veröffentlichung", (a) => (a.consent.mediaText ? "ja" : "nein")],
   ["Einwilligung erteilt am", (a) => new Date(a.consent.givenAt).toISOString()],
   ["Interne Notiz", (a) => a.note],
 ];

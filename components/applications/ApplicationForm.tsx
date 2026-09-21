@@ -18,14 +18,26 @@ import {
   APPLICATION_ROLES,
   CONTACT_CONSENT_TEXT,
   GUARDIAN_CONFIRM_TEXT,
+  GUARDIAN_DECLARATION_CLAUSES,
+  GUARDIAN_DECLARATION_INTRO,
+  GUARDIAN_ONLINE_ACCEPT_TEXT,
+  MEDIA_CONSENT_TEXT,
+  PHOTO_MAX_COUNT,
+  guardianDeclarationText,
+  roleLabel,
+  type GuardianMethod,
 } from "@/lib/applications/config";
 import { calculateAge, parseIsoDate, todayInBerlin } from "@/lib/applications/age";
 import {
   CONSENT_FILE_ACCEPT,
   ConsentFileError,
+  PHOTO_ACCEPT,
   prepareConsentFile,
+  preparePhoto,
   type PreparedFile,
 } from "@/lib/applications/clientFile";
+import { renderDeclarationDocument } from "@/lib/applications/declarationImage";
+import SignaturePad from "@/components/applications/SignaturePad";
 import { adoptEarlyInput } from "@/lib/applications/earlyInput";
 import { validateApplication } from "@/lib/applications/validation";
 import type { ApplicationErrors } from "@/lib/applications/types";
@@ -65,8 +77,12 @@ const ERROR_TARGETS: Array<[string, string]> = [
   ["guardianContact", "f-guardianPhone"],
   ["guardianPhone", "f-guardianPhone"],
   ["guardianEmail", "f-guardianEmail"],
+  ["guardianAddress", "f-guardianAddress"],
   ["consentFile", "f-consentFile"],
   ["guardianConfirmed", "f-guardianConfirmed"],
+  ["signature", "f-signature"],
+  ["photos", "f-photos"],
+  ["mediaConsent", "f-mediaConsent"],
   ["contactConsent", "f-contactConsent"],
   ["privacyAck", "f-privacyAck"],
   ["turnstile", "f-turnstile"],
@@ -126,11 +142,21 @@ const ApplicationForm = ({
     guardianName: "",
     guardianPhone: "",
     guardianEmail: "",
+    guardianAddress: "",
     website: "", // honeypot
   });
   const [contactConsent, setContactConsent] = useState(false);
   const [privacyAck, setPrivacyAck] = useState(false);
   const [guardianConfirmed, setGuardianConfirmed] = useState(false);
+  const [mediaConsent, setMediaConsent] = useState(false);
+  // Parents sign online by default; a photo of the paper form is the fallback.
+  const [guardianMethod, setGuardianMethod] =
+    useState<GuardianMethod>("signature");
+  const [signature, setSignature] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<
+    Array<PreparedFile & { previewUrl: string }>
+  >([]);
+  const [photoBusy, setPhotoBusy] = useState(false);
 
   const [file, setFile] = useState<PreparedFile | null>(null);
   const [fileBusy, setFileBusy] = useState(false);
@@ -170,6 +196,7 @@ const ApplicationForm = ({
       );
       if (isChecked("f-contactConsent")) setContactConsent(true);
       if (isChecked("f-privacyAck")) setPrivacyAck(true);
+      if (isChecked("f-mediaConsent")) setMediaConsent(true);
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
@@ -252,6 +279,47 @@ const ApplicationForm = ({
     }
   };
 
+  const handlePhotos = async (e: ChangeEvent<HTMLInputElement>) => {
+    const chosen = [...(e.target.files ?? [])];
+    e.target.value = "";
+    clearError("photos");
+    if (chosen.length === 0) return;
+
+    const free = PHOTO_MAX_COUNT - photos.length;
+    if (chosen.length > free) {
+      setErrors((prev) => ({
+        ...prev,
+        photos: `Du kannst höchstens ${PHOTO_MAX_COUNT} Fotos hochladen.`,
+      }));
+    }
+
+    setPhotoBusy(true);
+    try {
+      for (const file of chosen.slice(0, Math.max(0, free))) {
+        const prepared = await preparePhoto(file);
+        setPhotos((prev) => [...prev, prepared]);
+      }
+    } catch (err) {
+      setErrors((prev) => ({
+        ...prev,
+        photos:
+          err instanceof ConsentFileError
+            ? err.message
+            : "Das Foto konnte nicht gelesen werden.",
+      }));
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos((prev) => {
+      URL.revokeObjectURL(prev[index].previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
+    clearError("photos");
+  };
+
   const resetTurnstile = () => {
     setTurnstileToken("");
     setTurnstileKey((key) => key + 1);
@@ -271,7 +339,7 @@ const ApplicationForm = ({
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (submitting || fileBusy) return;
+    if (submitting || fileBusy || photoBusy) return;
     setFormError("");
 
     const payload = {
@@ -291,11 +359,14 @@ const ApplicationForm = ({
       center: fields.center,
       contactConsent,
       privacyAck,
+      mediaConsent,
       guardian: isMinor
         ? {
             name: fields.guardianName,
             phone: fields.guardianPhone,
             email: fields.guardianEmail,
+            address: fields.guardianAddress,
+            method: guardianMethod,
             confirmed: guardianConfirmed,
           }
         : undefined,
@@ -304,8 +375,13 @@ const ApplicationForm = ({
     // Same rules as the server, so messages are identical on both sides.
     const result = validateApplication(payload);
     const found: ApplicationErrors = result.ok ? {} : { ...result.errors };
-    if (isMinor && !file && !uploadBlocked) {
-      found.consentFile = "Bitte lade die Einverständniserklärung hoch.";
+    if (isMinor && !uploadBlocked) {
+      if (guardianMethod === "upload" && !file) {
+        found.consentFile = "Bitte lade die Einverständniserklärung hoch.";
+      }
+      if (guardianMethod === "signature" && !signature) {
+        found.signature = "Bitte hier unterschreiben.";
+      }
     }
     if (turnstileRequired && !turnstileToken) {
       found.turnstile = "Bitte warte kurz, bis die Spam-Prüfung abgeschlossen ist.";
@@ -319,12 +395,34 @@ const ApplicationForm = ({
 
     setSubmitting(true);
     try {
+      // Signed online: turn declaration + signature into one document, which
+      // takes the place of the uploaded paper form.
+      let consentData = file?.data;
+      if (isMinor && guardianMethod === "signature" && signature) {
+        const pad = (n: string) => n.padStart(2, "0");
+        const document = await renderDeclarationDocument({
+          childName: `${fields.firstName} ${fields.lastName}`.trim(),
+          birthDate: `${pad(fields.birthDay)}.${pad(fields.birthMonth)}.${fields.birthYear}`,
+          guardianName: fields.guardianName.trim(),
+          guardianContact: [fields.guardianPhone, fields.guardianEmail]
+            .map((v) => v.trim())
+            .filter(Boolean)
+            .join(" · "),
+          guardianAddress: fields.guardianAddress.trim(),
+          declarationText: guardianDeclarationText(roles),
+          signatureDataUrl: signature,
+          signedAt: new Date(),
+        });
+        consentData = document.data;
+      }
+
       const res = await fetch("/api/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...payload,
-          consentFile: isMinor && file ? { data: file.data } : undefined,
+          consentFile: isMinor && consentData ? { data: consentData } : undefined,
+          photos: photos.map((photo) => ({ data: photo.data })),
           turnstileToken,
           website: fields.website,
         }),
@@ -619,6 +717,60 @@ const ApplicationForm = ({
         {handleInput("youtube", "YouTube")}
       </Section>
 
+      {/* Optional photos */}
+      {uploadsAvailable && (
+        <Section
+          title="Fotos von dir"
+          hint={`Freiwillig – bis zu ${PHOTO_MAX_COUNT} Bilder, auf denen man dich gut erkennt. Sie sind nur für das Swibble-Team sichtbar.`}
+        >
+          {photos.length > 0 && (
+            <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-5">
+              {photos.map((photo, index) => (
+                <li key={photo.previewUrl} className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- local object URL preview */}
+                  <img
+                    src={photo.previewUrl}
+                    alt={`Ausgewähltes Foto ${index + 1}`}
+                    className="aspect-square w-full rounded-xl object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(index)}
+                    aria-label={`Foto ${index + 1} entfernen`}
+                    className="absolute -right-1.5 -top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-[#000D36] text-sm font-bold text-white shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC]"
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div>
+            <label className={labelClass} htmlFor="f-photos">
+              Fotos auswählen
+              <span className="font-normal text-[#8a7791]"> (optional)</span>
+            </label>
+            <input
+              id="f-photos"
+              type="file"
+              multiple
+              accept={PHOTO_ACCEPT}
+              onChange={handlePhotos}
+              disabled={photoBusy || photos.length >= PHOTO_MAX_COUNT}
+              className="block w-full cursor-pointer rounded-xl border border-dashed border-[#d8c7e0] bg-white p-3 text-sm text-[#556987] file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-[#B718EC] file:px-4 file:py-2 file:text-sm file:font-medium file:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] disabled:cursor-not-allowed disabled:opacity-60 aria-[invalid=true]:border-red-500"
+              {...errorProps("photos")}
+            />
+            <p className="mt-1.5 text-xs text-[#8a7791]" aria-live="polite">
+              {photoBusy
+                ? "Fotos werden verkleinert …"
+                : `${photos.length} von ${PHOTO_MAX_COUNT} Fotos ausgewählt. Wir verkleinern sie automatisch.`}
+            </p>
+            {errorFor("photos")}
+          </div>
+        </Section>
+      )}
+
       {/* About + center */}
       <Section title="Noch was?">
         <div>
@@ -738,23 +890,22 @@ const ApplicationForm = ({
             {errorFor("guardianContact")}
           </fieldset>
 
-          <div className="rounded-xl bg-[#F9EAFF] p-4 text-sm text-[#000D36]">
-            <p className="font-semibold">So geht’s mit dem „Muttizettel“:</p>
-            <ol className="mt-2 list-decimal space-y-1 pl-5">
-              <li>
-                <a
-                  href="/bewerben/einverstaendnis"
-                  target="_blank"
-                  rel="noopener"
-                  className="font-medium text-[#B718EC] underline"
-                >
-                  Vorlage öffnen
-                </a>{" "}
-                und ausdrucken – oder den Text einfach von Hand abschreiben.
-              </li>
-              <li>Von deinen Eltern ausfüllen und unterschreiben lassen.</li>
-              <li>Foto davon machen (gut lesbar) und hier hochladen.</li>
-            </ol>
+          <div>
+            <label className={labelClass} htmlFor="f-guardianAddress">
+              Anschrift dieser Person
+              <span className="font-normal text-[#8a7791]"> (optional)</span>
+            </label>
+            <input
+              id="f-guardianAddress"
+              className={inputClass}
+              value={fields.guardianAddress}
+              onChange={setField("guardianAddress")}
+              maxLength={200}
+              autoComplete="off"
+              placeholder="Straße, Hausnummer, PLZ, Ort"
+              {...errorProps("guardianAddress")}
+            />
+            {errorFor("guardianAddress")}
           </div>
 
           {uploadBlocked ? (
@@ -762,55 +913,182 @@ const ApplicationForm = ({
               role="alert"
               className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800"
             >
-              Der Upload ist gerade leider nicht verfügbar, deshalb können wir
-              deine Bewerbung im Moment nicht annehmen. Bitte versuch es später
-              noch einmal oder schreib uns an{" "}
+              Die Einverständniserklärung kann gerade leider nicht gespeichert
+              werden, deshalb können wir deine Bewerbung im Moment nicht
+              annehmen. Bitte versuch es später noch einmal oder schreib uns an{" "}
               <a href="mailto:info@swibble.net" className="underline">
                 info@swibble.net
               </a>
               .
             </p>
           ) : (
-            <div>
-              <label className={labelClass} htmlFor="f-consentFile">
-                Unterschriebene Einverständniserklärung*
-              </label>
-              <input
-                id="f-consentFile"
-                type="file"
-                accept={CONSENT_FILE_ACCEPT}
-                onChange={handleFile}
-                className="block w-full cursor-pointer rounded-xl border border-dashed border-[#d8c7e0] bg-white p-3 text-sm text-[#556987] file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-[#B718EC] file:px-4 file:py-2 file:text-sm file:font-medium file:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] aria-[invalid=true]:border-red-500"
-                {...errorProps("consentFile")}
-              />
-              <p className="mt-1.5 text-xs text-[#8a7791]" aria-live="polite">
-                {fileBusy
-                  ? "Foto wird verkleinert …"
-                  : file
-                    ? `✓ ${file.name} (${Math.max(1, Math.round(file.size / 1024))} KB)`
-                    : "PDF oder Foto (JPG, PNG, HEIC). Große Fotos verkleinern wir automatisch."}
-              </p>
-              {errorFor("consentFile")}
-            </div>
-          )}
+            <>
+              <fieldset>
+                <legend className={labelClass}>
+                  Wie geben deine Eltern ihr Einverständnis?*
+                </legend>
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                  {(
+                    [
+                      ["signature", "Jetzt online unterschreiben", "Am schnellsten: Handy kurz an Mama oder Papa geben."],
+                      ["upload", "Zettel ausdrucken & Foto hochladen", "Vorlage drucken, unterschreiben lassen, abfotografieren."],
+                    ] as const
+                  ).map(([value, title, text]) => (
+                    <label
+                      key={value}
+                      className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E4D3EC] bg-white p-3.5 text-sm text-[#000D36] has-[:checked]:border-[#B718EC] has-[:checked]:bg-[#F9EAFF] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#B718EC]/40"
+                    >
+                      <input
+                        type="radio"
+                        name="guardianMethod"
+                        className="mt-0.5 h-5 w-5 shrink-0 accent-[#B718EC]"
+                        checked={guardianMethod === value}
+                        onChange={() => {
+                          setGuardianMethod(value);
+                          setGuardianConfirmed(false);
+                          clearError("consentFile", "signature", "guardianConfirmed");
+                        }}
+                      />
+                      <span>
+                        <span className="block font-semibold">{title}</span>
+                        <span className="mt-0.5 block text-xs text-[#556987]">
+                          {text}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
 
-          <div>
-            <label className="flex cursor-pointer items-start gap-3 text-sm text-[#000D36]">
-              <input
-                id="f-guardianConfirmed"
-                type="checkbox"
-                className="mt-0.5 h-5 w-5 shrink-0 accent-[#B718EC]"
-                checked={guardianConfirmed}
-                onChange={(e) => {
-                  setGuardianConfirmed(e.target.checked);
-                  clearError("guardianConfirmed");
-                }}
-                {...errorProps("guardianConfirmed")}
-              />
-              <span>{GUARDIAN_CONFIRM_TEXT}*</span>
-            </label>
-            {errorFor("guardianConfirmed")}
-          </div>
+              {guardianMethod === "signature" ? (
+                <>
+                  <div className="rounded-xl bg-[#F9EAFF] p-4 text-sm text-[#000D36]">
+                    <p className="font-semibold">
+                      Ab hier bitte die erziehungsberechtigte Person:
+                    </p>
+                    <div
+                      className="mt-2 max-h-72 overflow-y-auto rounded-lg bg-white p-3 text-[13px] leading-relaxed"
+                      tabIndex={0}
+                      role="region"
+                      aria-label="Text der Einverständniserklärung"
+                    >
+                      <p>
+                        {GUARDIAN_DECLARATION_INTRO.replace(
+                          "{roles}",
+                          roles.length > 0
+                            ? roles.map(roleLabel).join(", ")
+                            : "die oben gewählten Tätigkeiten",
+                        )}
+                      </p>
+                      <ol className="mt-2 list-decimal space-y-2 pl-5">
+                        {GUARDIAN_DECLARATION_CLAUSES.map((clause) => (
+                          <li key={clause}>{clause}</li>
+                        ))}
+                      </ol>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="flex cursor-pointer items-start gap-3 text-sm text-[#000D36]">
+                      <input
+                        id="f-guardianConfirmed"
+                        type="checkbox"
+                        className="mt-0.5 h-5 w-5 shrink-0 accent-[#B718EC]"
+                        checked={guardianConfirmed}
+                        onChange={(e) => {
+                          setGuardianConfirmed(e.target.checked);
+                          clearError("guardianConfirmed");
+                        }}
+                        {...errorProps("guardianConfirmed")}
+                      />
+                      <span>{GUARDIAN_ONLINE_ACCEPT_TEXT}*</span>
+                    </label>
+                    {errorFor("guardianConfirmed")}
+                  </div>
+
+                  <div>
+                    <p className={labelClass} id={`${formId}-signature-label`}>
+                      Unterschrift der erziehungsberechtigten Person*
+                    </p>
+                    <SignaturePad
+                      id="f-signature"
+                      onChange={(dataUrl) => {
+                        setSignature(dataUrl);
+                        clearError("signature");
+                      }}
+                      invalid={Boolean(errors.signature)}
+                      describedBy={
+                        errors.signature ? `${formId}-signature-error` : undefined
+                      }
+                    />
+                    {errorFor("signature")}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="rounded-xl bg-[#F9EAFF] p-4 text-sm text-[#000D36]">
+                    <p className="font-semibold">So geht’s mit dem „Muttizettel“:</p>
+                    <ol className="mt-2 list-decimal space-y-1 pl-5">
+                      <li>
+                        <a
+                          href="/bewerben/einverstaendnis"
+                          target="_blank"
+                          rel="noopener"
+                          className="font-medium text-[#B718EC] underline"
+                        >
+                          Vorlage öffnen
+                        </a>{" "}
+                        und ausdrucken – oder den Text einfach von Hand
+                        abschreiben.
+                      </li>
+                      <li>Von deinen Eltern ausfüllen und unterschreiben lassen.</li>
+                      <li>Foto davon machen (gut lesbar) und hier hochladen.</li>
+                    </ol>
+                  </div>
+
+                  <div>
+                    <label className={labelClass} htmlFor="f-consentFile">
+                      Unterschriebene Einverständniserklärung*
+                    </label>
+                    <input
+                      id="f-consentFile"
+                      type="file"
+                      accept={CONSENT_FILE_ACCEPT}
+                      onChange={handleFile}
+                      className="block w-full cursor-pointer rounded-xl border border-dashed border-[#d8c7e0] bg-white p-3 text-sm text-[#556987] file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-[#B718EC] file:px-4 file:py-2 file:text-sm file:font-medium file:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] aria-[invalid=true]:border-red-500"
+                      {...errorProps("consentFile")}
+                    />
+                    <p className="mt-1.5 text-xs text-[#8a7791]" aria-live="polite">
+                      {fileBusy
+                        ? "Foto wird verkleinert …"
+                        : file
+                          ? `✓ ${file.name} (${Math.max(1, Math.round(file.size / 1024))} KB)`
+                          : "PDF oder Foto (JPG, PNG, HEIC). Große Fotos verkleinern wir automatisch."}
+                    </p>
+                    {errorFor("consentFile")}
+                  </div>
+
+                  <div>
+                    <label className="flex cursor-pointer items-start gap-3 text-sm text-[#000D36]">
+                      <input
+                        id="f-guardianConfirmed"
+                        type="checkbox"
+                        className="mt-0.5 h-5 w-5 shrink-0 accent-[#B718EC]"
+                        checked={guardianConfirmed}
+                        onChange={(e) => {
+                          setGuardianConfirmed(e.target.checked);
+                          clearError("guardianConfirmed");
+                        }}
+                        {...errorProps("guardianConfirmed")}
+                      />
+                      <span>{GUARDIAN_CONFIRM_TEXT}*</span>
+                    </label>
+                    {errorFor("guardianConfirmed")}
+                  </div>
+                </>
+              )}
+            </>
+          )}
         </Section>
       )}
 
@@ -832,6 +1110,24 @@ const ApplicationForm = ({
             <span>{CONTACT_CONSENT_TEXT}*</span>
           </label>
           {errorFor("contactConsent")}
+        </div>
+
+        <div>
+          <label className="flex cursor-pointer items-start gap-3 text-sm text-[#000D36]">
+            <input
+              id="f-mediaConsent"
+              type="checkbox"
+              className="mt-0.5 h-5 w-5 shrink-0 accent-[#B718EC]"
+              checked={mediaConsent}
+              onChange={(e) => {
+                setMediaConsent(e.target.checked);
+                clearError("mediaConsent");
+              }}
+              {...errorProps("mediaConsent")}
+            />
+            <span>{MEDIA_CONSENT_TEXT}*</span>
+          </label>
+          {errorFor("mediaConsent")}
         </div>
 
         <div>
@@ -899,7 +1195,9 @@ const ApplicationForm = ({
 
         <button
           type="submit"
-          disabled={!hydrated || submitting || fileBusy || uploadBlocked}
+          disabled={
+            !hydrated || submitting || fileBusy || photoBusy || uploadBlocked
+          }
           className="w-full rounded-2xl bg-[#B718EC] px-6 py-4 text-base font-bold text-white shadow-lg shadow-purple-200 motion-safe:transition motion-safe:duration-200 motion-safe:active:scale-[0.98] hover:bg-[#a514d6] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? "Wird gesendet …" : "Bewerbung abschicken"}

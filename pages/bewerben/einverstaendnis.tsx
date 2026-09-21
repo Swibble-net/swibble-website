@@ -4,6 +4,8 @@ import SEO from "@/components/SEO";
 import {
   APPLICATION_ROLES,
   CONSENT_TEMPLATE_IS_DRAFT,
+  GUARDIAN_DECLARATION_CLAUSES,
+  GUARDIAN_DECLARATION_INTRO,
 } from "@/lib/applications/config";
 
 // Printable parental consent template ("Muttizettel"). Plain HTML so the
@@ -29,7 +31,8 @@ const EinverstaendnisPage: NextPageWithLayout = () => (
       <div className="mx-auto mb-4 flex max-w-[210mm] flex-wrap items-center justify-between gap-3 print:hidden">
         <p className="text-sm text-neutral-600">
           Ausdrucken, ausfüllen, unterschreiben lassen – dann ein Foto davon im
-          Formular hochladen. Kein Drucker? Schreibt den Text einfach von Hand ab.
+          Formular hochladen. Noch einfacher: Die Erklärung lässt sich im
+          Bewerbungsformular auch direkt online ausfüllen und unterschreiben.
         </p>
         <button
           type="button"
@@ -83,9 +86,7 @@ const EinverstaendnisPage: NextPageWithLayout = () => (
           3. Erklärung
         </h2>
         <p className="mt-2">
-          Ich bin / Wir sind für das oben genannte Kind sorgeberechtigt. Ich
-          bin / Wir sind damit einverstanden, dass sich mein / unser Kind bei
-          Swibble bewirbt für:
+          {GUARDIAN_DECLARATION_INTRO.replace("{roles}", "").replace(/:\s*\.$/, ":")}
         </p>
         <ul className="mt-2 space-y-1">
           {APPLICATION_ROLES.map((role) => (
@@ -96,37 +97,9 @@ const EinverstaendnisPage: NextPageWithLayout = () => (
           ))}
         </ul>
         <ol className="mt-3 list-decimal space-y-2 pl-5">
-          <li>
-            Ich willige / Wir willigen – auch stellvertretend für mein / unser
-            Kind – darin ein, dass Swibble die im Bewerbungsformular
-            angegebenen Daten meines / unseres Kindes (Name, Geburtsdatum,
-            Wohnort, E-Mail-Adresse, Handynummer, Social-Media-Profilnamen,
-            Freitext) sowie meine / unsere oben genannten Kontaktdaten
-            verarbeitet, in den Swibble-Bewerberpool aufnimmt und dort bis zum
-            Widerruf dieser Einwilligung speichert, um mein / unser Kind auch
-            für spätere Videos und Aktionen anfragen zu können.
-          </li>
-          <li>
-            Swibble darf mein / unser Kind sowie mich / uns dazu per E-Mail,
-            Telefon/WhatsApp und über die angegebenen Social-Media-Profile
-            kontaktieren.
-          </li>
-          <li>
-            Diese Erklärung betrifft ausschließlich die Bewerbung und die
-            Aufnahme in den Bewerberpool. Über eine
-            konkrete Mitwirkung (z. B. Drehtermine, Einsätze, Vergütung) sowie
-            über die Anfertigung und Veröffentlichung von Foto- und
-            Videoaufnahmen wird vorab eine gesonderte schriftliche Vereinbarung
-            mit mir / uns getroffen.
-          </li>
-          <li>
-            Diese Einwilligung ist freiwillig und kann jederzeit mit Wirkung
-            für die Zukunft widerrufen werden, z. B. per E-Mail an
-            info@swibble.net. In diesem Fall löscht Swibble die
-            Bewerbungsdaten einschließlich dieser Erklärung. Die Datenschutzhinweise unter
-            www.swibble.net/datenschutz habe ich / haben wir zur Kenntnis
-            genommen.
-          </li>
+          {GUARDIAN_DECLARATION_CLAUSES.map((clause) => (
+            <li key={clause}>{clause}</li>
+          ))}
         </ol>
 
         <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-8">
@@ -136,10 +109,6 @@ const EinverstaendnisPage: NextPageWithLayout = () => (
           <Line label="Unterschrift des Kindes" />
         </div>
 
-        <p className="mt-8 text-[11px] text-neutral-600">
-          Bei gemeinsamem Sorgerecht versichert die unterzeichnende Person, im
-          Einvernehmen mit dem anderen Elternteil zu handeln.
-        </p>
       </article>
     </div>
   </>
