@@ -283,7 +283,11 @@ const Datenschutz = () => {
             Privacy Framework bzw. von Standardvertragsklauseln. Bei Eingang
             einer Bewerbung erhalten wir intern eine Benachrichtigung per
             E-Mail, die lediglich Namen, gewählte Tätigkeit und das
-            Einkaufszentrum enthält. Eine Weitergabe Ihrer Bewerbungsdaten an
+            Einkaufszentrum enthält. Zur Bestätigung senden wir außerdem eine
+            E-Mail an die angegebene Adresse der Bewerberin bzw. des Bewerbers
+            und – bei Minderjährigen – an die angegebene E-Mail-Adresse der
+            erziehungsberechtigten Person (mit der abgegebenen Erklärung im
+            Wortlaut); der Versand erfolgt über unseren E-Mail-Anbieter. Eine Weitergabe Ihrer Bewerbungsdaten an
             Dritte – auch an die Betreiber der Einkaufszentren – erfolgt nicht
             ohne Ihre gesonderte Zustimmung. Das Formular ist durch Cloudflare
             Turnstile vor Missbrauch geschützt (siehe Abschnitt 6).
