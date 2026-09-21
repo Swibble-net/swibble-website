@@ -41,10 +41,12 @@ export const MAX_APPLICATION_AGE = 100;
 export const WITHDRAWAL_EMAIL = "info@swibble.net";
 
 /**
- * The parental consent template (/bewerben/einverstaendnis) carries a visible
- * "ENTWURF" marker until it has been legally reviewed. Set to false afterwards.
+ * Shows a visible "ENTWURF" marker on the parental consent template
+ * (/bewerben/einverstaendnis) and on the document generated from the online
+ * signature. Switched off at the owner's request (2026-09); set to true to
+ * bring the marker back, e.g. while the wording is being revised.
  */
-export const CONSENT_TEMPLATE_IS_DRAFT = true;
+export const CONSENT_TEMPLATE_IS_DRAFT = false;
 
 export const ABOUT_MAX_LENGTH = 600;
 export const NOTE_MAX_LENGTH = 2000;

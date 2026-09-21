@@ -4,8 +4,10 @@
 
 import { CONSENT_FILE_MAX_BYTES, PHOTO_MAX_BYTES } from "./config";
 
-export const CONSENT_FILE_ACCEPT =
-  ".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif";
+// "image/*" rather than a list of types: file pickers (notably on macOS) grey
+// out everything that isn't listed — WebP, AVIF, HEIC variants … Whatever the
+// browser can decode is converted to JPEG before upload anyway.
+export const CONSENT_FILE_ACCEPT = "image/*,application/pdf,.pdf,.heic,.heif";
 
 export interface PreparedFile {
   /** Base64 without the data: prefix */
@@ -16,8 +18,7 @@ export interface PreparedFile {
 
 export class ConsentFileError extends Error {}
 
-export const PHOTO_ACCEPT =
-  ".jpg,.jpeg,.png,.heic,.heif,image/jpeg,image/png,image/heic,image/heif";
+export const PHOTO_ACCEPT = "image/*,.heic,.heif";
 
 const MAX_MB = (CONSENT_FILE_MAX_BYTES / (1024 * 1024)).toLocaleString("de-DE", {
   maximumFractionDigits: 1,
@@ -25,7 +26,16 @@ const MAX_MB = (CONSENT_FILE_MAX_BYTES / (1024 * 1024)).toLocaleString("de-DE", 
 
 function isImage(file: File): boolean {
   return (
-    file.type.startsWith("image/") || /\.(jpe?g|png|heic|heif)$/i.test(file.name)
+    file.type.startsWith("image/") ||
+    /\.(jpe?g|png|heic|heif|webp|avif|gif|bmp)$/i.test(file.name)
+  );
+}
+
+/** Formats the server accepts as they are (checked there by magic bytes). */
+function isServerReadyImage(file: File): boolean {
+  return (
+    /^image\/(jpeg|png|heic|heif)$/.test(file.type) ||
+    (!file.type && /\.(jpe?g|png|heic|heif)$/i.test(file.name))
   );
 }
 
@@ -86,7 +96,11 @@ export async function prepareConsentFile(file: File): Promise<PreparedFile> {
 
   let blob: Blob = file;
 
-  if (isImage(file) && file.size > 600 * 1024) {
+  // Large photos are shrunk; other image formats (WebP, AVIF, …) are always
+  // converted, because the server only accepts JPEG, PNG, HEIC and PDF.
+  const mustConvert = isImage(file) && !isServerReadyImage(file);
+  if (isImage(file) && (mustConvert || file.size > 600 * 1024)) {
+    let converted = false;
     // Two attempts: good quality first, then smaller if still too big.
     for (const [maxSide, quality] of [
       [2200, 0.82],
@@ -95,7 +109,13 @@ export async function prepareConsentFile(file: File): Promise<PreparedFile> {
       const scaled = await downscale(file, maxSide, quality);
       if (!scaled) break;
       blob = scaled;
+      converted = true;
       if (blob.size <= CONSENT_FILE_MAX_BYTES) break;
+    }
+    if (mustConvert && !converted) {
+      throw new ConsentFileError(
+        "Dieses Bildformat kann dein Browser nicht verarbeiten. Tipp: Mach einen Screenshot davon und lade den hoch.",
+      );
     }
   }
 
