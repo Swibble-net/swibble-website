@@ -12,7 +12,7 @@ import {
 } from "@/lib/applications/config";
 import { applicationsToCsv } from "@/lib/applications/csv";
 import { parseConsentFile, parsePhoto } from "@/lib/applications/fileType";
-import { notifyNewApplication } from "@/lib/applications/notify";
+import { sendApplicationMails } from "@/lib/applications/notify";
 import { createRateLimiter } from "@/lib/applications/rateLimit";
 import {
   createApplication,
@@ -181,7 +181,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     isConsentUploadAvailable() ? photos : [],
   );
 
-  await notifyNewApplication(application);
+  await sendApplicationMails(application);
 
   return res.status(201).json({ success: true });
 }
