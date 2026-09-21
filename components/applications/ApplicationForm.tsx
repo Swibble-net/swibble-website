@@ -340,6 +340,8 @@ const ApplicationForm = ({
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting || fileBusy || photoBusy) return;
+    // Read now: the event's currentTarget is gone after the first await.
+    const pageFont = getComputedStyle(e.currentTarget).fontFamily;
     setFormError("");
 
     const payload = {
@@ -412,6 +414,7 @@ const ApplicationForm = ({
           declarationText: guardianDeclarationText(roles),
           signatureDataUrl: signature,
           signedAt: new Date(),
+          fontFamily: pageFont,
         });
         consentData = document.data;
       }
