@@ -23,12 +23,27 @@ export default async function handler(
   }
 
   try {
+    // ?photo=<index> serves one of the optional applicant photos instead.
+    const photoParam = req.query.photo;
+    let photoIndex: number | undefined;
+    if (photoParam !== undefined) {
+      photoIndex = typeof photoParam === "string" ? Number(photoParam) : NaN;
+      if (!Number.isInteger(photoIndex) || photoIndex < 0 || photoIndex > 20) {
+        return res.status(400).json({ message: "Ungültiges Foto." });
+      }
+    }
+
     const application = await getApplication(id);
-    const file = application ? await readConsentFile(application) : null;
+    const file = application
+      ? await readConsentFile(application, photoIndex)
+      : null;
     if (!file) return res.status(404).json({ message: "Keine Datei vorhanden." });
 
     // Neutral file name: no applicant name in download history or headers.
-    const filename = `einverstaendnis-${id.slice(0, 8)}.${file.extension}`;
+    const filename =
+      photoIndex === undefined
+        ? `einverstaendnis-${id.slice(0, 8)}.${file.extension}`
+        : `foto-${id.slice(0, 8)}-${photoIndex + 1}.${file.extension}`;
     const disposition = req.query.download === "1" ? "attachment" : "inline";
 
     res.setHeader("Content-Type", file.contentType);

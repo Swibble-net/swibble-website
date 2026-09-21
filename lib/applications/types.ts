@@ -1,4 +1,8 @@
-import type { ApplicationRole, ApplicationStatus } from "./config";
+import type {
+  ApplicationRole,
+  ApplicationStatus,
+  GuardianMethod,
+} from "./config";
 import type { ConsentFileType } from "./fileType";
 
 export interface ApplicationSocials {
@@ -13,7 +17,11 @@ export interface ApplicationGuardian {
   name: string;
   phone: string;
   email: string;
-  /** Applicant ticked "my parents know and agree" */
+  /** Optional postal address (online signing / paper form) */
+  address: string;
+  /** "signature" = signed online, "upload" = photo/PDF of the paper form */
+  method: GuardianMethod;
+  /** The confirmation checkbox of the chosen method was ticked */
   confirmed: boolean;
 }
 
@@ -29,6 +37,12 @@ export interface ApplicationConsentFile {
 export interface ApplicationConsent {
   contactText: string;
   privacyText: string;
+  /** Publication / marketing release (mandatory since consent version v3) */
+  mediaText: string;
+  /** Minors: wording of the ticked guardian confirmation */
+  guardianText: string;
+  /** Minors who signed online: full text of the signed declaration */
+  guardianDeclaration: string;
   version: string;
   /** Epoch ms at which the consents were given (server time) */
   givenAt: number;
@@ -62,6 +76,8 @@ export interface Application extends ApplicationData {
   ageAtSubmission: number;
   consent: ApplicationConsent;
   consentFile: ApplicationConsentFile | null;
+  /** Optional photos the applicant added (private bucket, same rules) */
+  photos: ApplicationConsentFile[];
   status: ApplicationStatus;
   /** Internal admin note */
   note: string;

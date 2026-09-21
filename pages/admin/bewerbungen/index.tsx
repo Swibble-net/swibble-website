@@ -14,6 +14,7 @@ import {
   isConsentUploadAvailable,
   listApplications,
 } from "@/lib/applications/store";
+import { calculateAge, parseIsoDate, todayInBerlin } from "@/lib/applications/age";
 import { isTurnstileEnforced } from "@/lib/turnstile";
 import type { Application } from "@/lib/applications/types";
 
@@ -30,7 +31,7 @@ type ApplicationSummary = Pick<
   | "status"
   | "city"
   | "createdAt"
-> & { hasConsentFile: boolean };
+> & { hasConsentFile: boolean; age: number | null; photoCount: number };
 
 interface Props {
   applications: ApplicationSummary[];
@@ -233,7 +234,9 @@ const AdminApplications = ({
                     {a.roles.map(roleLabel).join(", ")}
                   </p>
                   <p className="mt-1 text-xs text-[#8a7791]">
-                    {a.centerName || "Ohne Center"} · {a.city} ·{" "}
+                    {a.age !== null && `${a.age} Jahre · `}
+                    {a.centerName || "Ohne Center"} · {a.city}
+                    {a.photoCount > 0 && ` · ${a.photoCount} Foto${a.photoCount > 1 ? "s" : ""}`} ·{" "}
                     {formatDateTime(a.createdAt)}
                   </p>
                 </Link>
@@ -251,19 +254,25 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     return { redirect: { destination: "/admin/login", permanent: false } };
   }
 
-  const applications = (await listApplications()).map((a) => ({
-    id: a.id,
-    firstName: a.firstName,
-    lastName: a.lastName,
-    roles: a.roles,
-    center: a.center,
-    centerName: a.centerName,
-    isMinor: a.isMinor,
-    status: a.status,
-    city: a.city,
-    createdAt: a.createdAt,
-    hasConsentFile: a.consentFile !== null,
-  }));
+  const today = todayInBerlin();
+  const applications = (await listApplications()).map((a) => {
+    const birth = parseIsoDate(a.birthDate);
+    return {
+      age: birth ? calculateAge(birth, today) : null,
+      photoCount: a.photos.length,
+      id: a.id,
+      firstName: a.firstName,
+      lastName: a.lastName,
+      roles: a.roles,
+      center: a.center,
+      centerName: a.centerName,
+      isMinor: a.isMinor,
+      status: a.status,
+      city: a.city,
+      createdAt: a.createdAt,
+      hasConsentFile: a.consentFile !== null,
+    };
+  });
 
   return {
     props: {

@@ -3,7 +3,9 @@ import {
   ABOUT_MAX_LENGTH,
   CONTACT_CONSENT_TEXT,
   GUARDIAN_CONFIRM_TEXT,
+  MEDIA_CONSENT_TEXT,
   MIN_APPLICATION_AGE,
+  guardianDeclarationText,
 } from "../config";
 import {
   normalizeEmail,
@@ -31,6 +33,7 @@ const adult = {
   center: "demo-center",
   contactConsent: true,
   privacyAck: true,
+  mediaConsent: true,
 };
 
 const minor = {
@@ -40,6 +43,8 @@ const minor = {
     name: "Erika Testperson",
     phone: "0170 1234567",
     email: "",
+    address: " Testweg 1, 52064 Teststadt ",
+    method: "signature",
     confirmed: true,
   },
 };
@@ -90,6 +95,7 @@ describe("validateApplication – adults", () => {
         "phone",
         "contactConsent",
         "privacyAck",
+        "mediaConsent",
       ]) {
         expect(errors).toHaveProperty(field);
       }
@@ -231,6 +237,8 @@ describe("validateApplication – minors", () => {
       name: "Erika Testperson",
       phone: "+491701234567",
       email: "",
+      address: "Testweg 1, 52064 Teststadt",
+      method: "signature",
       confirmed: true,
     });
   });
@@ -294,6 +302,46 @@ describe("normalizePhone / normalizeEmail", () => {
     expect(normalizeEmail("test@example")).toBe("");
     expect(normalizeEmail(`${"a".repeat(250)}@example.com`)).toBe("");
     expect(normalizeEmail(null)).toBe("");
+  });
+});
+
+describe("publication release and guardian method", () => {
+  it("requires the publication / marketing release from everyone", () => {
+    expect(errorsOf({ ...adult, mediaConsent: false })).toHaveProperty(
+      "mediaConsent",
+    );
+    expect(errorsOf({ ...adult, mediaConsent: undefined })).toHaveProperty(
+      "mediaConsent",
+    );
+    expect(errorsOf({ ...minor, mediaConsent: "yes" })).toHaveProperty(
+      "mediaConsent",
+    );
+  });
+
+  it("falls back to the upload method for unknown values", () => {
+    const result = validateApplication(
+      { ...minor, guardian: { ...minor.guardian, method: "fax" } },
+      NOW,
+    );
+    expect(result.ok && result.value.guardian?.method).toBe("upload");
+  });
+
+  it("limits the guardian address", () => {
+    expect(
+      errorsOf({
+        ...minor,
+        guardian: { ...minor.guardian, address: "x".repeat(201) },
+      }),
+    ).toHaveProperty("guardianAddress");
+  });
+
+  it("the release covers unlimited marketing use and restricts withdrawal", () => {
+    expect(MEDIA_CONSENT_TEXT).toMatch(/Marketing- und Werbezwecke/);
+    expect(MEDIA_CONSENT_TEXT).toMatch(/nur aus wichtigem Grund/);
+    const declaration = guardianDeclarationText(["video", "kamera"]);
+    expect(declaration).toMatch(/Im Video mitmachen, Kamerabedienung/);
+    expect(declaration).toMatch(/Veröffentlichung und Marketing/);
+    expect(declaration).toMatch(/Datenverarbeitung/);
   });
 });
 

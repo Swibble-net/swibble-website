@@ -3,10 +3,15 @@ import { requireAdmin } from "@/lib/adminAuth";
 import {
   CONSENT_VERSION,
   CONTACT_CONSENT_TEXT,
+  GUARDIAN_CONFIRM_TEXT,
+  GUARDIAN_ONLINE_ACCEPT_TEXT,
+  MEDIA_CONSENT_TEXT,
+  PHOTO_MAX_COUNT,
   PRIVACY_ACK_TEXT,
+  guardianDeclarationText,
 } from "@/lib/applications/config";
 import { applicationsToCsv } from "@/lib/applications/csv";
-import { parseConsentFile } from "@/lib/applications/fileType";
+import { parseConsentFile, parsePhoto } from "@/lib/applications/fileType";
 import { notifyNewApplication } from "@/lib/applications/notify";
 import { createRateLimiter } from "@/lib/applications/rateLimit";
 import {
@@ -106,6 +111,26 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     upload = { buffer: file.buffer, type: file.type };
   }
 
+  // Optional photos of the applicant.
+  const photos: ConsentUpload[] = [];
+  const rawPhotos = Array.isArray(body.photos) ? body.photos : [];
+  if (rawPhotos.length > PHOTO_MAX_COUNT) {
+    return res.status(400).json({
+      message: "Bitte prüfe die markierten Felder.",
+      errors: { photos: `Bitte lade höchstens ${PHOTO_MAX_COUNT} Fotos hoch.` },
+    });
+  }
+  for (const raw of rawPhotos) {
+    const photo = parsePhoto((raw as { data?: unknown } | null)?.data);
+    if (!photo.ok) {
+      return res.status(400).json({
+        message: "Bitte prüfe die markierten Felder.",
+        errors: { photos: photo.error },
+      });
+    }
+    photos.push({ buffer: photo.buffer, type: photo.type });
+  }
+
   if (!isApplicationStoreAvailable()) {
     return res.status(503).json({ message: UNAVAILABLE_MESSAGE });
   }
@@ -118,6 +143,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const now = Date.now();
+  const { guardian } = result.value;
   const application = await createApplication(
     {
       ...result.value,
@@ -128,16 +154,31 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       consent: {
         contactText: CONTACT_CONSENT_TEXT,
         privacyText: PRIVACY_ACK_TEXT,
+        mediaText: MEDIA_CONSENT_TEXT,
+        guardianText: !guardian
+          ? ""
+          : guardian.method === "signature"
+            ? GUARDIAN_ONLINE_ACCEPT_TEXT
+            : GUARDIAN_CONFIRM_TEXT,
+        // Signed online: keep the exact wording that was signed.
+        guardianDeclaration:
+          guardian?.method === "signature"
+            ? guardianDeclarationText(result.value.roles)
+            : "",
         version: CONSENT_VERSION,
         givenAt: now,
       },
       consentFile: null,
+      photos: [],
       status: "neu",
       note: "",
       createdAt: now,
       updatedAt: now,
     },
     upload,
+    // Without the private bucket the photos are dropped; they are optional and
+    // the form doesn't offer the field in that case.
+    isConsentUploadAvailable() ? photos : [],
   );
 
   await notifyNewApplication(application);

@@ -67,6 +67,7 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
   const file = application.consentFile;
   const fileUrl = `/api/applications/${application.id}/file`;
   const isImage = file ? ["jpg", "png"].includes(file.extension) : false;
+  const hasUploads = Boolean(file) || application.photos.length > 0;
 
   const request = async (init: RequestInit) => {
     setBusy(true);
@@ -107,7 +108,7 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
     const name = `${application.firstName} ${application.lastName}`;
     if (
       !confirm(
-        `Bewerbung von ${name} endgültig löschen?\n\nAlle Angaben${file ? " und die hochgeladene Einverständniserklärung" : ""} werden unwiderruflich entfernt.`,
+        `Bewerbung von ${name} endgültig löschen?\n\nAlle Angaben${hasUploads ? " und alle hochgeladenen Dateien" : ""} werden unwiderruflich entfernt.`,
       )
     ) {
       return;
@@ -159,6 +160,30 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
             </p>
           )}
         </div>
+
+        {application.photos.length > 0 && (
+          <Card title={`Fotos (${application.photos.length})`}>
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {application.photos.map((photo, index) => (
+                <li key={photo.path}>
+                  <a
+                    href={`${fileUrl}?photo=${index}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- private, admin-only API route; must not go through the image optimizer cache */}
+                    <img
+                      src={`${fileUrl}?photo=${index}`}
+                      alt={`Foto ${index + 1} von ${application.firstName}`}
+                      loading="lazy"
+                      className="aspect-[3/4] w-full rounded-lg border border-[#F0E4F5] object-cover"
+                    />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        )}
 
         <Card title="Bewerbung">
           <dl>
@@ -256,6 +281,14 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
                   </a>
                 </Row>
               )}
+              {application.guardian?.address && (
+                <Row label="Anschrift">{application.guardian.address}</Row>
+              )}
+              <Row label="Art">
+                {application.guardian?.method === "signature"
+                  ? "Online unterschrieben"
+                  : "Foto/PDF des Papierzettels"}
+              </Row>
               <Row label="Muttizettel">
                 {file ? (
                   <span className="flex flex-wrap gap-x-4 gap-y-1">
@@ -299,6 +332,32 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
             </Row>
             <Row label="Kontakt">„{application.consent.contactText}“</Row>
             <Row label="Datenschutz">„{application.consent.privacyText}“</Row>
+            <Row label="Veröffentlichung">
+              {application.consent.mediaText ? (
+                `„${application.consent.mediaText}“`
+              ) : (
+                <span className="text-red-600">
+                  Nicht erteilt (Bewerbung vor Einführung dieser Einwilligung)
+                </span>
+              )}
+            </Row>
+            {application.consent.guardianText && (
+              <Row label="Eltern (Haken)">
+                „{application.consent.guardianText}“
+              </Row>
+            )}
+            {application.consent.guardianDeclaration && (
+              <Row label="Eltern (Erklärung)">
+                <details>
+                  <summary className="cursor-pointer text-[#b718ec]">
+                    Online unterschriebenen Text anzeigen
+                  </summary>
+                  <p className="mt-2 whitespace-pre-wrap text-[13px]">
+                    {application.consent.guardianDeclaration}
+                  </p>
+                </details>
+              </Row>
+            )}
           </dl>
         </Card>
 
@@ -354,8 +413,8 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
           <p className="mt-1 text-sm text-[#556987]">
             Bei Widerruf der Einwilligung oder einer Löschanfrage (DSGVO):
             entfernt alle Angaben
-            {file ? " und die hochgeladene Einverständniserklärung" : ""}{" "}
-            unwiderruflich.
+            {file ? ", die Einverständniserklärung" : ""}
+            {application.photos.length > 0 ? ", die Fotos" : ""} unwiderruflich.
           </p>
           <button
             type="button"

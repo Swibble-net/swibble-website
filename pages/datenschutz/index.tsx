@@ -219,8 +219,8 @@ const Datenschutz = () => {
             Handynummer, die freiwillig angegebenen Social-Media-Profilnamen
             (TikTok, Instagram, Snapchat, YouTube), die gewählte Tätigkeit, das
             Einkaufszentrum, über dessen Linkseite Sie zu uns gekommen sind,
-            Ihren optionalen Freitext sowie Zeitpunkt und Wortlaut Ihrer
-            Einwilligung.
+            Ihren optionalen Freitext, freiwillig hochgeladene Fotos von Ihnen
+            sowie Zeitpunkt und Wortlaut Ihrer Einwilligungen.
           </p>
           <br />
           <p>
@@ -246,11 +246,31 @@ const Datenschutz = () => {
             auch mit der Verarbeitung der Daten des Kindes im Bewerberpool.
             Dazu erheben wir zusätzlich deren Namen und Telefonnummer oder
             E-Mail-Adresse sowie eine unterschriebene Einverständniserklärung
-            als hochgeladene Datei (Foto oder PDF). Diese Datei wird nicht
+            – wahlweise online ausgefüllt und mit Finger oder Maus
+            unterschrieben (wir speichern dann den Erklärungstext, das
+            Unterschriftsbild und den Zeitpunkt) oder als hochgeladene Datei
+            (Foto oder PDF des Papierformulars). Diese Datei wird nicht
             öffentlich zugänglich gespeichert und ist nur für die mit der
             Bearbeitung betrauten Personen bei uns abrufbar. Rechtsgrundlage
             ist die Einwilligung der Erziehungsberechtigten (Art. 6 Abs. 1
             lit. a, Art. 8 DSGVO).
+          </p>
+          <br />
+          <p>
+            <strong>Veröffentlichung von Aufnahmen:</strong> Mit der Bewerbung
+            willigen Sie – bei Minderjährigen zusätzlich die
+            Erziehungsberechtigten – darin ein, dass Foto-, Video- und
+            Tonaufnahmen, die im Rahmen einer späteren Zusammenarbeit
+            entstehen, von uns und den jeweiligen Auftraggebern (z. B. dem
+            Einkaufszentrum) zeitlich und räumlich unbegrenzt veröffentlicht
+            und für Marketing- und Werbezwecke genutzt werden dürfen,
+            insbesondere auf TikTok, Instagram, YouTube, Websites und in
+            Anzeigen. Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1
+            lit. a DSGVO, § 22 KUG) bzw. die mit Ihnen getroffene Vereinbarung
+            (Art. 6 Abs. 1 lit. b DSGVO). Bereits veröffentlichte Inhalte
+            müssen nicht zurückgerufen werden; ein Widerruf ist nur aus
+            wichtigem Grund und mit Wirkung für die Zukunft möglich. Die bloße
+            Bewerbung führt noch nicht zu Aufnahmen oder Veröffentlichungen.
           </p>
           <br />
           <p>

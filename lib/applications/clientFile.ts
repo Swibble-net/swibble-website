@@ -2,7 +2,7 @@
 // phone camera are often 4–10 MB, more than fits through a Vercel function, so
 // they are downscaled to a readable JPEG before upload.
 
-import { CONSENT_FILE_MAX_BYTES } from "./config";
+import { CONSENT_FILE_MAX_BYTES, PHOTO_MAX_BYTES } from "./config";
 
 export const CONSENT_FILE_ACCEPT =
   ".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif";
@@ -16,7 +16,12 @@ export interface PreparedFile {
 
 export class ConsentFileError extends Error {}
 
-const MAX_MB = (CONSENT_FILE_MAX_BYTES / (1024 * 1024)).toLocaleString("de-DE");
+export const PHOTO_ACCEPT =
+  ".jpg,.jpeg,.png,.heic,.heif,image/jpeg,image/png,image/heic,image/heif";
+
+const MAX_MB = (CONSENT_FILE_MAX_BYTES / (1024 * 1024)).toLocaleString("de-DE", {
+  maximumFractionDigits: 1,
+});
 
 function isImage(file: File): boolean {
   return (
@@ -81,7 +86,7 @@ export async function prepareConsentFile(file: File): Promise<PreparedFile> {
 
   let blob: Blob = file;
 
-  if (isImage(file) && file.size > 1024 * 1024) {
+  if (isImage(file) && file.size > 600 * 1024) {
     // Two attempts: good quality first, then smaller if still too big.
     for (const [maxSide, quality] of [
       [2200, 0.82],
@@ -103,4 +108,45 @@ export async function prepareConsentFile(file: File): Promise<PreparedFile> {
   }
 
   return { data: await toBase64(blob), name: file.name, size: blob.size };
+}
+
+/**
+ * Prepares an optional applicant photo: always re-encoded as JPEG and shrunk
+ * until it fits the per-photo budget. Also returns an object URL for the
+ * preview (the caller revokes it).
+ */
+export async function preparePhoto(
+  file: File,
+): Promise<PreparedFile & { previewUrl: string }> {
+  if (!isImage(file)) {
+    throw new ConsentFileError("Bitte wähle ein Foto (JPG, PNG oder HEIC).");
+  }
+
+  let blob: Blob | null = null;
+  for (const [maxSide, quality] of [
+    [1400, 0.8],
+    [1200, 0.7],
+    [1000, 0.6],
+    [800, 0.5],
+  ]) {
+    blob = await downscale(file, maxSide, quality);
+    if (!blob) break;
+    if (blob.size <= PHOTO_MAX_BYTES) break;
+  }
+
+  if (!blob) {
+    throw new ConsentFileError(
+      "Dieses Foto kann dein Browser nicht verarbeiten. Tipp: Mach einen Screenshot vom Foto und lade den hoch.",
+    );
+  }
+  if (blob.size > PHOTO_MAX_BYTES) {
+    throw new ConsentFileError("Das Foto ist zu groß. Bitte wähle ein anderes.");
+  }
+
+  return {
+    data: await toBase64(blob),
+    name: file.name,
+    size: blob.size,
+    previewUrl: URL.createObjectURL(blob),
+  };
 }

@@ -13,6 +13,7 @@ import type { Application, ApplicationConsentFile } from "./types";
 
 const COLLECTION = "applications";
 const CONSENT_FILE_PREFIX = "applications/consents";
+const PHOTO_PREFIX = "applications/photos";
 
 export type ApplicationDocument = Omit<Application, "id">;
 
@@ -40,7 +41,11 @@ export interface ApplicationPatch {
 interface Backend {
   canStore(): boolean;
   canUpload(): boolean;
-  create(doc: ApplicationDocument, upload: ConsentUpload | null): Promise<Application>;
+  create(
+    doc: ApplicationDocument,
+    upload: ConsentUpload | null,
+    photos: ConsentUpload[],
+  ): Promise<Application>;
   list(): Promise<Application[]>;
   get(id: string): Promise<Application | null>;
   update(id: string, patch: ApplicationPatch): Promise<Application | null>;
@@ -77,16 +82,30 @@ export function toApplication(
     about: data.about ?? "",
     center: data.center ?? "",
     centerName: data.centerName ?? "",
-    guardian: data.guardian ?? null,
+    guardian: data.guardian
+      ? {
+          name: data.guardian.name ?? "",
+          phone: data.guardian.phone ?? "",
+          email: data.guardian.email ?? "",
+          address: data.guardian.address ?? "",
+          // Applications from before online signing were always uploads.
+          method: data.guardian.method ?? "upload",
+          confirmed: data.guardian.confirmed ?? false,
+        }
+      : null,
     isMinor: data.isMinor ?? false,
     ageAtSubmission: data.ageAtSubmission ?? 0,
     consent: {
       contactText: data.consent?.contactText ?? "",
       privacyText: data.consent?.privacyText ?? "",
+      mediaText: data.consent?.mediaText ?? "",
+      guardianText: data.consent?.guardianText ?? "",
+      guardianDeclaration: data.consent?.guardianDeclaration ?? "",
       version: data.consent?.version ?? "",
       givenAt: data.consent?.givenAt ?? 0,
     },
     consentFile: data.consentFile ?? null,
+    photos: data.photos ?? [],
     status,
     note: data.note ?? "",
     createdAt: data.createdAt ?? 0,
@@ -94,14 +113,14 @@ export function toApplication(
   };
 }
 
-function newConsentFilePath(type: ConsentFileType): string {
+function newFilePath(prefix: string, type: ConsentFileType): string {
   // Random name: nothing about the applicant leaks into the object path.
-  return `${CONSENT_FILE_PREFIX}/${crypto.randomUUID()}.${type.extension}`;
+  return `${prefix}/${crypto.randomUUID()}.${type.extension}`;
 }
 
-function consentFileMeta(upload: ConsentUpload): ApplicationConsentFile {
+function fileMeta(prefix: string, upload: ConsentUpload): ApplicationConsentFile {
   return {
-    path: newConsentFilePath(upload.type),
+    path: newFilePath(prefix, upload.type),
     contentType: upload.type.mime,
     extension: upload.type.extension,
     size: upload.buffer.length,
@@ -114,34 +133,43 @@ const firebaseBackend: Backend = {
   canStore: () => isFirebaseConfigured(),
   canUpload: () => isStorageConfigured(),
 
-  async create(doc, upload) {
-    let consentFile: ApplicationConsentFile | null = null;
+  async create(doc, upload, photos) {
+    const bucket = () => getPrivateBucket();
+    const stored: ApplicationConsentFile[] = [];
+    const save = async (prefix: string, item: ConsentUpload) => {
+      const meta = fileMeta(prefix, item);
+      await bucket().file(meta.path).save(item.buffer, {
+        resumable: false,
+        contentType: meta.contentType,
+        metadata: { cacheControl: "private, no-store" },
+      });
+      stored.push(meta);
+      return meta;
+    };
+    const cleanUp = () =>
+      Promise.all(
+        stored.map((meta) =>
+          bucket()
+            .file(meta.path)
+            .delete({ ignoreNotFound: true })
+            .catch(() => undefined),
+        ),
+      );
 
-    // File first: an application of a minor must never exist without it.
-    if (upload) {
-      consentFile = consentFileMeta(upload);
-      await getPrivateBucket()
-        .file(consentFile.path)
-        .save(upload.buffer, {
-          resumable: false,
-          contentType: consentFile.contentType,
-          metadata: { cacheControl: "private, no-store" },
-        });
-    }
-
-    const data: ApplicationDocument = { ...doc, consentFile };
     try {
+      // Files first: an application of a minor must never exist without the
+      // consent file, and no document may point to files that don't exist.
+      const consentFile = upload ? await save(CONSENT_FILE_PREFIX, upload) : null;
+      const photoFiles: ApplicationConsentFile[] = [];
+      for (const photo of photos) photoFiles.push(await save(PHOTO_PREFIX, photo));
+
+      const data: ApplicationDocument = { ...doc, consentFile, photos: photoFiles };
       const ref = await getDb()
         .collection(COLLECTION)
         .add({ ...data, serverCreatedAt: FieldValue.serverTimestamp() });
       return toApplication(ref.id, data);
     } catch (error) {
-      if (consentFile) {
-        await getPrivateBucket()
-          .file(consentFile.path)
-          .delete({ ignoreNotFound: true })
-          .catch(() => undefined);
-      }
+      await cleanUp();
       throw error;
     }
   },
@@ -179,14 +207,12 @@ const firebaseBackend: Backend = {
 
     // Delete the file before the document: if this fails, the record (and
     // with it the pointer to the file) is still there for another attempt.
-    const { consentFile } = toApplication(
+    const { consentFile, photos } = toApplication(
       id,
       existing.data() as Partial<ApplicationDocument>,
     );
-    if (consentFile) {
-      await getPrivateBucket()
-        .file(consentFile.path)
-        .delete({ ignoreNotFound: true });
+    for (const file of [...(consentFile ? [consentFile] : []), ...photos]) {
+      await getPrivateBucket().file(file.path).delete({ ignoreNotFound: true });
     }
 
     await ref.delete();
@@ -231,13 +257,18 @@ const memoryBackend: Backend = {
   canStore: () => true,
   canUpload: () => process.env.APPLICATIONS_DEV_UPLOADS !== "off",
 
-  async create(doc, upload) {
+  async create(doc, upload, photos) {
     const state = memoryState();
-    const consentFile = upload ? consentFileMeta(upload) : null;
+    const consentFile = upload ? fileMeta(CONSENT_FILE_PREFIX, upload) : null;
     if (upload && consentFile) state.files.set(consentFile.path, upload.buffer);
+    const photoFiles = photos.map((photo) => {
+      const meta = fileMeta(PHOTO_PREFIX, photo);
+      state.files.set(meta.path, photo.buffer);
+      return meta;
+    });
 
     const id = crypto.randomUUID();
-    const data = { ...doc, consentFile };
+    const data = { ...doc, consentFile, photos: photoFiles };
     state.docs.set(id, data);
     return toApplication(id, data);
   },
@@ -267,6 +298,7 @@ const memoryBackend: Backend = {
     const data = state.docs.get(id);
     if (!data) return false;
     if (data.consentFile) state.files.delete(data.consentFile.path);
+    for (const photo of data.photos ?? []) state.files.delete(photo.path);
     state.docs.delete(id);
     return true;
   },
@@ -305,8 +337,9 @@ export function isConsentUploadAvailable(): boolean {
 export function createApplication(
   doc: ApplicationDocument,
   upload: ConsentUpload | null,
+  photos: ConsentUpload[] = [],
 ): Promise<Application> {
-  return backend().create(doc, upload);
+  return backend().create(doc, upload, photos);
 }
 
 export async function listApplications(): Promise<Application[]> {
@@ -331,10 +364,18 @@ export function deleteApplication(id: string): Promise<boolean> {
   return backend().remove(id);
 }
 
+/**
+ * Reads a stored file of an application: the consent file by default, or the
+ * optional applicant photo with the given index.
+ */
 export async function readConsentFile(
   application: Application,
+  photoIndex?: number,
 ): Promise<StoredConsentFile | null> {
-  const file = application.consentFile;
+  const file =
+    photoIndex === undefined
+      ? application.consentFile
+      : application.photos[photoIndex];
   if (!file) return null;
   const buffer = await backend().readFile(file);
   if (!buffer) return null;
