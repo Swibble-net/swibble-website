@@ -43,7 +43,7 @@ const Tasks = () => {
       <div ref={cardsRef} className={styles.card_container}>
         <Link href="/social-media-marketing" className={styles.card3}>
           <Image src={MobileIcon} alt="" width={32} height={32} />
-          <h3 style={{ color: "#3ABD9E" }}>Social Media</h3>
+          <h3 style={{ color: "#23806B" }}>Social Media</h3>
           <p>Viraler Content auf deinen Social Media Kanälen.</p>
           <span className={styles.card_more}>Mehr erfahren →</span>
         </Link>

@@ -31,7 +31,7 @@ const BlogCard = ({ post }: Props) => {
       )}
 
       <div className="flex flex-1 flex-col p-5">
-        <div className="mb-2 flex flex-wrap items-center gap-x-2 text-xs text-[#8a7791]">
+        <div className="mb-2 flex flex-wrap items-center gap-x-2 text-xs text-[#756a7d]">
           <span className="font-medium text-[#556987]">{post.author}</span>
           {post.author && <span aria-hidden>·</span>}
           <time dateTime={toIsoDate(post.createdAt)}>
@@ -54,7 +54,7 @@ const BlogCard = ({ post }: Props) => {
             Weiterlesen →
           </span>
           {changed && (
-            <span className="text-[11px] text-[#a99fb0]">
+            <span className="text-[11px] text-[#756a7d]">
               Aktualisiert {formatDate(post.updatedAt)}
             </span>
           )}

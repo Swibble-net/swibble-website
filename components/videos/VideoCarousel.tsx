@@ -3,6 +3,7 @@ import type { Video } from "@/lib/videos/types";
 import { silenceIfHidden, toggleUnmuted } from "@/lib/videos/sound";
 import { isTikTokEmbed } from "@/lib/videos/embed";
 import AppVideoPlayer from "./AppVideoPlayer";
+import VideoCover from "./VideoCover";
 
 interface Props {
   videos: Video[];
@@ -120,11 +121,9 @@ const EmbedSlide = ({ video }: { video: Video }) => {
     <figure className="m-0">
       <div
         ref={ref}
-        className="relative aspect-[9/16] w-full overflow-hidden rounded-2xl bg-[#f3e8f7] bg-cover bg-center"
-        style={
-          coverPath ? { backgroundImage: `url("${coverPath}")` } : undefined
-        }
+        className="relative aspect-[9/16] w-full overflow-hidden rounded-2xl bg-[#f3e8f7]"
       >
+        <VideoCover src={coverPath} />
         {started && (
           <iframe
             ref={frameRef}
@@ -303,18 +302,23 @@ const VideoCarousel = ({ videos, soundEnabled = false }: Props) => {
             ←
           </button>
 
-          <div className="flex items-center gap-2">
+          {/* 24px hit area per dot (touch target size); the visible dot stays small. */}
+          <div className="flex items-center">
             {snapPoints.map((_, i) => (
               <button
                 key={i}
                 onClick={() => scrollToIndex(i)}
                 aria-label={`Zu Videoposition ${i + 1}`}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  active === i
-                    ? "w-6 bg-[#b718ec]"
-                    : "w-2 bg-[#d8c7e0] hover:bg-[#b718ec]/50"
-                }`}
-              />
+                className="group flex h-6 min-w-6 items-center justify-center px-1"
+              >
+                <span
+                  className={`block h-2 rounded-full transition-all duration-300 ${
+                    active === i
+                      ? "w-6 bg-[#b718ec]"
+                      : "w-2 bg-[#d8c7e0] group-hover:bg-[#b718ec]/50"
+                  }`}
+                />
+              </button>
             ))}
           </div>
 

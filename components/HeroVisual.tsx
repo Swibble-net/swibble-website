@@ -34,9 +34,37 @@ const Shape = ({ name }: { name: keyof typeof SHAPES }) => (
 
 type HeroVisualProps = {
   alt: string;
+  /** `sizes` of the whole visual; the photos are scaled down to their share of it. */
   sizes: string;
   className?: string;
 };
+
+// Share of the visual's width (see .card / .person in heroVisual.module.scss).
+const CARD_SHARE = 0.741;
+const PERSON_SHARE = CARD_SHARE * 0.869;
+
+/** Scales every length of a `sizes` list, e.g. "(max-width: 1024px) 50vw, 640px". */
+export function scaleSizes(sizes: string, factor: number): string {
+  const entries: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < sizes.length; i++) {
+    if (sizes[i] === "(") depth++;
+    else if (sizes[i] === ")") depth--;
+    else if (sizes[i] === "," && depth === 0) {
+      entries.push(sizes.slice(start, i));
+      start = i + 1;
+    }
+  }
+  entries.push(sizes.slice(start));
+
+  return entries
+    .map((entry) => {
+      const [, media, length] = entry.trim().match(/^(\([^)]*\)\s+)?(.+)$/)!;
+      return `${media ?? ""}calc(${length} * ${factor.toFixed(3)})`;
+    })
+    .join(", ");
+}
 
 // Pointer tracking lives in usePointerParallax; the layers read --px / --py in CSS.
 const HeroVisual = ({ alt, sizes, className }: HeroVisualProps) => {
@@ -60,14 +88,14 @@ const HeroVisual = ({ alt, sizes, className }: HeroVisualProps) => {
               src={CardBackground}
               alt=""
               priority
-              sizes={sizes}
+              sizes={scaleSizes(sizes, CARD_SHARE)}
               className={styles.cardBackground}
             />
             <Image
               src={Person}
               alt=""
               priority
-              sizes={sizes}
+              sizes={scaleSizes(sizes, PERSON_SHARE)}
               draggable={false}
               className={styles.person}
             />

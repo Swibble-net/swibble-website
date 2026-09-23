@@ -44,9 +44,10 @@ import MonitorIcon from "@/public/icons/icon_monitor.svg";
 import MobileIcon from "@/public/icons/mobile_icon.svg";
 import UserLocationIcon from "@/public/icons/user_location_icon.svg";
 
-// Same icons and colours as the service cards in Tasks.tsx.
+// Same icons and colours as the service cards in Tasks.tsx (text shade of the
+// brand teal #3ABD9E, which is too light for text on white).
 const SERVICE_TILES = {
-  "social-media": { icon: MobileIcon, color: "#3ABD9E" },
+  "social-media": { icon: MobileIcon, color: "#23806B" },
   "live-events": { icon: UserLocationIcon, color: "#C43B7D" },
   design: { icon: BrushIcon, color: "#B718EC" },
   software: { icon: MonitorIcon, color: "#5F3BC4" },

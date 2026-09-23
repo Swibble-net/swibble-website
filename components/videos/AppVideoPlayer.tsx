@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Video } from "@/lib/videos/types";
+import VideoCover from "./VideoCover";
 
 interface Props {
   video: Video;
@@ -108,18 +109,13 @@ const AppVideoPlayer = ({
   return (
     <div
       ref={containerRef}
-      className="group relative aspect-[9/16] w-full overflow-hidden rounded-2xl bg-[#f3e8f7] bg-cover bg-center"
-      style={
-        video.coverUrl
-          ? { backgroundImage: `url("${video.coverUrl}")` }
-          : undefined
-      }
+      className="group relative aspect-[9/16] w-full overflow-hidden rounded-2xl bg-[#f3e8f7]"
     >
+      <VideoCover src={video.coverUrl} />
       {near && (
         <video
           ref={videoRef}
           src={video.videoUrl}
-          poster={video.coverUrl || undefined}
           muted
           loop
           playsInline

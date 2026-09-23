@@ -38,17 +38,13 @@ const nextConfig = {
     ],
   },
   async redirects() {
-    // Alias for the application page (/bewerben); the query (?center=…) is carried over.
     return [
+      // Alias for the application page (/bewerben); the query (?center=…) is carried over.
       { source: "/mitmachen", destination: "/bewerben", permanent: false },
       { source: "/mitmachen/:path*", destination: "/bewerben/:path*", permanent: false },
-    ];
-  },
-  // Short links printed on business cards and posters. Real redirects (instead of pages
-  // that redirect in the browser) keep them out of search results; the UTM source keeps
-  // the scans visible in analytics.
-  async redirects() {
-    return [
+      // Short links printed on business cards and posters. Real redirects (instead of pages
+      // that redirect in the browser) keep them out of search results; the UTM source keeps
+      // the scans visible in analytics.
       { source: "/card", destination: "/?utm_source=visitenkarte&utm_medium=qr", permanent: true },
       { source: "/redirect/poster", destination: "/?utm_source=poster&utm_medium=qr", permanent: true },
     ];
