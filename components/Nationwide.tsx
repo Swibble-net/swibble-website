@@ -60,7 +60,7 @@ const LocationCard = ({ city, client, color, href }: Location) => (
     {href && (
       <Link
         href={href}
-        aria-label={`Case Study ${client} lesen`}
+        aria-label={`Case Study lesen: ${client}`}
         className="mt-1 w-fit text-sm text-[#B718EC] transition-transform duration-200 after:absolute after:inset-0 group-hover:translate-x-1"
       >
         Case Study lesen →

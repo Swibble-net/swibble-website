@@ -164,7 +164,6 @@ const ProjectTile = ({ tile, tall, priority }: { tile: Tile; tall: boolean; prio
   return tile.href ? (
     <Link
       href={tile.href}
-      aria-label={`${tile.title.replace(/\n/g, " ")} – ${tile.cta}`}
       className={`${className} transition-transform duration-200 hover:scale-[0.98]`}
     >
       {content}
