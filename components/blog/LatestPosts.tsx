@@ -105,18 +105,23 @@ const LatestPosts = ({ posts }: Props) => {
           ←
         </button>
 
-        <div className="flex items-center gap-2">
+        {/* 24px hit area per dot (touch target size); the visible dot stays small. */}
+        <div className="flex items-center">
           {posts.map((_, i) => (
             <button
               key={i}
               onClick={() => scrollToIndex(i)}
               aria-label={`Zu Beitrag ${i + 1}`}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                active === i
-                  ? "w-6 bg-[#b718ec]"
-                  : "w-2 bg-[#d8c7e0] hover:bg-[#b718ec]/50"
-              }`}
-            />
+              className="group flex h-6 min-w-6 items-center justify-center px-1"
+            >
+              <span
+                className={`block h-2 rounded-full transition-all duration-300 ${
+                  active === i
+                    ? "w-6 bg-[#b718ec]"
+                    : "w-2 bg-[#d8c7e0] group-hover:bg-[#b718ec]/50"
+                }`}
+              />
+            </button>
           ))}
         </div>
 
