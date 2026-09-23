@@ -32,6 +32,9 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    // Next's defaults plus 448: the hero photo is ~430 device px wide on common
+    // Android phones, which otherwise jumps to the 640 px variant.
+    imageSizes: [32, 48, 64, 96, 128, 256, 384, 448],
     // Blog covers uploaded through the CMS; used by next/image on the landing pages.
     remotePatterns: [
       { protocol: "https", hostname: "firebasestorage.googleapis.com", pathname: "/v0/b/**" },

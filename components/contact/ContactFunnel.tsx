@@ -151,8 +151,8 @@ const ContactFunnel = () => {
 
     setSubmitting(true);
     try {
-      const response = await sendEmail({ ...answers, ...contact, email, turnstileToken });
-      setConfirmationSent(response.data.confirmationSent === true);
+      const result = await sendEmail({ ...answers, ...contact, email, turnstileToken });
+      setConfirmationSent(result.confirmationSent === true);
       track("contact_funnel_submit", {
         services: answers.services.join(","),
         goals: answers.goals.join(","),
