@@ -1,4 +1,3 @@
-import axios from "axios";
 import type { Budget, Goal, Service, Timeframe } from "@/lib/contact/funnel";
 
 // Body of /api/send-mail, validated server-side in lib/contact/inquiry.
@@ -23,16 +22,21 @@ export interface SendMailResponse {
   confirmationSent?: boolean;
 }
 
-const sendEmail = async (payload: InquiryPayload) => {
-  return axios<SendMailResponse>({
-    method: "post",
-    url: "/api/send-mail",
+// Plain fetch instead of axios: this runs in the browser, and axios alone added
+// ~14 KB of JavaScript to every page load for this one request.
+const sendEmail = async (payload: InquiryPayload): Promise<SendMailResponse> => {
+  const response = await fetch("/api/send-mail", {
+    method: "POST",
     headers: {
       Accept: "application/json, text/plain, */*",
       "Content-Type": "application/json",
     },
-    data: payload,
+    body: JSON.stringify(payload),
   });
+  if (!response.ok) {
+    throw new Error(`send-mail failed with status ${response.status}`);
+  }
+  return response.json();
 };
 
 export default sendEmail;

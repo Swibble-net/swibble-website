@@ -1,8 +1,8 @@
 import { useRef } from "react";
 import Image from "next/image";
-import CardBackground from "@/public/hero/card-bg.webp";
 import Person from "@/public/hero/fynn-frings.webp";
 import { usePointerParallax } from "@/hooks/usePointerParallax";
+import { CARD_BACKGROUND } from "@/components/heroCardBackground";
 import styles from "@/styles/heroVisual.module.scss";
 
 export const SHAPES = {
@@ -84,11 +84,12 @@ const HeroVisual = ({ alt, sizes, className }: HeroVisualProps) => {
         <Shape name="blue" />
         <div className={`${styles.layer} ${styles.cardLayer}`}>
           <div className={styles.card}>
+            {/* Inline data URI: no request, so the LCP element paints with the HTML. */}
             <Image
-              src={CardBackground}
+              src={CARD_BACKGROUND.src}
+              width={CARD_BACKGROUND.width}
+              height={CARD_BACKGROUND.height}
               alt=""
-              priority
-              sizes={scaleSizes(sizes, CARD_SHARE)}
               className={styles.cardBackground}
             />
             <Image
