@@ -34,6 +34,16 @@ export const CASE_STUDY_FALLBACKS: Record<string, LandingCaseStudy> = {
       "Smartphone mit einem TikTok-Video für das Billstedt-Center Hamburg",
     fallbackImage: "billstedt",
   },
+  "case-study-myzeil-frankfurt": {
+    slug: "case-study-myzeil-frankfurt",
+    title: "Case Study: MyZeil Frankfurt",
+    excerpt:
+      "Account-Übernahme: Ein bestehender TikTok-Kanal, neu gestartet – 5.292 → 11.200 Follower in 25 Tagen.",
+    coverImage: null,
+    coverImageAlt:
+      "Titelbild „MyZeil Frankfurt: Follower verdoppelt“ mit zwei TikTok-Videos aus dem MyZeil und dem Wert +112 % Follower",
+    fallbackImage: "myzeil",
+  },
   "case-study-rushfood-aachen": {
     slug: "case-study-rushfood-aachen",
     title: "Case Study: RushFood Aachen",

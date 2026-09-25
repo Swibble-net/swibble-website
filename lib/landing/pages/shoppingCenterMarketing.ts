@@ -28,21 +28,12 @@ export const shoppingCenterMarketing: LandingPageContent = {
   },
   proof: {
     title: "Vier Center, die auf Swibble setzen",
-    text: "Drei ausführliche Case Studies zeigen, wie wir für Einkaufszentren arbeiten – von der Store-Vorstellung bis zur TikTok-Challenge mit Gutscheinen.",
+    text: "Vier ausführliche Case Studies zeigen, wie wir für Einkaufszentren arbeiten – von der Store-Vorstellung bis zur TikTok-Challenge mit Gutscheinen.",
     caseStudies: [
       "case-study-aquis-plaza-aachen",
       "case-study-billstedt-center-hamburg",
       "case-study-olympia-einkaufszentrum-munchen",
-    ],
-    references: [
-      {
-        kicker: "Social Media",
-        title: "MyZeil Frankfurt",
-        image: "myzeil",
-        imageAlt: "Smartphone mit einem Social-Media-Video für das MyZeil in Frankfurt",
-        text: "Seit dem 1. September 2026 betreuen wir die Social-Media-Kanäle des MyZeil – gestartet sind wir bei 5.293 Abonnenten.",
-        note: "Case Study folgt in Kürze",
-      },
+      "case-study-myzeil-frankfurt",
     ],
     facts: [
       { account: "aquis", label: "TikTok-Follower – Aquis Plaza Aachen" },

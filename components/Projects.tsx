@@ -37,7 +37,7 @@ const COLUMNS: [Tile, Tile][] = [
     { kicker: "Social Media", title: "Billstedt Center", image: BillstedtImage, mockup: true, href: "/blog/case-study-billstedt-center-hamburg", cta: "Case Study lesen" },
   ],
   [
-    { kicker: "Social Media", title: "MyZeil", image: MyZeilImage, mockup: true },
+    { kicker: "Social Media", title: "MyZeil", image: MyZeilImage, mockup: true, href: "/blog/case-study-myzeil-frankfurt", cta: "Case Study lesen" },
     { kicker: "Social Media", title: "Rushfood", image: RushfoodImage, mockup: true, href: "/blog/case-study-rushfood-aachen", cta: "Case Study lesen" },
   ],
   [
