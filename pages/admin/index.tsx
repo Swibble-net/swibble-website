@@ -146,6 +146,12 @@ const AdminDashboard = ({ posts, configured }: Props) => {
           >
             Bewerbungen
           </Link>
+          <Link
+            href="/admin/pitchdecks"
+            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
+          >
+            Pitchdecks
+          </Link>
         </div>
 
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

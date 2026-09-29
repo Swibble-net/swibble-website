@@ -292,6 +292,12 @@ const AdminVideos = ({
           >
             Bewerbungen
           </Link>
+          <Link
+            href="/admin/pitchdecks"
+            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
+          >
+            Pitchdecks
+          </Link>
         </div>
 
         <h1 className="mb-6 text-2xl font-bold text-[#000D36]">

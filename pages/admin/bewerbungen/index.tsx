@@ -105,6 +105,9 @@ const AdminApplications = ({
           <span className="rounded-lg bg-[#B718EC] px-3 py-1.5 text-sm font-medium text-white">
             Bewerbungen
           </span>
+          <Link href="/admin/pitchdecks" className={navLinkClass}>
+            Pitchdecks
+          </Link>
         </div>
 
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
