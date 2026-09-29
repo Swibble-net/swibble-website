@@ -66,6 +66,8 @@ const AdminPitchDecks = ({ decks, problem }: Props) => {
   const [now] = useState(() => Date.now());
 
   const working = phase.step === "processing" || phase.step === "uploading";
+  // Too large to store as it is: compression is the only way in.
+  const mustCompress = !!file && file.size > PDF_MAX_BYTES;
 
   const handleFile = (chosen: File | null) => {
     setError(null);
@@ -290,12 +292,12 @@ const AdminPitchDecks = ({ decks, problem }: Props) => {
             <input
               type="checkbox"
               className="mt-0.5 accent-[#B718EC]"
-              checked={compress}
+              checked={compress || mustCompress}
               onChange={(e) => setCompress(e.target.checked)}
-              disabled={working}
+              disabled={working || mustCompress}
             />
             <span>
-              PDF komprimieren (empfohlen)
+              PDF komprimieren {mustCompress ? "(nötig ab " + formatSize(PDF_MAX_BYTES) + ")" : "(empfohlen)"}
               <span className="block text-xs text-[#8a7791]">
                 Folien werden als Bilder neu gespeichert, Links bleiben klickbar, Text ist danach
                 nicht mehr markierbar. Ist das Original kleiner, bleibt es unverändert.

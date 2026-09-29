@@ -1,4 +1,3 @@
-import crypto from "crypto";
 import { slugify } from "@/lib/blog/slug";
 import type { PitchDeckInput, PitchDeckPage } from "./types";
 
@@ -18,7 +17,8 @@ const SLUG_ALPHABET = "abcdefghijkmnpqrstuvwxyz23456789";
 
 /** "Kaisergarten Aachen" → "kaisergarten-aachen-k7m2p9qx" */
 export function buildSlug(customer: string): string {
-  const bytes = crypto.randomBytes(SLUG_SUFFIX_LENGTH);
+  // Web Crypto: this module is also bundled for the admin page in the browser.
+  const bytes = globalThis.crypto.getRandomValues(new Uint8Array(SLUG_SUFFIX_LENGTH));
   const suffix = Array.from(bytes, (b) => SLUG_ALPHABET[b % SLUG_ALPHABET.length]).join("");
   const base = slugify(customer).slice(0, 40).replace(/-+$/, "");
   return base ? `${base}-${suffix}` : suffix;
