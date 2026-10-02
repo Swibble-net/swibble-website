@@ -14,6 +14,7 @@ interface ProfileDocument {
   /** Missing on documents created before the apply entry existed */
   showApplyLink?: boolean;
   applyLinkLabel?: string;
+  subdomain?: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -40,6 +41,7 @@ export function toProfile(
     // Default on: existing profiles get the apply entry without a migration.
     showApplyLink: data.showApplyLink ?? true,
     applyLinkLabel: data.applyLinkLabel ?? "",
+    subdomain: data.subdomain ?? "",
     createdAt: data.createdAt ?? 0,
     updatedAt: data.updatedAt ?? data.createdAt ?? 0,
   };
@@ -104,6 +106,36 @@ export async function getProfileBySlug(
   return toProfile(doc.id, doc.data() as ProfileDocument);
 }
 
+/** Profile served at <subdomain>.swibble.net, if any. */
+export async function getProfileBySubdomain(
+  subdomain: string,
+): Promise<LinkhubProfile | null> {
+  if (!subdomain || !isFirebaseConfigured()) return null;
+
+  const snapshot = await getDb()
+    .collection(COLLECTION)
+    .where("subdomain", "==", subdomain)
+    .limit(1)
+    .get();
+
+  if (snapshot.empty) return null;
+  const doc = snapshot.docs[0];
+  return toProfile(doc.id, doc.data() as ProfileDocument);
+}
+
+/** True when another profile already uses the subdomain. */
+export async function isSubdomainTaken(
+  subdomain: string,
+  ignoreId?: string,
+): Promise<boolean> {
+  if (!subdomain) return false;
+  const snapshot = await getDb()
+    .collection(COLLECTION)
+    .where("subdomain", "==", subdomain)
+    .get();
+  return snapshot.docs.some((doc) => doc.id !== ignoreId);
+}
+
 export async function getProfileById(
   id: string,
 ): Promise<LinkhubProfile | null> {
@@ -129,6 +161,7 @@ export async function createProfile(
     links: normaliseLinks(input.links),
     showApplyLink: input.showApplyLink ?? true,
     applyLinkLabel: input.applyLinkLabel?.trim() ?? "",
+    subdomain: input.subdomain ?? "",
     createdAt: now,
     updatedAt: now,
   };
@@ -165,6 +198,7 @@ export async function updateProfile(
     showApplyLink: input.showApplyLink ?? current.showApplyLink ?? true,
     applyLinkLabel:
       input.applyLinkLabel?.trim() ?? current.applyLinkLabel ?? "",
+    subdomain: input.subdomain ?? current.subdomain ?? "",
     createdAt: current.createdAt,
     updatedAt: Date.now(),
   };

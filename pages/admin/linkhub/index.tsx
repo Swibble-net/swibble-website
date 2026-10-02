@@ -118,6 +118,19 @@ const AdminLinkhub = ({ profiles, configured }: Props) => {
                       <span className="font-medium text-[#b718ec]">
                         {profile.slug}
                       </span>
+                      {profile.subdomain && (
+                        <>
+                          {" · "}
+                          <a
+                            href={`https://${profile.subdomain}.swibble.net`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-[#b718ec] hover:underline"
+                          >
+                            {profile.subdomain}.swibble.net
+                          </a>
+                        </>
+                      )}
                       {" · "}
                       {profile.links.length} Link
                       {profile.links.length !== 1 ? "s" : ""}

@@ -3,8 +3,10 @@ import { requireAdmin } from "@/lib/adminAuth";
 import {
   deleteProfile,
   getProfileById,
+  isSubdomainTaken,
   updateProfile,
 } from "@/lib/linkhub/profiles";
+import { parseSubdomain } from "@/lib/linkhub/subdomain";
 import { parseApplyFields } from "@/lib/linkhub/applyLink";
 import type { LinkhubProfileInput } from "@/lib/linkhub/types";
 
@@ -37,6 +39,21 @@ export default async function handler(
         return res.status(400).json({ message: applyFields.message });
       }
 
+      // Omitted = keep the stored value (older clients don't send the field).
+      let subdomain: string | undefined;
+      if (body.subdomain !== undefined) {
+        const parsed = parseSubdomain(body.subdomain);
+        if (!parsed.ok) {
+          return res.status(400).json({ message: parsed.message });
+        }
+        if (await isSubdomainTaken(parsed.subdomain, id)) {
+          return res
+            .status(400)
+            .json({ message: "Diese Subdomain nutzt schon ein anderes Profil." });
+        }
+        subdomain = parsed.subdomain;
+      }
+
       const profile = await updateProfile(id, {
         name: body.name,
         slug: body.slug,
@@ -44,6 +61,7 @@ export default async function handler(
         logoUrl: body.logoUrl,
         showApplyLink: applyFields.showApplyLink,
         applyLinkLabel: applyFields.applyLinkLabel,
+        subdomain,
         links: body.links ?? [],
       });
 

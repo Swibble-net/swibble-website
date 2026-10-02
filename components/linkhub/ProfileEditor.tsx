@@ -35,6 +35,7 @@ const ProfileEditor = ({ profile }: Props) => {
 
   const [name, setName] = useState(profile?.name ?? "");
   const [slug, setSlug] = useState(profile?.slug ?? "");
+  const [subdomain, setSubdomain] = useState(profile?.subdomain ?? "");
   const [subtitle, setSubtitle] = useState(profile?.subtitle ?? "");
   const [logoUrl, setLogoUrl] = useState(profile?.logoUrl ?? "");
   const [showApplyLink, setShowApplyLink] = useState(
@@ -97,6 +98,7 @@ const ProfileEditor = ({ profile }: Props) => {
             logoUrl: logoUrl.trim() || undefined,
             showApplyLink,
             applyLinkLabel: applyLinkLabel.trim(),
+            subdomain: subdomain.trim(),
             links: links.map(({ id, ...rest }) => ({ id, ...rest })),
           }),
         },
@@ -165,6 +167,27 @@ const ProfileEditor = ({ profile }: Props) => {
             onChange={(e) => setSlug(e.target.value)}
             placeholder="z. B. swibble → /linkhub/swibble"
           />
+        </div>
+        <div className="sm:col-span-2">
+          <label className={labelClass} htmlFor="subdomain">
+            Subdomain (optional)
+          </label>
+          <div className="flex items-center gap-2">
+            <input
+              id="subdomain"
+              className={inputClass}
+              value={subdomain}
+              onChange={(e) => setSubdomain(e.target.value)}
+              placeholder="z. B. aquisplaza"
+              autoCapitalize="none"
+              spellCheck={false}
+            />
+            <span className="shrink-0 text-sm text-[#556987]">.swibble.net</span>
+          </div>
+          <p className="mt-1.5 text-xs text-[#8a7791]">
+            Funktioniert erst, wenn die Subdomain bei netcup als CNAME auf
+            Vercel zeigt und im Vercel-Projekt als Domain hinzugefügt ist.
+          </p>
         </div>
         <div className="sm:col-span-2">
           <label className={labelClass} htmlFor="subtitle">
