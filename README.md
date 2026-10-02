@@ -98,7 +98,7 @@ Open [http://localhost:3000](http://localhost:3000). The site runs without Fireb
 | `/` | Home — all main sections |
 | `/blog` | Blog list — search + newest/oldest sort |
 | `/blog/[slug]` | Single blog post (renders stored HTML) |
-| `/linkhub/[slug]` | Link-tree page for one customer (noindex, no site chrome) |
+| `/linkhub/[slug]` | Link-tree page for one customer (noindex, no site chrome). With a subdomain set in the CMS it is also served at `<subdomain>.swibble.net` (rewrite in `next.config.js`); each subdomain needs a CNAME to Vercel and has to be added as a domain in the Vercel project |
 | `/impressum` | Impressum (noindex) |
 | `/datenschutz` | Privacy policy (noindex) |
 | `/card` | Business card page |

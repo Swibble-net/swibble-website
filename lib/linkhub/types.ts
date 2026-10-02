@@ -30,6 +30,8 @@ export interface LinkhubProfile {
   showApplyLink: boolean;
   /** Optional custom label for the apply entry; "" = default label */
   applyLinkLabel: string;
+  /** Optional: page is also served at <subdomain>.swibble.net; "" = none */
+  subdomain: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -43,6 +45,8 @@ export interface LinkhubProfileInput {
   /** Omitted = keep the stored value (true for new profiles) */
   showApplyLink?: boolean;
   applyLinkLabel?: string;
+  /** Omitted = keep the stored value; "" clears it */
+  subdomain?: string;
   links: Array<{
     id?: string;
     icon: string;

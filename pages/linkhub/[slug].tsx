@@ -6,7 +6,10 @@ import Link from "next/link";
 import Image from "next/image";
 import Logo from "@/public/logo/SwibbleLogo.svg";
 import { Poppins } from "next/font/google";
-import { getProfileBySlug } from "@/lib/linkhub/profiles";
+import {
+  getProfileBySlug,
+  getProfileBySubdomain,
+} from "@/lib/linkhub/profiles";
 import { buildApplyLink } from "@/lib/linkhub/applyLink";
 import type { LinkhubProfile, LinkhubLink } from "@/lib/linkhub/types";
 
@@ -178,7 +181,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const slug =
     typeof ctx.params?.slug === "string" ? ctx.params.slug : "";
 
-  const profile = await getProfileBySlug(slug);
+  // <subdomain>.swibble.net is rewritten to /linkhub/<subdomain>.
+  const profile =
+    (await getProfileBySlug(slug)) ?? (await getProfileBySubdomain(slug));
   if (!profile) return { notFound: true };
 
   const applyLink = buildApplyLink(profile);

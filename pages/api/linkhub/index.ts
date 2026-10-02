@@ -1,6 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
-import { createProfile, getAllProfiles } from "@/lib/linkhub/profiles";
+import {
+  createProfile,
+  getAllProfiles,
+  isSubdomainTaken,
+} from "@/lib/linkhub/profiles";
+import { parseSubdomain } from "@/lib/linkhub/subdomain";
 import { parseApplyFields } from "@/lib/linkhub/applyLink";
 import type { LinkhubProfileInput } from "@/lib/linkhub/types";
 
@@ -27,6 +32,16 @@ export default async function handler(
         return res.status(400).json({ message: applyFields.message });
       }
 
+      const subdomain = parseSubdomain(body.subdomain);
+      if (!subdomain.ok) {
+        return res.status(400).json({ message: subdomain.message });
+      }
+      if (await isSubdomainTaken(subdomain.subdomain)) {
+        return res
+          .status(400)
+          .json({ message: "Diese Subdomain nutzt schon ein anderes Profil." });
+      }
+
       const profile = await createProfile({
         name: body.name,
         slug: body.slug,
@@ -34,6 +49,7 @@ export default async function handler(
         logoUrl: body.logoUrl,
         showApplyLink: applyFields.showApplyLink,
         applyLinkLabel: applyFields.applyLinkLabel,
+        subdomain: subdomain.subdomain,
         links: body.links ?? [],
       });
 

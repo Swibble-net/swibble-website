@@ -49,6 +49,20 @@ const nextConfig = {
       { source: "/redirect/poster", destination: "/?utm_source=poster&utm_medium=qr", permanent: true },
     ];
   },
+  async rewrites() {
+    return {
+      // Linkhub subdomains: <subdomain>.swibble.net/ shows the profile with that
+      // subdomain (see lib/linkhub/subdomain.ts). beforeFiles, otherwise the home
+      // page would win. Each subdomain needs its DNS record and Vercel domain.
+      beforeFiles: [
+        {
+          source: "/",
+          has: [{ type: "host", value: "(?<subdomain>(?!www\\.)[a-z0-9-]+)\\.swibble\\.net" }],
+          destination: "/linkhub/:subdomain",
+        },
+      ],
+    };
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
