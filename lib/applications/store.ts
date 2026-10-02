@@ -31,6 +31,8 @@ export interface StoredConsentFile {
 export interface CenterOption {
   slug: string;
   name: string;
+  /** Logo of the Linkhub profile; "" = none */
+  logoUrl: string;
 }
 
 export interface ApplicationPatch {
@@ -230,7 +232,7 @@ const firebaseBackend: Backend = {
     const profiles = await getAllProfiles();
     return profiles
       .filter((p) => p.showApplyLink)
-      .map((p) => ({ slug: p.slug, name: p.name }))
+      .map((p) => ({ slug: p.slug, name: p.name, logoUrl: p.logoUrl }))
       .sort((a, b) => a.name.localeCompare(b.name, "de"));
   },
 };
@@ -309,8 +311,8 @@ const memoryBackend: Backend = {
 
   async centers() {
     return [
-      { slug: "demo-center", name: "Demo-Center (lokal)" },
-      { slug: "test-plaza", name: "Test Plaza (lokal)" },
+      { slug: "demo-center", name: "Demo-Center (lokal)", logoUrl: "" },
+      { slug: "test-plaza", name: "Test Plaza (lokal)", logoUrl: "" },
     ];
   },
 };

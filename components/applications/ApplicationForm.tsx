@@ -25,6 +25,7 @@ import {
   PHOTO_MAX_COUNT,
   guardianDeclarationText,
   roleLabel,
+  type ApplicationRole,
   type GuardianMethod,
 } from "@/lib/applications/config";
 import { calculateAge, parseIsoDate, todayInBerlin } from "@/lib/applications/age";
@@ -47,6 +48,8 @@ interface Props {
   /** Center the visitor came from (validated server-side), if any */
   center: CenterOption | null;
   centers: CenterOption[];
+  /** Roles switched on in the admin area; only these are offered */
+  enabledRoles: ApplicationRole[];
   /** False when the private file storage isn't configured */
   uploadsAvailable: boolean;
   /** Called with the slug of the center the application was sent for ("" = none) */
@@ -59,7 +62,7 @@ const labelClass = "mb-1.5 block text-sm font-medium text-[#000D36]";
 
 // Where to move focus for each error key, in visual order.
 const ERROR_TARGETS: Array<[string, string]> = [
-  ["roles", "f-role-video"],
+  ["roles", "f-roles"],
   ["firstName", "f-firstName"],
   ["lastName", "f-lastName"],
   ["birthDate", "f-birthDay"],
@@ -116,13 +119,20 @@ const Section = ({
 const ApplicationForm = ({
   center,
   centers,
+  enabledRoles,
   uploadsAvailable,
   onSuccess,
 }: Props) => {
   const formId = useId();
   const turnstileRequired = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
-  const [roles, setRoles] = useState<string[]>([]);
+  const offeredRoles = APPLICATION_ROLES.filter((r) =>
+    enabledRoles.includes(r.id),
+  );
+  // A single open role needs no decision: it is ticked from the start.
+  const [roles, setRoles] = useState<string[]>(
+    offeredRoles.length === 1 ? [offeredRoles[0].id] : [],
+  );
   const [fields, setFields] = useState({
     firstName: "",
     lastName: "",
@@ -190,9 +200,7 @@ const ApplicationForm = ({
       setRoles((prev) =>
         prev.length > 0
           ? prev
-          : APPLICATION_ROLES.map((r) => r.id).filter((id) =>
-              isChecked(`f-role-${id}`),
-            ),
+          : enabledRoles.filter((id) => isChecked(`f-role-${id}`)),
       );
       if (isChecked("f-contactConsent")) setContactConsent(true);
       if (isChecked("f-privacyAck")) setPrivacyAck(true);
@@ -375,7 +383,7 @@ const ApplicationForm = ({
     };
 
     // Same rules as the server, so messages are identical on both sides.
-    const result = validateApplication(payload);
+    const result = validateApplication(payload, new Date(), enabledRoles);
     const found: ApplicationErrors = result.ok ? {} : { ...result.errors };
     if (isMinor && !uploadBlocked) {
       if (guardianMethod === "upload" && !file) {
@@ -525,11 +533,14 @@ const ApplicationForm = ({
       className="flex flex-col gap-5"
     >
       {/* Roles */}
-      <Section title="Wofür bewirbst du dich?" hint="Du kannst mehrere auswählen.">
-        <fieldset {...errorProps("roles")}>
+      <Section
+        title="Wofür bewirbst du dich?"
+        hint={offeredRoles.length > 1 ? "Du kannst mehrere auswählen." : undefined}
+      >
+        <fieldset id="f-roles" tabIndex={-1} {...errorProps("roles")}>
           <legend className="sr-only">Wofür bewirbst du dich?</legend>
           <div className="flex flex-col gap-2.5">
-            {APPLICATION_ROLES.map((role) => (
+            {offeredRoles.map((role) => (
               <label
                 key={role.id}
                 className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#E4D3EC] bg-white px-4 py-3.5 text-base font-medium text-[#000D36] motion-safe:transition has-[:checked]:border-[#B718EC] has-[:checked]:bg-[#F9EAFF] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#B718EC]/40"

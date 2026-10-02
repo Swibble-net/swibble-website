@@ -7,7 +7,9 @@ import {
   APPLICATION_ROLES,
   APPLICATION_STATUSES,
   roleLabel,
+  type ApplicationRole,
 } from "@/lib/applications/config";
+import { getApplicationSettings } from "@/lib/applications/settings";
 import StatusBadge from "@/components/applications/StatusBadge";
 import {
   isApplicationStoreAvailable,
@@ -35,6 +37,7 @@ type ApplicationSummary = Pick<
 
 interface Props {
   applications: ApplicationSummary[];
+  enabledRoles: ApplicationRole[];
   storeAvailable: boolean;
   uploadsAvailable: boolean;
   turnstileEnforced: boolean;
@@ -59,10 +62,39 @@ const navLinkClass =
 
 const AdminApplications = ({
   applications,
+  enabledRoles: initialEnabledRoles,
   storeAvailable,
   uploadsAvailable,
   turnstileEnforced,
 }: Props) => {
+  const [enabledRoles, setEnabledRoles] = useState(initialEnabledRoles);
+  const [savingRoles, setSavingRoles] = useState(false);
+
+  const handleRoleToggle = async (id: ApplicationRole) => {
+    const next = enabledRoles.includes(id)
+      ? enabledRoles.filter((r) => r !== id)
+      : [...enabledRoles, id];
+    setSavingRoles(true);
+    try {
+      const res = await fetch("/api/applications/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabledRoles: next }),
+      });
+      if (res.status === 401) {
+        window.location.href = "/admin/login";
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.message ?? "Speichern fehlgeschlagen.");
+      setEnabledRoles(data.settings.enabledRoles);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Fehler.");
+    } finally {
+      setSavingRoles(false);
+    }
+  };
+
   const [center, setCenter] = useState("");
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("");
@@ -141,6 +173,41 @@ const AdminApplications = ({
             werden serverseitig nicht geprüft.
           </p>
         )}
+
+        {/* Roles offered on /bewerben */}
+        <div className="mb-4 rounded-xl border border-[#F0E4F5] bg-white p-4">
+          <p className="mb-1 text-sm font-semibold text-[#000D36]">
+            Optionen im Bewerbungsformular
+          </p>
+          <p className="mb-3 text-xs text-[#8a7791]">
+            Nur aktivierte Optionen stehen auf /bewerben zur Auswahl – für alle
+            Center. Mindestens eine muss aktiv bleiben.
+          </p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {APPLICATION_ROLES.map((r) => {
+              const checked = enabledRoles.includes(r.id);
+              return (
+                <label
+                  key={r.id}
+                  className="flex cursor-pointer items-center gap-3 text-sm text-[#2A3342]"
+                >
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 accent-[#B718EC]"
+                    checked={checked}
+                    disabled={
+                      savingRoles ||
+                      !storeAvailable ||
+                      (checked && enabledRoles.length === 1)
+                    }
+                    onChange={() => handleRoleToggle(r.id)}
+                  />
+                  {r.label}
+                </label>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Filters */}
         <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl border border-[#F0E4F5] bg-white p-4 sm:grid-cols-4">
@@ -280,6 +347,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   return {
     props: {
       applications,
+      enabledRoles: (await getApplicationSettings()).enabledRoles,
       storeAvailable: isApplicationStoreAvailable(),
       uploadsAvailable: isConsentUploadAvailable(),
       turnstileEnforced: isTurnstileEnforced(),
