@@ -111,6 +111,14 @@ describe("validateApplication – adults", () => {
     expect(errorsOf({ ...adult, roles: [1] })).toHaveProperty("roles");
   });
 
+  it("rejects roles that are switched off", () => {
+    const only = (roles: string[]) =>
+      validateApplication({ ...adult, roles }, NOW, ["video"]);
+    expect(only(["video"]).ok).toBe(true);
+    expect(only(["video", "model"]).ok).toBe(false);
+    expect(only(["kamera"]).ok).toBe(false);
+  });
+
   it("checks types and lengths of text fields", () => {
     expect(errorsOf({ ...adult, firstName: 5 })).toHaveProperty("firstName");
     expect(errorsOf({ ...adult, firstName: "x".repeat(61) })).toHaveProperty(

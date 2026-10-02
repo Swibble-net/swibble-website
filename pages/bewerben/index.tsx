@@ -6,7 +6,11 @@ import type { NextPageWithLayout } from "@/pages/_app";
 import Logo from "@/public/logo/SwibbleLogo.svg";
 import SEO from "@/components/SEO";
 import ApplicationForm from "@/components/applications/ApplicationForm";
-import { WITHDRAWAL_EMAIL } from "@/lib/applications/config";
+import {
+  WITHDRAWAL_EMAIL,
+  type ApplicationRole,
+} from "@/lib/applications/config";
+import { getApplicationSettings } from "@/lib/applications/settings";
 import {
   getCenterOptions,
   isApplicationStoreAvailable,
@@ -17,6 +21,7 @@ import {
 interface Props {
   center: CenterOption | null;
   centers: CenterOption[];
+  enabledRoles: ApplicationRole[];
   storeAvailable: boolean;
   uploadsAvailable: boolean;
 }
@@ -27,9 +32,27 @@ const STEPS = [
   ["3", "Kennenlernen & loslegen", "Wir sprechen alles mit dir ab. Du entscheidest, ob du dabei bist."],
 ];
 
+/** Intro sentence matching the roles that are currently open. */
+function introText(enabledRoles: ApplicationRole[]): string {
+  const has = (role: ApplicationRole) => enabledRoles.includes(role);
+  const wishes: string[] = [];
+  if (has("video") && has("kamera")) wishes.push("vor oder hinter der Kamera zu stehen");
+  else if (has("video")) wishes.push("vor der Kamera zu stehen");
+  else if (has("kamera")) wishes.push("die Kamera zu bedienen");
+  if (has("promoter")) wishes.push("als Promoter:in zu arbeiten");
+  if (has("model")) wishes.push("zu modeln");
+
+  const list =
+    wishes.length > 1
+      ? `${wishes.slice(0, -1).join(", ")} oder ${wishes[wishes.length - 1]}`
+      : wishes[0];
+  return `Wir drehen die TikToks und Reels für dein Center – und suchen Leute, die Lust haben, ${list}. Keine Erfahrung nötig.`;
+}
+
 const BewerbenPage: NextPageWithLayout<Props> = ({
   center,
   centers,
+  enabledRoles,
   storeAvailable,
   uploadsAvailable,
 }) => {
@@ -48,7 +71,7 @@ const BewerbenPage: NextPageWithLayout<Props> = ({
     <>
       <SEO
         title="Mach mit bei unseren Videos"
-        description="Du willst in TikTok- und Instagram-Videos aus deinem Einkaufszentrum dabei sein, als Promoter:in oder Model arbeiten oder die Kamera bedienen? Bewirb dich in zwei Minuten bei Swibble."
+        description="Du willst in TikTok- und Instagram-Videos aus deinem Einkaufszentrum dabei sein? Bewirb dich in zwei Minuten bei Swibble."
         canonical="/bewerben"
       />
 
@@ -63,9 +86,26 @@ const BewerbenPage: NextPageWithLayout<Props> = ({
 
         <main className="relative flex w-full max-w-xl flex-col gap-6">
           <header className="flex flex-col items-center gap-4 text-center">
-            <Link href="/" aria-label="Zur Swibble-Startseite">
-              <Image src={Logo} alt="Swibble" width={48} height={48} />
-            </Link>
+            {center?.logoUrl ? (
+              <Link
+                href={`/linkhub/${center.slug}`}
+                aria-label={`Zu ${center.name}`}
+                className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-white shadow-md ring-4 ring-white/70"
+              >
+                <Image
+                  src={center.logoUrl}
+                  alt={`${center.name} Logo`}
+                  width={80}
+                  height={80}
+                  className="h-full w-full object-contain"
+                  unoptimized
+                />
+              </Link>
+            ) : (
+              <Link href="/" aria-label="Zur Swibble-Startseite">
+                <Image src={Logo} alt="Swibble" width={48} height={48} />
+              </Link>
+            )}
 
             {center && !done && (
               <p className="rounded-full bg-white/80 px-4 py-1.5 text-sm font-medium text-[#B718EC] shadow-sm">
@@ -79,9 +119,7 @@ const BewerbenPage: NextPageWithLayout<Props> = ({
                   Mach mit bei unseren Videos 🎬
                 </h1>
                 <p className="max-w-md text-base text-[#556987]">
-                  Wir drehen die TikToks und Reels für dein Center – und suchen
-                  Leute, die Lust haben, vor oder hinter der Kamera zu stehen, als
-                  Promoter:in zu arbeiten oder zu modeln. Keine Erfahrung nötig.
+                  {introText(enabledRoles)}
                 </p>
               </>
             )}
@@ -161,6 +199,7 @@ const BewerbenPage: NextPageWithLayout<Props> = ({
                 <ApplicationForm
                   center={center}
                   centers={centers}
+                  enabledRoles={enabledRoles}
                   uploadsAvailable={uploadsAvailable}
                   onSuccess={(slug) => {
                     setDoneCenter(centers.find((c) => c.slug === slug) ?? null);
@@ -224,6 +263,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     // The form still works without the center list.
   }
 
+  let enabledRoles: ApplicationRole[] = [];
+  try {
+    ({ enabledRoles } = await getApplicationSettings());
+  } catch {
+    // Handled below: without the settings no role is offered.
+  }
+
   const slug = typeof ctx.query.center === "string" ? ctx.query.center : "";
   const center = centers.find((c) => c.slug === slug) ?? null;
 
@@ -231,7 +277,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     props: {
       center,
       centers,
-      storeAvailable,
+      enabledRoles,
+      // No roles = settings unreadable; show the "not possible" notice then.
+      storeAvailable: storeAvailable && enabledRoles.length > 0,
       uploadsAvailable: isConsentUploadAvailable(),
     },
   };

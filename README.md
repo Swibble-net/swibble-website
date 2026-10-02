@@ -189,6 +189,11 @@ limits and consent wording live in
 `lib/applications/config.ts`. For local development without Firebase set
 `APPLICATIONS_DEV_STORE=memory` (in-memory store, ignored in production).
 
+Which roles applicants can choose is switched on and off under
+`/admin/bewerbungen` (`settings/applications.enabledRoles`); until something is
+saved only "Im Video mitmachen" is offered. With `?center=<slug>` the page shows
+the logo of that Linkhub profile in a round avatar.
+
 Create a Turnstile site key in the [Cloudflare dashboard](https://dash.cloudflare.com/?to=/:account/turnstile) and add your domains (e.g. `swibble.net` plus `localhost` for local dev).
 
 ### Firebase setup

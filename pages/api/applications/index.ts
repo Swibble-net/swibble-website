@@ -14,6 +14,7 @@ import { applicationsToCsv } from "@/lib/applications/csv";
 import { parseConsentFile, parsePhoto } from "@/lib/applications/fileType";
 import { sendApplicationMails } from "@/lib/applications/notify";
 import { createRateLimiter } from "@/lib/applications/rateLimit";
+import { getApplicationSettings } from "@/lib/applications/settings";
 import {
   createApplication,
   getCenterOptions,
@@ -79,7 +80,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
-  const result = validateApplication(body);
+  const { enabledRoles } = await getApplicationSettings();
+  const result = validateApplication(body, new Date(), enabledRoles);
   if (!result.ok) {
     return res.status(400).json({
       message: "Bitte prüfe die markierten Felder.",
