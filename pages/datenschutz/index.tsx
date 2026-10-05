@@ -43,8 +43,8 @@ const Datenschutz = () => {
             </a>
             <br />
             Telefon{" "}
-            <a href="tel:491782632310" className="text-[#0000EE] underline">
-              +49 178 2632310
+            <a href="tel:+4915792487805" className="text-[#0000EE] underline">
+              +49 1579 2487805
             </a>
           </p>
         </div>

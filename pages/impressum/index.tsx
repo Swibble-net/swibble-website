@@ -28,8 +28,8 @@ const Impressum = () => {
         <h4 className="font-bold text-base mt-[0.6rem] mb-[0.4rem]">Kontakt</h4>
         <p>
           Phone{" "}
-          <a href="tel:491782632310" className="underline text-[#0000EE]">
-            +49 178 2632310
+          <a href="tel:+4915792487805" className="underline text-[#0000EE]">
+            +49 1579 2487805
           </a>
           <br />
           Mail{" "}
