@@ -2,8 +2,8 @@
 export const CTA_LABEL = "Kostenloses Erstgespräch";
 export const CTA_URL = "https://meet.swibble.net";
 
-export const PHONE_DISPLAY = "+49 178 2632310";
-export const PHONE_TEL = "+491782632310";
+export const PHONE_DISPLAY = "+49 1579 2487805";
+export const PHONE_TEL = "+4915792487805";
 
 export const EMAIL = "info@swibble.net";
 
