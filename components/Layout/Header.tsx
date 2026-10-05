@@ -6,7 +6,7 @@ import NavDropdown from "./NavDropdown";
 import Logo from "@/public/logo/SwibbleLogo.svg";
 import LogoText from "@/public/logo/SwibbleWordmark.svg";
 import { NAV_LINKS } from "@/lib/navLinks";
-import { CTA_LABEL } from "@/lib/cta";
+import { CTA_LABEL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/cta";
 import { useEffect, useState } from "react";
 import { useScrollPosition } from "@/hooks/useScrollPostion";
 import { RxHamburgerMenu } from "react-icons/rx";
@@ -57,7 +57,14 @@ const Header = () => {
             ),
           )}
         </nav>
-        <div className="hidden lg:block">
+        <div className="hidden lg:flex items-center gap-6">
+          <a
+            href={`tel:${PHONE_TEL}`}
+            className="hidden xl:inline whitespace-nowrap text-sm font-medium text-[#000D36] hover:text-[#B718EC] transition-colors duration-300"
+            aria-label={`Swibble anrufen: ${PHONE_DISPLAY}`}
+          >
+            {PHONE_DISPLAY}
+          </a>
           <CtaLink
             className="inline-block text-center bg-[#B718EC] text-[#F0FDF4] py-3 px-5 rounded-2xl hover:scale-95 transition duration-200"
           >
