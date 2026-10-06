@@ -3,6 +3,7 @@ import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 import styles from "@/styles/projects.module.scss";
 import SwibbleImage from "@/public/projects_photo/Swibble_Image.webp";
+import SwibblyImage from "@/public/projects_photo/Swibbly_Image.webp";
 import AquisImage from "@/public/projects_photo/Aquis_Image.webp";
 import OlympiaImage from "@/public/projects_photo/Olympia_Image.webp";
 import BillstedtImage from "@/public/projects_photo/Billstedt_Image.webp";
@@ -27,29 +28,33 @@ interface Tile {
 }
 
 // Each column stacks two tiles; tall/short alternate so the grid keeps its staggered look.
-const COLUMNS: [Tile, Tile][] = [
+// A column with a single tile spans the full height.
+const COLUMNS: Tile[][] = [
   [
     { kicker: "Dein Projekt", title: "Starte mit Swibble!", image: SwibbleImage, href: "/#kontakt", cta: "Jetzt starten" },
     { kicker: "Social Media & Events", title: "Aquis Plaza", image: AquisImage, mockup: true, href: "/blog/case-study-aquis-plaza-aachen", cta: "Case Study lesen" },
   ],
   [
+    { kicker: "Eigenes Produkt", title: "Swibbly AI", image: SwibblyImage, mockup: true, href: "/blog/swibbly-ai-eigenes-produkt-von-der-idee-bis-zum-launch", cta: "Case Study lesen" },
     { kicker: "Social Media", title: "Olympia Einkaufszentrum", image: OlympiaImage, mockup: true, href: "/blog/case-study-olympia-einkaufszentrum-munchen", cta: "Case Study lesen" },
+  ],
+  [
     { kicker: "Social Media", title: "Billstedt Center", image: BillstedtImage, mockup: true, href: "/blog/case-study-billstedt-center-hamburg", cta: "Case Study lesen" },
-  ],
-  [
     { kicker: "Social Media", title: "MyZeil", image: MyZeilImage, mockup: true, href: "/blog/case-study-myzeil-frankfurt", cta: "Case Study lesen" },
+  ],
+  [
     { kicker: "Social Media", title: "Rushfood", image: RushfoodImage, mockup: true, href: "/blog/case-study-rushfood-aachen", cta: "Case Study lesen" },
-  ],
-  [
     { kicker: "Web App", title: "Little World", image: LittleWorldImage },
+  ],
+  [
     { kicker: "App & Website", title: "Aachen App", image: AachenAppImage },
-  ],
-  [
     { kicker: "App", title: "RydeUp", image: RydeUpImage },
-    { kicker: "Qualitätssicherung", title: "Square", image: SquareImage },
   ],
   [
+    { kicker: "Qualitätssicherung", title: "Square", image: SquareImage },
     { kicker: "App & Web-App", title: "Konrat’s Welt", image: KonratsWeltImage },
+  ],
+  [
     { kicker: "Noch mehr Einblicke", title: "Alle Case Studies\nim Blog", href: "/blog", cta: "Zum Blog" },
   ],
 ];
@@ -107,8 +112,10 @@ const BlogTileArt = () => (
 
 const TALL = "h-[16.25rem] lg:h-[26rem]";
 const SHORT = "h-[12.5rem] lg:h-[19rem]";
+// Both tiles plus the gap between them.
+const FULL = "h-[29.75rem] lg:h-[46.5rem]";
 
-const ProjectTile = ({ tile, tall, priority }: { tile: Tile; tall: boolean; priority: boolean }) => {
+const ProjectTile = ({ tile, tall, full = false, priority }: { tile: Tile; tall: boolean; full?: boolean; priority: boolean }) => {
   const content = (
     <>
       {tile.image ? (
@@ -159,7 +166,7 @@ const ProjectTile = ({ tile, tall, priority }: { tile: Tile; tall: boolean; prio
     </>
   );
 
-  const className = `group relative block w-full overflow-hidden rounded-[0.625rem] bg-[#f3e8f7] ${tall ? TALL : SHORT}`;
+  const className = `group relative block w-full overflow-hidden rounded-[0.625rem] bg-[#f3e8f7] ${full ? FULL : tall ? TALL : SHORT}`;
 
   return tile.href ? (
     <Link
@@ -248,7 +255,12 @@ const Projects = () => {
             {column.map((tile, j) => (
               <div role="listitem" key={tile.title}>
                 {/* Even columns start tall, odd columns start short. */}
-                <ProjectTile tile={tile} tall={(i + j) % 2 === 0} priority={false} />
+                <ProjectTile
+                  tile={tile}
+                  tall={column.length === 1 || (i + j) % 2 === 0}
+                  full={column.length === 1}
+                  priority={false}
+                />
               </div>
             ))}
           </div>
