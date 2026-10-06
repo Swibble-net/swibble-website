@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ListOfCompanies from "@/components/ListOfCompanies";
@@ -62,39 +63,117 @@ const ReferenceCard = ({
   reference: LandingReference;
   /** Matches the case-study cards when both share a grid. */
   wide: boolean;
-}) => (
-  <div className={cardClass}>
-    <div
-      className={`relative w-full bg-[#f3e8f7] ${wide ? "aspect-[16/10]" : "aspect-[4/5]"}`}
-    >
-      <Image
-        src={LANDING_IMAGES[reference.image]}
-        alt={reference.imageAlt}
-        fill
-        sizes={CARD_SIZES}
-        className={`object-cover ${wide ? "object-[50%_30%]" : ""}`}
-      />
-    </div>
-    <div className="flex flex-1 flex-col p-4 lg:p-5">
-      <span className="mb-1 text-xs font-medium uppercase tracking-[0.12em] text-[#8A1FD6]">
-        {reference.kicker}
+}) => {
+  const content = (
+    <>
+      <span
+        className={`relative block w-full bg-[#f3e8f7] ${wide ? "aspect-[16/10]" : "aspect-[4/5]"}`}
+      >
+        <Image
+          src={LANDING_IMAGES[reference.image]}
+          alt={reference.imageAlt}
+          fill
+          sizes={CARD_SIZES}
+          className={`object-cover ${wide ? "object-[50%_30%]" : ""}`}
+        />
       </span>
-      <h3 className="text-base font-bold text-[#000D36] lg:text-lg">
-        {reference.title}
-      </h3>
-      {reference.text && (
-        <p className="mt-2 text-sm leading-relaxed text-[#556987]">
-          {reference.text}
-        </p>
-      )}
-      {reference.note && (
-        <p className="mt-auto pt-4 text-sm font-medium text-[#556987]">
-          {reference.note}
-        </p>
-      )}
-    </div>
-  </div>
-);
+      <span className="flex flex-1 flex-col p-4 lg:p-5">
+        <span className="mb-1 text-xs font-medium uppercase tracking-[0.12em] text-[#8A1FD6]">
+          {reference.kicker}
+        </span>
+        <h3
+          className={`text-base font-bold text-[#000D36] lg:text-lg ${reference.href ? "transition group-hover:text-[#B718EC]" : ""}`}
+        >
+          {reference.title}
+        </h3>
+        {reference.text && (
+          <span className="mt-2 block text-sm leading-relaxed text-[#556987]">
+            {reference.text}
+          </span>
+        )}
+        {reference.note && (
+          <span className="mt-auto block pt-4 text-sm font-medium text-[#556987]">
+            {reference.note}
+          </span>
+        )}
+        {reference.href && (
+          <span className="mt-auto pt-3 text-sm font-medium text-[#A214D3] group-hover:underline">
+            Case Study lesen →
+          </span>
+        )}
+      </span>
+    </>
+  );
+
+  return reference.href ? (
+    <Link
+      href={reference.href}
+      className={`${cardClass} transition duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] motion-reduce:transform-none motion-reduce:transition-none`}
+    >
+      {content}
+    </Link>
+  ) : (
+    <div className={cardClass}>{content}</div>
+  );
+};
+
+/** Horizontal track for more tiles than fit in one row — mobile ~2 columns, desktop 4. */
+const ReferenceTrack = ({ children }: { children: ReactNode }) => {
+  const trackRef = useRef<HTMLUListElement>(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const sync = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      setAtStart(track.scrollLeft <= 2);
+      setAtEnd(max <= 2 || track.scrollLeft >= max - 2);
+    };
+    sync();
+    track.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync);
+    return () => {
+      track.removeEventListener("scroll", sync);
+      window.removeEventListener("resize", sync);
+    };
+  }, []);
+
+  /** Scrolls by one tile. */
+  const step = useCallback((direction: -1 | 1) => {
+    const track = trackRef.current;
+    const tile = track?.querySelector<HTMLElement>("li");
+    if (!track || !tile) return;
+    const gap = Number.parseFloat(getComputedStyle(track).columnGap) || 0;
+    track.scrollBy({ left: direction * (tile.offsetWidth + gap), behavior: "smooth" });
+  }, []);
+
+  return (
+    <>
+      <ul
+        ref={trackRef}
+        className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 [scroll-padding-inline:1rem] [scroll-snap-type:x_mandatory] [scrollbar-width:none] lg:mx-0 lg:gap-6 lg:px-0 lg:[scroll-padding-inline:0] [&::-webkit-scrollbar]:hidden [&>li]:w-[46%] [&>li]:flex-none [&>li]:[scroll-snap-align:start] sm:[&>li]:w-[31%] lg:[&>li]:w-[calc(25%-1.125rem)]"
+      >
+        {children}
+      </ul>
+      <div className="mt-4 hidden justify-end gap-3 lg:flex">
+        {([-1, 1] as const).map((direction) => (
+          <button
+            key={direction}
+            type="button"
+            onClick={() => step(direction)}
+            disabled={direction === -1 ? atStart : atEnd}
+            aria-label={direction === -1 ? "Vorherige Projekte" : "Weitere Projekte"}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#F0E4F5] bg-white text-[#b718ec] shadow-sm transition duration-200 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            {direction === -1 ? "←" : "→"}
+          </button>
+        ))}
+      </div>
+    </>
+  );
+};
 
 interface Props {
   proof: LandingPageContent["proof"];
@@ -118,6 +197,14 @@ const LandingProof = ({ proof, caseStudies, facts }: Props) => {
       : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
     : "grid-cols-2 lg:grid-cols-4";
 
+  // A reference-only list with more than one row of tiles scrolls sideways instead of wrapping.
+  const scrolls = !mixed && references.length > 4;
+  const referenceItems = references.map((reference) => (
+    <li key={reference.title}>
+      <ReferenceCard reference={reference} wide={mixed} />
+    </li>
+  ));
+
   return (
     <section
       aria-labelledby="referenzen"
@@ -135,18 +222,18 @@ const LandingProof = ({ proof, caseStudies, facts }: Props) => {
         </p>
       </div>
 
-      <ul className={`grid gap-4 lg:gap-6 ${gridClass}`}>
-        {caseStudies.map((study) => (
-          <li key={study.slug}>
-            <CaseStudyCard study={study} />
-          </li>
-        ))}
-        {references.map((reference) => (
-          <li key={reference.title}>
-            <ReferenceCard reference={reference} wide={mixed} />
-          </li>
-        ))}
-      </ul>
+      {scrolls ? (
+        <ReferenceTrack>{referenceItems}</ReferenceTrack>
+      ) : (
+        <ul className={`grid gap-4 lg:gap-6 ${gridClass}`}>
+          {caseStudies.map((study) => (
+            <li key={study.slug}>
+              <CaseStudyCard study={study} />
+            </li>
+          ))}
+          {referenceItems}
+        </ul>
+      )}
 
       {facts && (
         <>

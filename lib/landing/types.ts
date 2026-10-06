@@ -12,6 +12,7 @@ export type LandingImageKey =
   | "rydeUp"
   | "square"
   | "konratsWelt"
+  | "swibbly"
   | "fynn";
 
 /** Illustrated hero graphic, see components/landing/LandingVisual.tsx. */
@@ -25,7 +26,7 @@ export type LandingIconKey =
   | "website" | "webapp" | "mobile" | "design" | "qa"
   | "store" | "face" | "behind" | "plan";
 
-/** A reference without a blog case study, shown as an unlinked tile. */
+/** A reference tile; unlinked unless `href` points to its case study. */
 export interface LandingReference {
   kicker: string;
   title: string;
@@ -35,6 +36,8 @@ export interface LandingReference {
   text?: string;
   /** Optional footer line in place of the "read" link, e.g. "Case Study folgt in Kürze". */
   note?: string;
+  /** Case study of the reference; makes the whole tile a link. */
+  href?: string;
 }
 
 export interface LandingFaq {

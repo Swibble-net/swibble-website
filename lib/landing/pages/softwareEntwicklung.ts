@@ -27,9 +27,17 @@ export const softwareEntwicklung: LandingPageContent = {
   },
   proof: {
     title: "Software, die wir entwickelt haben",
-    text: "Von der Stadt-App bis zur Web-App: eine Auswahl aus dem Swibble-Portfolio.",
+    text: "Vom eigenen Produkt bis zur Stadt-App: eine Auswahl aus dem Swibble-Portfolio.",
     caseStudies: [],
     references: [
+      {
+        kicker: "Eigenes Produkt",
+        title: "Swibbly AI",
+        image: "swibbly",
+        imageAlt:
+          "Swibbly-App mit dem Cockpit auf einem Smartphone, daneben das Swibbly-Maskottchen",
+        href: "/blog/swibbly-ai-eigenes-produkt-von-der-idee-bis-zum-launch",
+      },
       {
         kicker: "App & Website",
         title: "Aachen App",
