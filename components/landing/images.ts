@@ -9,6 +9,7 @@ import AachenAppImage from "@/public/projects_photo/AachenApp_Image.webp";
 import RydeUpImage from "@/public/projects_photo/RydeUp_Image.webp";
 import SquareImage from "@/public/projects_photo/Square_Image.webp";
 import KonratsWeltImage from "@/public/projects_photo/KonratsWelt_Image.webp";
+import SwibblyImage from "@/public/projects_photo/Swibbly_Image.webp";
 import FynnImage from "@/public/Landing_Page_Fynn_Frings.webp";
 import type { LandingImageKey } from "@/lib/landing/types";
 
@@ -24,5 +25,6 @@ export const LANDING_IMAGES: Record<LandingImageKey, StaticImageData> = {
   rydeUp: RydeUpImage,
   square: SquareImage,
   konratsWelt: KonratsWeltImage,
+  swibbly: SwibblyImage,
   fynn: FynnImage,
 };

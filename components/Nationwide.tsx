@@ -31,7 +31,12 @@ const LOCATIONS: Location[] = [
     color: "#F47807",
     href: "/blog/case-study-billstedt-center-hamburg",
   },
-  { city: "Frankfurt", client: "MyZeil", color: "#111111" },
+  {
+    city: "Frankfurt",
+    client: "MyZeil",
+    color: "#111111",
+    href: "/blog/case-study-myzeil-frankfurt",
+  },
 ];
 
 const cardClass =
