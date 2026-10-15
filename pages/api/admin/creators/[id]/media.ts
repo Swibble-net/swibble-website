@@ -7,6 +7,7 @@ import {
   VIDEOS_MAX,
   VIDEO_CHUNK_BYTES,
   VIDEO_CONTENT_TYPES,
+  VIDEO_COVER_MAX_BYTES,
   VIDEO_MAX_BYTES,
   VIDEO_TITLE_MAX_LENGTH,
   isValidId,
@@ -18,8 +19,10 @@ import {
   addCreatorVideoFile,
   getCreator,
   readIncomingPhoto,
+  readIncomingVideo,
   removeCreatorPhoto,
   removeIncomingPhoto,
+  removeIncomingVideo,
   removeCreatorVideo,
   reorderCreatorMedia,
   setCreatorMediaHidden,
@@ -54,7 +57,8 @@ function title(value: unknown): string {
 /**
  * POST {type:"photo", large, thumb} | {type:"appVideo", assetId, fileId, title}
  *      | {type:"homeVideo", videoId, title} (copy of a home page video)
- *      | {type:"importPhoto", name} (from the bucket's incoming/ folder)
+ *      | {type:"importPhoto", name} | {type:"importVideo", name, title, width, height}
+ *        (from the bucket's incoming/ folder)
  *      | {type:"upload", size, contentType, title, width, height}
  * PATCH {type:"order", kind, ids} | {type:"videoTitle", videoId, title}
  *       | {type:"photoCaption", photoId, caption} | {type:"visibility", kind, id, hidden}
@@ -97,6 +101,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       const creator = await addCreatorPhoto(profile, files.large, files.thumb);
       await removeIncomingPhoto(name);
+      return res.status(201).json({ creator });
+    }
+
+    if (req.method === "POST" && body.type === "importVideo") {
+      if (profile.videos.length >= VIDEOS_MAX) {
+        return res.status(400).json({ message: `Höchstens ${VIDEOS_MAX} Videos pro Creator.` });
+      }
+      const name = typeof body.name === "string" && /^[a-z0-9-]{1,64}$/.test(body.name) ? body.name : "";
+      const files = name ? await readIncomingVideo(name) : null;
+      // MP4: "ftyp" box right at the start.
+      const isMp4 = (buffer: Buffer) => buffer.length > 12 && buffer.toString("latin1", 4, 8) === "ftyp";
+      if (!files || !isMp4(files.video) || files.video.length > VIDEO_MAX_BYTES) {
+        return res.status(404).json({ message: "Kein passendes Video im Upload-Ordner." });
+      }
+      const cover = files.cover && isJpegWithin(files.cover, VIDEO_COVER_MAX_BYTES) ? files.cover : null;
+      const creator = await addCreatorVideoFile(profile, {
+        buffer: files.video,
+        contentType: "video/mp4",
+        cover,
+        title: title(body.title),
+        width: Math.max(0, Math.round(Number(body.width) || 0)),
+        height: Math.max(0, Math.round(Number(body.height) || 0)),
+      });
+      await removeIncomingVideo(name);
       return res.status(201).json({ creator });
     }
 
