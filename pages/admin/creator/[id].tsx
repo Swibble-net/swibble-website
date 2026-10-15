@@ -4,9 +4,10 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import type { GetServerSideProps } from "next";
 import AppVideoPicker from "@/components/admin/AppVideoPicker";
+import CreatorRoleToggles from "@/components/admin/CreatorRoleToggles";
 import { SortableGrid, SortableTile, dragHandleClass, moveItem } from "@/components/SortableGrid";
 import { isAuthenticated } from "@/lib/adminAuth";
-import { CREATOR_ROLES, type CreatorRole } from "@/lib/applications/config";
+import type { CreatorRole } from "@/lib/applications/config";
 import {
   PHOTOS_MAX,
   REFERENCES_MAX,
@@ -319,6 +320,23 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable, homeVideos }: Props) 
           </p>
         )}
 
+        <section className="rounded-xl border border-[#F0E4F5] bg-white p-4">
+          <h2 className="text-sm font-semibold text-[#000D36]">Leistungen</h2>
+          <p className="mt-0.5 text-xs text-[#8a7791]">Antippen zum Aktivieren oder Deaktivieren – wird sofort gespeichert.</p>
+          <div className="mt-3">
+            <CreatorRoleToggles
+              creatorId={creator.id}
+              roles={creator.roles}
+              onUnauthorized={unauthorized}
+              onSaved={(updated) => {
+                setCreator(updated);
+                setForm((prev) => ({ ...prev, roles: updated.roles }));
+                setSaved((prev) => ({ ...prev, roles: updated.roles }));
+              }}
+            />
+          </div>
+        </section>
+
         <div aria-live="polite">
           {message && <p className="rounded-lg bg-green-50 p-3 text-sm text-green-700">{message}</p>}
           {error && (
@@ -559,29 +577,6 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable, homeVideos }: Props) 
               </div>
             </div>
 
-            <fieldset>
-              <legend className={labelClass}>Rollen</legend>
-              <div className="flex flex-wrap gap-4">
-                {CREATOR_ROLES.map((role) => (
-                  <label key={role.id} className="flex items-center gap-2 text-sm text-[#2A3342]">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 accent-[#B718EC]"
-                      checked={form.roles.includes(role.id)}
-                      onChange={() =>
-                        set(
-                          "roles",
-                          form.roles.includes(role.id)
-                            ? form.roles.filter((r) => r !== role.id)
-                            : CREATOR_ROLES.map((r) => r.id).filter((r) => r === role.id || form.roles.includes(r)),
-                        )
-                      }
-                    />
-                    {role.label}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
 
             <div>
               <label className={labelClass} htmlFor="c-tagline">Kurzbeschreibung</label>

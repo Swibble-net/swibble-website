@@ -4,8 +4,9 @@ import { useRouter } from "next/router";
 import { useState, type FormEvent } from "react";
 import type { GetServerSideProps } from "next";
 import AdminNav from "@/components/admin/AdminNav";
+import CreatorRoleToggles from "@/components/admin/CreatorRoleToggles";
 import { isAuthenticated } from "@/lib/adminAuth";
-import { roleLabel } from "@/lib/applications/config";
+import { roleLabel, type CreatorRole } from "@/lib/applications/config";
 import { calculateAge, parseIsoDate, todayInBerlin } from "@/lib/applications/age";
 import { listApplications } from "@/lib/applications/store";
 import { thumbUrl } from "@/lib/creators/config";
@@ -16,7 +17,7 @@ interface CreatorSummary {
   name: string;
   slug: string;
   published: boolean;
-  roles: string[];
+  roles: CreatorRole[];
   city: string;
   cover: string;
   photos: number;
@@ -42,8 +43,9 @@ interface Props {
 const formatDate = (ms: number) =>
   new Date(ms).toLocaleDateString("de-DE", { dateStyle: "medium", timeZone: "Europe/Berlin" });
 
-const AdminCreators = ({ creators, open, available }: Props) => {
+const AdminCreators = ({ creators: initialCreators, open, available }: Props) => {
   const router = useRouter();
+  const [creators, setCreators] = useState(initialCreators);
   const [creating, setCreating] = useState("");
   const [error, setError] = useState("");
   const [manualName, setManualName] = useState("");
@@ -202,11 +204,11 @@ const AdminCreators = ({ creators, open, available }: Props) => {
       ) : (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {creators.map((c) => (
-            <li key={c.id}>
-              <Link
-                href={`/admin/creator/${c.id}`}
-                className="block overflow-hidden rounded-xl border border-[#F0E4F5] bg-white transition hover:border-[#b718ec]/50 hover:shadow-sm"
-              >
+            <li
+              key={c.id}
+              className="overflow-hidden rounded-xl border border-[#F0E4F5] bg-white transition hover:border-[#b718ec]/50 hover:shadow-sm"
+            >
+              <Link href={`/admin/creator/${c.id}`} className="block">
                 <div className="relative aspect-[4/5] bg-[#FDF5FF]">
                   {c.cover && (
                     // eslint-disable-next-line @next/next/no-img-element -- private media route, admin only
@@ -220,14 +222,27 @@ const AdminCreators = ({ creators, open, available }: Props) => {
                     {c.published ? "Online" : "Entwurf"}
                   </span>
                 </div>
-                <div className="p-3">
+                <div className="px-3 pt-3">
                   <p className="font-semibold text-[#000D36]">{c.name}</p>
-                  <p className="mt-0.5 text-xs text-[#556987]">{c.roles.map((id) => roleLabel(id, "creator")).join(" · ")}</p>
                   <p className="mt-1 text-xs text-[#8a7791]">
                     {[c.city, `${c.photos} Fotos`, `${c.videos} Videos`].filter(Boolean).join(" · ")}
                   </p>
                 </div>
               </Link>
+              {/* Services switch on and off right here, saved at once. */}
+              <div className="p-3 pt-2">
+                <CreatorRoleToggles
+                  size="sm"
+                  creatorId={c.id}
+                  roles={c.roles}
+                  onUnauthorized={() => router.push("/admin/login")}
+                  onSaved={(updated) =>
+                    setCreators((list) =>
+                      list.map((item) => (item.id === updated.id ? { ...item, roles: updated.roles } : item)),
+                    )
+                  }
+                />
+              </div>
             </li>
           ))}
         </ul>
