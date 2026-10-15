@@ -32,6 +32,10 @@ type CreatorDocument = Omit<CreatorProfile, "id">;
 
 export const newMediaId = () => crypto.randomBytes(9).toString("base64url");
 
+/** Random end of a page URL ("karina-x7k2q"): surnames never appear in links. */
+const slugSuffix = () =>
+  Array.from(crypto.randomBytes(5), (byte) => "abcdefghijkmnpqrstuvwxyz23456789"[byte % 32]).join("");
+
 interface Backend {
   available(): boolean;
   list(): Promise<CreatorProfile[]>;
@@ -383,7 +387,7 @@ export async function createCreatorFromApplication(
   const profile = await store.create({
     applicationId: application.id,
     consentConfirmedAt: 0,
-    slug: await uniqueSlug(slugBase(name)),
+    slug: await uniqueSlug(`${slugBase(name)}-${slugSuffix()}`),
     published: false,
     name,
     roles: roles.length > 0 ? roles : ["model"],
@@ -476,7 +480,7 @@ export async function createCreatorWithoutApplication(name: string): Promise<Cre
   return backend().create({
     applicationId: "",
     consentConfirmedAt: now,
-    slug: await uniqueSlug(slugBase(name)),
+    slug: await uniqueSlug(`${slugBase(name)}-${slugSuffix()}`),
     published: false,
     name,
     roles: ["creator"],

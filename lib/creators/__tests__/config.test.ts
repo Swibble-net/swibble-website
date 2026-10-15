@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   defaultCreatorName,
   parseMediaFile,
+  publicName,
   slugBase,
   toPublicCreator,
   validateCreatorInput,
@@ -68,10 +69,11 @@ describe("validateCreatorInput", () => {
 });
 
 describe("helpers", () => {
-  it("keeps the surname off the web by default", () => {
-    expect(defaultCreatorName("Testina", "testperson")).toBe("Testina T.");
+  it("keeps the surname off the web", () => {
+    expect(defaultCreatorName(" Testina ", "Testperson")).toBe("Testina Testperson");
     expect(defaultCreatorName("Testina", "")).toBe("Testina");
-    expect(slugBase("Jürgen Ö.")).toBe("jurgen-o");
+    expect(publicName("Testina  Testperson")).toBe("Testina");
+    expect(slugBase("Jürgen Öztürk")).toBe("jurgen");
   });
 
   it("parses media file names strictly", () => {
@@ -108,7 +110,7 @@ describe("toPublicCreator", () => {
     applicationId: "app-secret",
     slug: "testina-t",
     published: true,
-    name: "Testina T.",
+    name: "Testina Testperson",
     roles: ["model"],
     setcardPath: "creators/cr1/setcard.pdf",
     setcardType: "application/pdf",
@@ -128,6 +130,8 @@ describe("toPublicCreator", () => {
     const json = JSON.stringify(publicCreator);
     expect(json).not.toContain("creators/cr1");
     expect(json).not.toContain("app-secret");
+    expect(json).not.toContain("Testperson");
+    expect(publicCreator.name).toBe("Testina");
     expect(publicCreator.photos[0].url).toBe("/api/creator-media/cr1/photo-p1");
   });
 

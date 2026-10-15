@@ -7,6 +7,7 @@ import {
   type BuiltMail,
   type CreatorInquiry,
 } from "./inquiry";
+import { publicName } from "./config";
 import type { CreatorProfile } from "./types";
 
 export function isMailConfigured(): boolean {
@@ -40,7 +41,9 @@ export async function sendCreatorInquiry(
 
   const base = siteUrl();
   const pageUrl = `${base.replace(/^https:\/\//, "")}/creator${creator ? `/${creator.slug}` : ""}`;
+  // Swibble gets the full name, the sender only what the page shows.
   const name = creator?.name ?? GENERAL_INQUIRY_NAME;
+  const shownName = creator ? publicName(creator.name) : GENERAL_INQUIRY_NAME;
   const send = (to: string, mail: BuiltMail, replyTo: string) =>
     transporter.sendMail({
       from: { name: "Swibble", address: String(SMTP_USER) },
@@ -63,7 +66,11 @@ export async function sendCreatorInquiry(
   );
 
   try {
-    await send(inquiry.email, buildInquiryConfirmation(inquiry, { name, pageUrl }), String(SMTP_USER));
+    await send(
+      inquiry.email,
+      buildInquiryConfirmation(inquiry, { name: shownName, pageUrl }),
+      String(SMTP_USER),
+    );
     return { confirmationSent: true };
   } catch {
     // No details in the logs: SMTP errors can echo addresses.
