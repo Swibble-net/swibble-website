@@ -74,6 +74,10 @@ export interface CenterOption {
 export interface ApplicationPatch {
   status?: ApplicationStatus;
   note?: string;
+  /** Correction of a mistyped birth date, with the derived fields */
+  birthDate?: string;
+  ageAtSubmission?: number;
+  isMinor?: boolean;
 }
 
 interface Backend {

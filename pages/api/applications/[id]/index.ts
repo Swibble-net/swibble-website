@@ -1,10 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
 import {
+  ADULT_AGE,
   APPLICATION_STATUSES,
+  MAX_APPLICATION_AGE,
   NOTE_MAX_LENGTH,
   type ApplicationStatus,
 } from "@/lib/applications/config";
+import { calculateAge, parseIsoDate, todayInBerlin } from "@/lib/applications/age";
 import { deleteCreatorForApplication } from "@/lib/creators/store";
 import {
   deleteApplication,
@@ -37,8 +40,29 @@ export default async function handler(
     }
 
     if (req.method === "PATCH") {
-      const body = (req.body ?? {}) as { status?: unknown; note?: unknown };
+      const body = (req.body ?? {}) as {
+        status?: unknown;
+        note?: unknown;
+        birthDate?: unknown;
+      };
       const patch: ApplicationPatch = {};
+
+      // Correction of a mistyped birth date: age and "minor" are derived for
+      // the day the application came in.
+      if (body.birthDate !== undefined) {
+        const birth = parseIsoDate(body.birthDate);
+        const existing = await getApplication(id);
+        if (!existing) return res.status(404).json({ message: "Nicht gefunden." });
+        const age = birth
+          ? calculateAge(birth, todayInBerlin(new Date(existing.createdAt || Date.now())))
+          : -1;
+        if (!birth || age < 0 || age > MAX_APPLICATION_AGE) {
+          return res.status(400).json({ message: "Bitte prüfe das Geburtsdatum." });
+        }
+        patch.birthDate = body.birthDate as string;
+        patch.ageAtSubmission = age;
+        patch.isMinor = age < ADULT_AGE;
+      }
 
       if (body.status !== undefined) {
         if (!APPLICATION_STATUSES.some((s) => s.id === body.status)) {
