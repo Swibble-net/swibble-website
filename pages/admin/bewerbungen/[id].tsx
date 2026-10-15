@@ -62,6 +62,8 @@ const AdminApplicationDetail = ({ application: initial, creatorId }: Props) => {
   const router = useRouter();
   const [application, setApplication] = useState(initial);
   const [note, setNote] = useState(initial.note);
+  const [editingBirth, setEditingBirth] = useState(false);
+  const [birthInput, setBirthInput] = useState(initial.birthDate);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -101,7 +103,7 @@ const AdminApplicationDetail = ({ application: initial, creatorId }: Props) => {
   };
 
   const patch = async (
-    body: { status?: ApplicationStatus; note?: string },
+    body: { status?: ApplicationStatus; note?: string; birthDate?: string },
     success: string,
   ) => {
     const data = await request({ method: "PATCH", body: JSON.stringify(body) });
@@ -340,8 +342,46 @@ const AdminApplicationDetail = ({ application: initial, creatorId }: Props) => {
         <Card title="Person & Kontakt">
           <dl>
             <Row label="Geburtsdatum">
-              {formatBirthDate(application.birthDate)}
-              {currentAge !== null && ` (heute ${currentAge} Jahre)`}
+              {editingBirth ? (
+                <span className="flex flex-wrap items-center gap-2">
+                  <input
+                    type="date"
+                    aria-label="Geburtsdatum"
+                    value={birthInput}
+                    onChange={(e) => setBirthInput(e.target.value)}
+                    className="rounded-lg bg-[#F6F6F6] px-2 py-1 text-sm"
+                  />
+                  <button
+                    type="button"
+                    disabled={busy || !birthInput}
+                    onClick={async () => {
+                      await patch({ birthDate: birthInput }, "Geburtsdatum korrigiert.");
+                      setEditingBirth(false);
+                    }}
+                    className="rounded-lg bg-[#B718EC] px-3 py-1 text-sm font-medium text-white disabled:opacity-50"
+                  >
+                    Speichern
+                  </button>
+                  <button type="button" onClick={() => setEditingBirth(false)} className={linkClass}>
+                    Abbrechen
+                  </button>
+                </span>
+              ) : (
+                <>
+                  {formatBirthDate(application.birthDate)}
+                  {currentAge !== null && ` (heute ${currentAge} Jahre)`}{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBirthInput(application.birthDate);
+                      setEditingBirth(true);
+                    }}
+                    className={`${linkClass} text-xs`}
+                  >
+                    ändern
+                  </button>
+                </>
+              )}
             </Row>
             <Row label="Wohnort">
               {application.postalCode} {application.city}
