@@ -9,6 +9,10 @@ interface Props {
   onClose: () => void;
   onAdded: (video: Video) => void;
   onUnauthorized: () => void;
+  /** Where the chosen video is sent; default: the home page carousel */
+  addUrl?: string;
+  /** Extra fields for the request body (e.g. the target of a creator page) */
+  addFields?: Record<string, unknown>;
 }
 
 function formatSize(bytes: number | null): string {
@@ -25,7 +29,13 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 /** Modal listing finished videos from the Swibble app. */
-const AppVideoPicker = ({ onClose, onAdded, onUnauthorized }: Props) => {
+const AppVideoPicker = ({
+  onClose,
+  onAdded,
+  onUnauthorized,
+  addUrl = "/api/admin/app-videos",
+  addFields,
+}: Props) => {
   const [data, setData] = useState<AppVideoCandidatePage | null>(null);
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
@@ -89,10 +99,11 @@ const AppVideoPicker = ({ onClose, onAdded, onUnauthorized }: Props) => {
     setAddingId(item.fileId);
     setError("");
     try {
-      const res = await fetch("/api/admin/app-videos", {
+      const res = await fetch(addUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...addFields,
           assetId: item.assetId,
           fileId: item.fileId,
           accountName: item.accountName,

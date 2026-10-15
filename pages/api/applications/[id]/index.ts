@@ -5,6 +5,7 @@ import {
   NOTE_MAX_LENGTH,
   type ApplicationStatus,
 } from "@/lib/applications/config";
+import { deleteCreatorForApplication } from "@/lib/creators/store";
 import {
   deleteApplication,
   getApplication,
@@ -65,6 +66,8 @@ export default async function handler(
     }
 
     if (req.method === "DELETE") {
+      // Withdrawal: the public creator page goes first, then the application.
+      await deleteCreatorForApplication(id);
       const ok = await deleteApplication(id);
       if (!ok) return res.status(404).json({ message: "Nicht gefunden." });
       return res.status(200).json({ success: true });

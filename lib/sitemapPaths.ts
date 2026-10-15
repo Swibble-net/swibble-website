@@ -9,4 +9,5 @@ export const crawlablePaths = [
     changefreq: "monthly",
   })),
   { path: "/blog", priority: "0.8", changefreq: "weekly" },
+  { path: "/creator", priority: "0.7", changefreq: "weekly" },
 ];

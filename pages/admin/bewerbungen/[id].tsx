@@ -19,10 +19,13 @@ import {
   type SocialPlatform,
 } from "@/lib/applications/handles";
 import { getApplication } from "@/lib/applications/store";
+import { getCreatorForApplication } from "@/lib/creators/store";
 import type { Application } from "@/lib/applications/types";
 
 interface Props {
   application: Application;
+  /** Creator page made from this application, if any */
+  creatorId: string | null;
 }
 
 const formatDateTime = (ms: number) =>
@@ -55,7 +58,7 @@ const Row = ({ label, children }: { label: string; children: ReactNode }) => (
   </div>
 );
 
-const AdminApplicationDetail = ({ application: initial }: Props) => {
+const AdminApplicationDetail = ({ application: initial, creatorId }: Props) => {
   const router = useRouter();
   const [application, setApplication] = useState(initial);
   const [note, setNote] = useState(initial.note);
@@ -108,11 +111,33 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
     }
   };
 
+  const createCreatorPage = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/creators", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicationId: application.id }),
+      });
+      if (res.status === 401) {
+        router.push("/admin/login");
+        return;
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Anlegen fehlgeschlagen.");
+      router.push(`/admin/creator/${data.creator.id}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unbekannter Fehler.");
+      setBusy(false);
+    }
+  };
+
   const handleDelete = async () => {
     const name = `${application.firstName} ${application.lastName}`;
     if (
       !confirm(
-        `Bewerbung von ${name} endgültig löschen?\n\nAlle Angaben${hasUploads ? " und alle hochgeladenen Dateien" : ""} werden unwiderruflich entfernt.`,
+        `Bewerbung von ${name} endgültig löschen?\n\nAlle Angaben${hasUploads ? " und alle hochgeladenen Dateien" : ""}${creatorId ? " sowie die Creator-Seite" : ""} werden unwiderruflich entfernt.`,
       )
     ) {
       return;
@@ -169,6 +194,31 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
             </p>
           )}
         </div>
+
+        {isCreator && (
+          <Card title="Creator-Seite">
+            {creatorId ? (
+              <Link href={`/admin/creator/${creatorId}`} className={linkClass}>
+                Creator-Seite bearbeiten →
+              </Link>
+            ) : (
+              <>
+                <p className="mb-3 text-sm text-[#556987]">
+                  Übernimmt Name, Rollen, Wohnort, Kanäle, Fotos und Setcard in eine
+                  eigene Seite (erst als Entwurf).
+                </p>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={createCreatorPage}
+                  className="rounded-[10px] bg-[#B718EC] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#a514d6] disabled:opacity-50"
+                >
+                  Creator-Seite anlegen
+                </button>
+              </>
+            )}
+          </Card>
+        )}
 
         {application.photos.length > 0 && (
           <Card title={`Fotos (${application.photos.length})`}>
@@ -510,7 +560,7 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
           </h2>
           <p className="mt-1 text-sm text-[#556987]">
             Bei Widerruf der Einwilligung oder einer Löschanfrage (DSGVO):
-            entfernt alle Angaben
+            entfernt alle Angaben{creatorId ? ", die öffentliche Creator-Seite" : ""}
             {file ? ", die Einverständniserklärung" : ""}
             {releaseFile ? ", die Creator-Freigabe" : ""}
             {setcardFile ? ", die Setcard" : ""}
@@ -538,8 +588,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const id = typeof ctx.params?.id === "string" ? ctx.params.id : "";
   const application = id ? await getApplication(id) : null;
   if (!application) return { notFound: true };
+  const creator = await getCreatorForApplication(application.id);
 
-  return { props: { application } };
+  return { props: { application, creatorId: creator?.id ?? null } };
 };
 
 export default AdminApplicationDetail;

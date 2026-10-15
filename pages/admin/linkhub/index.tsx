@@ -7,6 +7,7 @@ import { isAuthenticated } from "@/lib/adminAuth";
 import { getAllProfiles } from "@/lib/linkhub/profiles";
 import { isFirebaseConfigured } from "@/lib/firebaseAdmin";
 import type { LinkhubProfile } from "@/lib/linkhub/types";
+import AdminNav from "@/components/admin/AdminNav";
 
 interface Props {
   profiles: LinkhubProfile[];
@@ -45,35 +46,7 @@ const AdminLinkhub = ({ profiles, configured }: Props) => {
 
       <section className="mx-auto w-full max-w-4xl">
         {/* Section nav */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          <Link
-            href="/admin"
-            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
-          >
-            Blog
-          </Link>
-          <span className="rounded-lg bg-[#B718EC] px-3 py-1.5 text-sm font-medium text-white">
-            Linkhub
-          </span>
-          <Link
-            href="/admin/videos"
-            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
-          >
-            Videos
-          </Link>
-          <Link
-            href="/admin/bewerbungen"
-            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
-          >
-            Bewerbungen
-          </Link>
-          <Link
-            href="/admin/pitchdecks"
-            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
-          >
-            Pitchdecks
-          </Link>
-        </div>
+        <AdminNav current="Linkhub" />
 
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold text-[#000D36]">
