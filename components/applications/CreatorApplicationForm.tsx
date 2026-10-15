@@ -807,6 +807,8 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
                 busy={photoList.busy}
                 onAdd={photoList.add}
                 onRemove={photoList.remove}
+                onMove={photoList.move}
+                coverFirst
                 invalidProps={errorProps("photos")}
                 error={errorFor("photos")}
                 hint={`Mindestens ${CREATOR_PHOTO_MIN_COUNT}. Wir verkleinern sie automatisch.`}

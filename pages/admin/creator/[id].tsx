@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import type { GetServerSideProps } from "next";
 import AppVideoPicker from "@/components/admin/AppVideoPicker";
+import { SortableGrid, SortableTile, dragHandleClass, moveItem } from "@/components/SortableGrid";
 import { isAuthenticated } from "@/lib/adminAuth";
 import { CREATOR_ROLES, type CreatorRole } from "@/lib/applications/config";
 import {
@@ -238,6 +239,13 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable, homeVideos }: Props) 
   const reorder = (kind: "photos" | "videos", ids: string[]) =>
     call(`${base}/media`, { method: "PATCH", body: JSON.stringify({ type: "order", kind, ids }) });
 
+  /** Drag and drop: show the new order at once, then save it. */
+  const movePhoto = (from: number, to: number) => {
+    const photos = moveItem(creator.photos, from, to);
+    setCreator((current) => ({ ...current, photos }));
+    void reorder("photos", photos.map((p) => p.id));
+  };
+
   const removeMedia = (kind: "photo" | "video", id: string) => {
     if (!confirm(kind === "photo" ? "Foto entfernen?" : "Video von der Seite entfernen?")) return;
     call(`${base}/media?${kind}=${encodeURIComponent(id)}`, { method: "DELETE" });
@@ -323,19 +331,30 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable, homeVideos }: Props) 
         {/* Photos */}
         <Card
           title={`Fotos (${creator.photos.length})`}
-          hint="Das erste sichtbare Foto ist das Titelbild, die übrigen erscheinen mit den Videos unter „Arbeiten & Referenzen“ (mit Bildunterschrift). „Auf der Seite“ ausschalten blendet ein Foto aus, ohne es zu löschen."
+          hint="Zum Sortieren ein Foto ziehen (am Handy gedrückt halten). Das erste sichtbare Foto ist das Titelbild, die übrigen erscheinen mit den Videos unter „Arbeiten & Referenzen“. „Auf der Seite“ ausschalten blendet ein Foto aus, ohne es zu löschen."
         >
           {creator.photos.length > 0 && (
-            <ul className="mb-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
+            <SortableGrid
+              ids={creator.photos.map((p) => p.id)}
+              onMove={movePhoto}
+              className="mb-4 grid grid-cols-3 gap-3 sm:grid-cols-4"
+            >
               {creator.photos.map((photo, index) => (
-                <li key={photo.id} className="flex flex-col gap-1.5">
-                  <div className="relative">
+                <SortableTile key={photo.id} id={photo.id} className="flex flex-col gap-1.5 bg-white">
+                  {({ handle, dragging }) => (
+                <>
+                  <div
+                    {...handle}
+                    aria-label={`Foto ${index + 1}, zum Verschieben ziehen`}
+                    className={`relative rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] ${dragHandleClass} ${dragging ? "shadow-xl" : ""}`}
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element -- private media route, admin only */}
                     <img
                       src={thumbUrl(creator.id, photo.id)}
-                      alt={`Foto ${index + 1}`}
+                      alt=""
                       loading="lazy"
-                      className={`aspect-[4/5] w-full rounded-lg border border-[#F0E4F5] object-cover ${photo.hidden ? "opacity-40 grayscale" : ""}`}
+                      draggable={false}
+                      className={`pointer-events-none aspect-[4/5] w-full rounded-lg border border-[#F0E4F5] object-cover ${photo.hidden ? "opacity-40 grayscale" : ""}`}
                     />
                     {photo.id === coverId && (
                       <span className="absolute left-1.5 top-1.5 rounded-full bg-[#B718EC] px-2 py-0.5 text-[10px] font-medium text-white">
@@ -375,14 +394,6 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable, homeVideos }: Props) 
                     />
                   )}
                   <div className="flex flex-wrap gap-1">
-                    <button type="button" className={smallButton} disabled={index === 0} aria-label="Nach vorne"
-                      onClick={() => reorder("photos", move(creator.photos, index, -1).map((p) => p.id))}>
-                      ←
-                    </button>
-                    <button type="button" className={smallButton} disabled={index === creator.photos.length - 1} aria-label="Nach hinten"
-                      onClick={() => reorder("photos", move(creator.photos, index, 1).map((p) => p.id))}>
-                      →
-                    </button>
                     {photo.id !== coverId && !photo.hidden && (
                       <button type="button" className={smallButton}
                         onClick={() => reorder("photos", [photo.id, ...creator.photos.filter((p) => p.id !== photo.id).map((p) => p.id)])}>
@@ -393,9 +404,11 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable, homeVideos }: Props) 
                       ✕
                     </button>
                   </div>
-                </li>
+                </>
+                  )}
+                </SortableTile>
               ))}
-            </ul>
+            </SortableGrid>
           )}
           <label className={`${outlineButton} inline-block cursor-pointer ${photoProgress ? "pointer-events-none opacity-50" : ""}`}>
             + Fotos hochladen
