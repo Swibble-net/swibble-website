@@ -166,7 +166,8 @@ const ProjectTile = ({ tile, tall, full = false, priority }: { tile: Tile; tall:
     </>
   );
 
-  const className = `group relative block w-full overflow-hidden rounded-[0.625rem] bg-[#f3e8f7] ${full ? FULL : tall ? TALL : SHORT}`;
+  // isolate: without it Safari drops the rounded corners while the image zooms on hover.
+  const className = `group relative isolate block w-full overflow-hidden rounded-[0.625rem] bg-[#f3e8f7] ${full ? FULL : tall ? TALL : SHORT}`;
 
   return tile.href ? (
     <Link
