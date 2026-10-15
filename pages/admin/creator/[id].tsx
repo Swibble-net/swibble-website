@@ -19,6 +19,7 @@ import {
   videoCoverUrl,
 } from "@/lib/creators/config";
 import { MediaError, uploadCreatorPhoto, uploadCreatorVideo } from "@/lib/creators/clientMedia";
+import { listCopyableHomeVideos, type HomeVideoOption } from "@/lib/creators/homeVideos";
 import { getCreator } from "@/lib/creators/store";
 import type { CreatorProfile, CreatorReference, CreatorVideo } from "@/lib/creators/types";
 import { isAppVideoApiConfigured } from "@/lib/videos/appVideos";
@@ -26,6 +27,8 @@ import { isAppVideoApiConfigured } from "@/lib/videos/appVideos";
 interface Props {
   initial: CreatorProfile;
   appVideosAvailable: boolean;
+  /** Finished videos of the home page carousel that can be copied */
+  homeVideos: HomeVideoOption[];
 }
 
 const inputClass =
@@ -91,7 +94,7 @@ function move<T>(list: T[], index: number, by: number): T[] {
   return next;
 }
 
-const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
+const AdminCreatorEditor = ({ initial, appVideosAvailable, homeVideos }: Props) => {
   const router = useRouter();
   const [creator, setCreator] = useState(initial);
   const [form, setForm] = useState<FormState>(formOf(initial));
@@ -102,6 +105,8 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
   const [photoProgress, setPhotoProgress] = useState("");
   const [videoProgress, setVideoProgress] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [homeOpen, setHomeOpen] = useState(false);
+  const [copying, setCopying] = useState("");
 
   const dirty = JSON.stringify(form) !== JSON.stringify(saved);
   const base = `/api/admin/creators/${creator.id}`;
@@ -145,6 +150,16 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
+
+  const copyHomeVideo = async (option: HomeVideoOption) => {
+    setCopying(option.id);
+    const updated = await call(`${base}/media`, {
+      method: "POST",
+      body: JSON.stringify({ type: "homeVideo", videoId: option.id, title: option.accountName }),
+    });
+    setCopying("");
+    if (updated) setHomeOpen(false);
+  };
 
   const save = async (next: FormState = form) => {
     setBusy(true);
@@ -466,12 +481,41 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
                 + Aus Swibble-App
               </button>
             )}
+            {homeVideos.length > 0 && (
+              <button type="button" className={outlineButton} disabled={creator.videos.length >= VIDEOS_MAX} aria-expanded={homeOpen} onClick={() => setHomeOpen((open) => !open)}>
+                + Von der Startseite
+              </button>
+            )}
             <label className={`${outlineButton} inline-block cursor-pointer ${videoProgress || creator.videos.length >= VIDEOS_MAX ? "pointer-events-none opacity-50" : ""}`}>
               + Video hochladen
               <input type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.m4v,.webm" className="sr-only" onChange={handleVideo} disabled={Boolean(videoProgress)} />
             </label>
           </div>
           {videoProgress && <p className="mt-2 text-xs text-[#556987]" aria-live="polite">{videoProgress}</p>}
+          {homeOpen && (
+            <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
+              {homeVideos.map((option) => (
+                <li key={option.id}>
+                  <button
+                    type="button"
+                    disabled={Boolean(copying)}
+                    onClick={() => copyHomeVideo(option)}
+                    className="group flex w-full flex-col gap-1 text-left disabled:opacity-50"
+                  >
+                    <span className="block aspect-[9/16] w-full overflow-hidden rounded-md bg-[#FDF5FF] ring-1 ring-[#F0E4F5] group-hover:ring-[#B718EC]">
+                      {option.coverUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element -- cover of a home page video
+                        <img src={option.coverUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
+                      )}
+                    </span>
+                    <span className="line-clamp-2 text-xs text-[#2A3342]">
+                      {copying === option.id ? "Wird übernommen …" : option.accountName || option.title}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         {/* Profile */}
@@ -686,7 +730,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const id = typeof ctx.params?.id === "string" ? ctx.params.id : "";
   const creator = id ? await getCreator(id) : null;
   if (!creator) return { notFound: true };
-  return { props: { initial: creator, appVideosAvailable: isAppVideoApiConfigured() } };
+  return {
+    props: {
+      initial: creator,
+      appVideosAvailable: isAppVideoApiConfigured(),
+      homeVideos: await listCopyableHomeVideos().catch(() => []),
+    },
+  };
 };
 
 export default AdminCreatorEditor;

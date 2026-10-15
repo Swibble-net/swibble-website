@@ -702,6 +702,41 @@ export async function saveCreatorVideoCover(
   }));
 }
 
+/** Stores a complete video file (e.g. copied from the home page) as a ready upload. */
+export async function addCreatorVideoFile(
+  profile: CreatorProfile,
+  file: {
+    buffer: Buffer;
+    contentType: string;
+    cover: Buffer | null;
+    title: string;
+    width: number;
+    height: number;
+  },
+): Promise<CreatorProfile | null> {
+  const store = backend();
+  const id = newMediaId();
+  const folder = videoFolder(profile.id, id);
+  const path = `${folder}video.${EXTENSIONS[file.contentType] ?? "mp4"}`;
+  await store.writeFile(path, file.buffer, file.contentType);
+  const coverPath = file.cover ? `${folder}cover.jpg` : "";
+  if (file.cover) await store.writeFile(coverPath, file.cover, "image/jpeg");
+  const video: CreatorVideo = {
+    ...emptyVideo(id, "upload", file.title),
+    status: "ready",
+    path,
+    coverPath,
+    contentType: file.contentType,
+    size: file.buffer.length,
+    width: file.width,
+    height: file.height,
+  };
+  return store.mutate(profile.id, (current) => ({
+    ...withoutId(current),
+    videos: [...current.videos, video],
+  }));
+}
+
 /** Joins the uploaded pieces; the video goes live once the size matches. */
 export async function completeCreatorVideoUpload(
   profile: CreatorProfile,
