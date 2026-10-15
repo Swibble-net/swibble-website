@@ -47,6 +47,9 @@ const nextConfig = {
       // the scans visible in analytics.
       { source: "/card", destination: "/?utm_source=visitenkarte&utm_medium=qr", permanent: true },
       { source: "/redirect/poster", destination: "/?utm_source=poster&utm_medium=qr", permanent: true },
+      // /linkhub on its own has no page: show Swibble's own profile. Temporary,
+      // so browsers don't cache it in case the target changes.
+      { source: "/linkhub", destination: "/linkhub/swibble", permanent: false },
     ];
   },
   async rewrites() {
