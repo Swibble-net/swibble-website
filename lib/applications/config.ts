@@ -27,6 +27,7 @@ export const CREATOR_ROLES = [
   { id: "model", label: "Model", icon: "📸", hint: "Shootings, Kampagnen, Videos" },
   { id: "creator", label: "Content Creator", icon: "🎬", hint: "TikTok, Reels, UGC" },
   { id: "moderation", label: "Moderation", icon: "🎤", hint: "Events, Bühne, Kamera" },
+  { id: "promoter", label: "Promoter:in", icon: "📣", hint: "Events, Messen, Promotion" },
 ] as const;
 
 export type CreatorRole = (typeof CREATOR_ROLES)[number]["id"];
@@ -137,17 +138,25 @@ export type GuardianMethod = (typeof GUARDIAN_METHODS)[number];
 
 /** The declaration as plain text, as stored with an online-signed application. */
 export function guardianDeclarationText(roleIds: readonly string[]): string {
-  const roles = roleIds.map(roleLabel).join(", ");
+  const roles = roleIds.map((id) => roleLabel(id)).join(", ");
   return [
     GUARDIAN_DECLARATION_INTRO.replace("{roles}", roles),
     ...GUARDIAN_DECLARATION_CLAUSES.map((clause, i) => `${i + 1}. ${clause}`),
   ].join("\n\n");
 }
 
-export function roleLabel(id: string): string {
+/**
+ * Display name of a role. Ids shared by both forms ("model", "promoter") use
+ * the wording of the form the application came from.
+ */
+export function roleLabel(id: string, pool: ApplicationPool = "videos"): string {
+  const [first, second] =
+    pool === "creator"
+      ? [CREATOR_ROLES, APPLICATION_ROLES]
+      : [APPLICATION_ROLES, CREATOR_ROLES];
   return (
-    APPLICATION_ROLES.find((r) => r.id === id)?.label ??
-    CREATOR_ROLES.find((r) => r.id === id)?.label ??
+    (first as readonly { id: string; label: string }[]).find((r) => r.id === id)?.label ??
+    (second as readonly { id: string; label: string }[]).find((r) => r.id === id)?.label ??
     id
   );
 }
@@ -205,7 +214,8 @@ export function creatorReleaseText(
   name: string,
   roleIds: readonly string[],
 ): string {
-  const roles = roleIds.length > 0 ? roleIds.map(roleLabel).join(", ") : "–";
+  const roles =
+    roleIds.length > 0 ? roleIds.map((id) => roleLabel(id, "creator")).join(", ") : "–";
   return [
     CREATOR_RELEASE_INTRO.replace("{name}", name.trim() || "–").replace(
       "{roles}",

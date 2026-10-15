@@ -16,6 +16,7 @@ import {
   BirthDateFields,
   CheckboxField,
   HandleField,
+  PhoneField,
   PhotoPicker,
   fieldErrors,
   fileInputClass,
@@ -47,6 +48,7 @@ import {
   type PreparedFile,
 } from "@/lib/applications/clientFile";
 import { renderSignedDocument } from "@/lib/applications/declarationImage";
+import { DEFAULT_PHONE_COUNTRY, combinePhone } from "@/lib/applications/phone";
 import { errorsForStep, firstStepWithErrors } from "@/lib/applications/steps";
 import { validateCreatorApplication } from "@/lib/applications/validation";
 import type { ApplicationErrors } from "@/lib/applications/types";
@@ -138,6 +140,7 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
     (PreparedFile & { kind: "pdf" | "image"; compressed: boolean }) | null
   >(null);
   const [setcardBusy, setSetcardBusy] = useState(false);
+  const [phoneCode, setPhoneCode] = useState(DEFAULT_PHONE_COUNTRY);
   const [releaseAccepted, setReleaseAccepted] = useState(false);
   const [privacyAck, setPrivacyAck] = useState(false);
   const [signature, setSignature] = useState<string | null>(null);
@@ -196,7 +199,7 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
     postalCode: fields.postalCode,
     city: fields.city,
     email: fields.email,
-    phone: fields.phone,
+    phone: combinePhone(phoneCode, fields.phone),
     instagram: fields.instagram,
     tiktok: fields.tiktok,
     youtube: fields.youtube,
@@ -334,7 +337,7 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
             lines: [
               `${fullName}, geboren am ${pad(fields.birthDay)}.${pad(fields.birthMonth)}.${fields.birthYear}`,
               `${fields.postalCode.trim()} ${fields.city.trim()}`,
-              [fields.email.trim(), fields.phone.trim()].join(" · "),
+              [fields.email.trim(), payload.phone].join(" · "),
             ],
           },
         ],
@@ -397,7 +400,9 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
 
   const { errorProps, errorFor } = fieldErrors(formId, errors);
   const releaseRoles =
-    roles.length > 0 ? roles.map(roleLabel).join(", ") : "die oben gewählten Tätigkeiten";
+    roles.length > 0
+      ? roles.map((id) => roleLabel(id, "creator")).join(", ")
+      : "die oben gewählten Tätigkeiten";
 
   return (
     // method="post": if someone submits before hydration, the browser must not
@@ -569,19 +574,21 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
               <label className={labelClass} htmlFor="f-phone">
                 Handynummer*
               </label>
-              <input
+              <PhoneField
                 id="f-phone"
-                type="tel"
-                className={inputClass}
+                country={phoneCode}
+                onCountryChange={(code) => {
+                  setPhoneCode(code);
+                  clearError("phone");
+                }}
                 value={fields.phone}
                 onChange={setField("phone")}
-                autoComplete="tel"
-                inputMode="tel"
-                maxLength={30}
-                placeholder="0151 2345678"
+                placeholder={phoneCode === "DE" ? "0151 2345678" : "Nummer"}
                 required
-                aria-invalid={errors.phone ? true : undefined}
-                aria-describedby={`${formId}-phone-hint${errors.phone ? ` ${formId}-phone-error` : ""}`}
+                invalidProps={{
+                  "aria-invalid": errors.phone ? true : undefined,
+                  "aria-describedby": `${formId}-phone-hint${errors.phone ? ` ${formId}-phone-error` : ""}`,
+                }}
               />
               <p id={`${formId}-phone-hint`} className="mt-1.5 text-xs text-[#8a7791]">
                 Am besten eine Nummer, unter der du bei WhatsApp erreichbar bist.

@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { useId, useState, useSyncExternalStore, type FormEvent } from "react";
 import TurnstileWidget from "@/components/TurnstileWidget";
-import { fieldErrors, inputClass, labelClass, optionalMark } from "@/components/applications/formParts";
+import {
+  PhoneField,
+  fieldErrors,
+  inputClass,
+  labelClass,
+  optionalMark,
+} from "@/components/applications/formParts";
+import { DEFAULT_PHONE_COUNTRY, combinePhone } from "@/lib/applications/phone";
 import { INQUIRY_MESSAGE_MAX_LENGTH, validateCreatorInquiry } from "@/lib/creators/inquiry";
 
 const subscribeNever = () => () => {};
@@ -18,6 +25,7 @@ const InquiryForm = ({ slug, creatorName }: { slug: string; creatorName: string 
     message: "",
     website: "", // honeypot
   });
+  const [phoneCode, setPhoneCode] = useState(DEFAULT_PHONE_COUNTRY);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
   const [sending, setSending] = useState(false);
@@ -41,7 +49,8 @@ const InquiryForm = ({ slug, creatorName }: { slug: string; creatorName: string 
     if (sending) return;
     setFormError("");
 
-    const result = validateCreatorInquiry(fields);
+    const payload = { ...fields, phone: combinePhone(phoneCode, fields.phone) };
+    const result = validateCreatorInquiry(payload);
     const found: Record<string, string> = result.ok ? {} : { ...result.errors };
     if (turnstileRequired && !turnstileToken) {
       found.turnstile = "Bitte warte kurz, bis die Spam-Prüfung abgeschlossen ist.";
@@ -58,7 +67,7 @@ const InquiryForm = ({ slug, creatorName }: { slug: string; creatorName: string 
       const res = await fetch(`/api/creators/${encodeURIComponent(slug)}/inquiry`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...fields, turnstileToken }),
+        body: JSON.stringify({ ...payload, turnstileToken }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
@@ -92,7 +101,7 @@ const InquiryForm = ({ slug, creatorName }: { slug: string; creatorName: string 
 
   const { errorProps, errorFor } = fieldErrors(formId, errors);
   const field = (
-    key: "company" | "name" | "email" | "phone",
+    key: "company" | "name" | "email",
     label: string,
     props: Record<string, string> = {},
     optional = false,
@@ -121,7 +130,21 @@ const InquiryForm = ({ slug, creatorName }: { slug: string; creatorName: string 
         {field("company", "Unternehmen", { autoComplete: "organization" })}
         {field("name", "Dein Name", { autoComplete: "name" })}
         {field("email", "E-Mail", { type: "email", autoComplete: "email", inputMode: "email" })}
-        {field("phone", "Telefon", { type: "tel", autoComplete: "tel", inputMode: "tel" }, true)}
+        <div>
+          <label className={labelClass} htmlFor="i-phone">
+            Telefon
+            {optionalMark}
+          </label>
+          <PhoneField
+            id="i-phone"
+            country={phoneCode}
+            onCountryChange={setPhoneCode}
+            value={fields.phone}
+            onChange={set("phone")}
+            invalidProps={errorProps("phone")}
+          />
+          {errorFor("phone")}
+        </div>
       </div>
       <div>
         <label className={labelClass} htmlFor="i-message">

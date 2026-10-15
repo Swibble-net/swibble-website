@@ -36,7 +36,7 @@ const CreatorPage: NextPageWithLayout<Props> = ({ available, previewOnly }) => {
     <>
       <SEO
         title="Werde Swibble Creator"
-        description="Du bist Model, Content Creator oder moderierst? Bewirb dich in wenigen Schritten für den Swibble Creator Pool – wir stellen dich unseren Kunden vor."
+        description="Model, Content Creator, Moderation oder Promotion? Bewirb dich in wenigen Schritten für den Swibble Creator Pool – wir stellen dich unseren Kunden vor."
         canonical="/bewerben/creator"
       />
 
@@ -61,9 +61,9 @@ const CreatorPage: NextPageWithLayout<Props> = ({ available, previewOnly }) => {
                   Werde Swibble Creator ✨
                 </h1>
                 <p className="max-w-md text-base text-[#556987]">
-                  Für Models, Content Creator und Moderation: Wir stellen dich
-                  unseren Kunden vor und buchen dich für Shootings, Videos und
-                  Events.
+                  Für Models, Content Creator, Moderation und Promotion: Wir
+                  stellen dich unseren Kunden vor und buchen dich für Shootings,
+                  Videos und Events.
                 </p>
               </>
             )}

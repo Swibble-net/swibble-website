@@ -10,6 +10,12 @@ import {
   preparePhoto,
   type PreparedFile,
 } from "@/lib/applications/clientFile";
+import {
+  PHONE_COUNTRIES,
+  PINNED_PHONE_COUNTRIES,
+  flagEmoji,
+  phoneCountry,
+} from "@/lib/applications/phone";
 import type { ApplicationErrors } from "@/lib/applications/types";
 
 // Building blocks shared by the application forms (/bewerben and
@@ -176,6 +182,86 @@ export function HandleField({
         />
       </div>
       {error}
+    </div>
+  );
+}
+
+/**
+ * Phone number with a country code picker on the left (flag + code; the
+ * native list opens the phone's own picker). The number field holds what
+ * was typed; combine both with combinePhone() before validating.
+ */
+export function PhoneField({
+  id,
+  country,
+  onCountryChange,
+  value,
+  onChange,
+  placeholder,
+  invalidProps,
+  required,
+  autoComplete = "tel",
+}: {
+  id: string;
+  autoComplete?: string;
+  country: string;
+  onCountryChange: (code: string) => void;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  invalidProps: { "aria-invalid"?: true; "aria-describedby"?: string };
+  required?: boolean;
+}) {
+  const selected = phoneCountry(country);
+  return (
+    <div className="flex gap-2">
+      <div className="relative shrink-0 rounded-xl border border-[#E4D3EC] bg-white has-[:focus-visible]:border-[#B718EC] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#B718EC]/30">
+        <span
+          className="pointer-events-none flex h-full items-center gap-1.5 px-3 text-base text-[#000D36]"
+          aria-hidden
+        >
+          <span className="text-xl leading-none">{flagEmoji(selected.code)}</span>
+          <span>+{selected.dial}</span>
+          <span className="text-xs text-[#8a7791]">▾</span>
+        </span>
+        <select
+          id={`${id}-country`}
+          aria-label="Ländervorwahl"
+          value={selected.code}
+          onChange={(e) => onCountryChange(e.target.value)}
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        >
+          {PINNED_PHONE_COUNTRIES.map((code) => {
+            const c = phoneCountry(code);
+            return (
+              <option key={`pinned-${code}`} value={code}>
+                {flagEmoji(code)} {c.name} (+{c.dial})
+              </option>
+            );
+          })}
+          <option disabled value="">
+            ──────────
+          </option>
+          {PHONE_COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {flagEmoji(c.code)} {c.name} (+{c.dial})
+            </option>
+          ))}
+        </select>
+      </div>
+      <input
+        id={id}
+        type="tel"
+        className={`${inputClass} min-w-0 flex-1`}
+        value={value}
+        onChange={onChange}
+        autoComplete={autoComplete}
+        inputMode="tel"
+        maxLength={30}
+        placeholder={placeholder}
+        required={required}
+        {...invalidProps}
+      />
     </div>
   );
 }

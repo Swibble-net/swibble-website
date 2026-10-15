@@ -176,8 +176,8 @@ const AdminApplications = ({
           <p className="mb-3 text-xs text-[#8a7791]">
             Nur aktivierte Optionen stehen auf /bewerben zur Auswahl – für alle
             Center. Mindestens eine muss aktiv bleiben. Der Creator Pool
-            (/bewerben/creator) bietet immer Model, Content Creator und
-            Moderation an.
+            (/bewerben/creator) bietet immer Model, Content Creator, Moderation
+            und Promoter:in an.
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {APPLICATION_ROLES.map((r) => {
@@ -317,7 +317,7 @@ const AdminApplications = ({
                     <StatusBadge status={a.status} />
                   </div>
                   <p className="mt-1 text-sm text-[#556987]">
-                    {a.roles.map(roleLabel).join(", ")}
+                    {a.roles.map((id) => roleLabel(id, a.pool)).join(", ")}
                   </p>
                   <p className="mt-1 text-xs text-[#8a7791]">
                     {a.age !== null && `${a.age} Jahre · `}

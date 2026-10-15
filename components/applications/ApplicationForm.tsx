@@ -17,6 +17,7 @@ import {
   BirthDateFields,
   CheckboxField,
   HandleField,
+  PhoneField,
   PhotoPicker,
   fieldErrors,
   inputClass,
@@ -48,6 +49,7 @@ import {
   type PreparedFile,
 } from "@/lib/applications/clientFile";
 import { renderDeclarationDocument } from "@/lib/applications/declarationImage";
+import { DEFAULT_PHONE_COUNTRY, combinePhone } from "@/lib/applications/phone";
 import { adoptEarlyInput } from "@/lib/applications/earlyInput";
 import {
   errorsForStep,
@@ -190,6 +192,8 @@ const ApplicationForm = ({
     guardianAddress: "",
     website: "", // honeypot
   });
+  const [phoneCode, setPhoneCode] = useState(DEFAULT_PHONE_COUNTRY);
+  const [guardianPhoneCode, setGuardianPhoneCode] = useState(DEFAULT_PHONE_COUNTRY);
   const [contactConsent, setContactConsent] = useState(false);
   const [privacyAck, setPrivacyAck] = useState(false);
   const [guardianConfirmed, setGuardianConfirmed] = useState(false);
@@ -352,7 +356,7 @@ const ApplicationForm = ({
     postalCode: fields.postalCode,
     city: fields.city,
     email: fields.email,
-    phone: fields.phone,
+    phone: combinePhone(phoneCode, fields.phone),
     tiktok: fields.tiktok,
     instagram: fields.instagram,
     snapchat: fields.snapchat,
@@ -365,7 +369,7 @@ const ApplicationForm = ({
     guardian: isMinor
       ? {
           name: fields.guardianName,
-          phone: fields.guardianPhone,
+          phone: combinePhone(guardianPhoneCode, fields.guardianPhone),
           email: fields.guardianEmail,
           address: fields.guardianAddress,
           method: guardianMethod,
@@ -450,7 +454,7 @@ const ApplicationForm = ({
           childName: `${fields.firstName} ${fields.lastName}`.trim(),
           birthDate: `${pad(fields.birthDay)}.${pad(fields.birthMonth)}.${fields.birthYear}`,
           guardianName: fields.guardianName.trim(),
-          guardianContact: [fields.guardianPhone, fields.guardianEmail]
+          guardianContact: [payload.guardian?.phone ?? "", fields.guardianEmail]
             .map((v) => v.trim())
             .filter(Boolean)
             .join(" · "),
@@ -663,19 +667,21 @@ const ApplicationForm = ({
               <label className={labelClass} htmlFor="f-phone">
                 Handynummer*
               </label>
-              <input
+              <PhoneField
                 id="f-phone"
-                type="tel"
-                className={inputClass}
+                country={phoneCode}
+                onCountryChange={(code) => {
+                  setPhoneCode(code);
+                  clearError("phone");
+                }}
                 value={fields.phone}
                 onChange={setField("phone")}
-                autoComplete="tel"
-                inputMode="tel"
-                maxLength={30}
-                placeholder="0151 2345678"
+                placeholder={phoneCode === "DE" ? "0151 2345678" : "Nummer"}
                 required
-                aria-invalid={errors.phone ? true : undefined}
-                aria-describedby={`${formId}-phone-hint${errors.phone ? ` ${formId}-phone-error` : ""}`}
+                invalidProps={{
+                  "aria-invalid": errors.phone ? true : undefined,
+                  "aria-describedby": `${formId}-phone-hint${errors.phone ? ` ${formId}-phone-error` : ""}`,
+                }}
               />
               <p id={`${formId}-phone-hint`} className="mt-1.5 text-xs text-[#8a7791]">
                 Am besten eine Nummer, unter der du bei WhatsApp erreichbar bist.
@@ -811,22 +817,23 @@ const ApplicationForm = ({
               <legend className={labelClass}>
                 Telefonnummer oder E-Mail dieser Person*
               </legend>
-              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2.5">
                 <div>
                   <label className="sr-only" htmlFor="f-guardianPhone">
                     Telefonnummer der erziehungsberechtigten Person
                   </label>
-                  <input
+                  <PhoneField
                     id="f-guardianPhone"
-                    type="tel"
-                    className={inputClass}
+                    country={guardianPhoneCode}
+                    onCountryChange={(code) => {
+                      setGuardianPhoneCode(code);
+                      clearError("guardianPhone", "guardianContact");
+                    }}
                     value={fields.guardianPhone}
                     onChange={setField("guardianPhone", "guardianContact")}
-                    inputMode="tel"
                     autoComplete="off"
-                    maxLength={30}
                     placeholder="Telefon"
-                    {...errorProps("guardianPhone", "guardianContact")}
+                    invalidProps={errorProps("guardianPhone", "guardianContact")}
                   />
                   {errorFor("guardianPhone")}
                 </div>
@@ -939,7 +946,7 @@ const ApplicationForm = ({
                           {GUARDIAN_DECLARATION_INTRO.replace(
                             "{roles}",
                             roles.length > 0
-                              ? roles.map(roleLabel).join(", ")
+                              ? roles.map((id) => roleLabel(id)).join(", ")
                               : "die oben gewählten Tätigkeiten",
                           )}
                         </p>

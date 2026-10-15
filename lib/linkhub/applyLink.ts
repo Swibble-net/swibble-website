@@ -12,7 +12,7 @@ export const APPLY_LINK_LABEL_MAX_LENGTH = 60;
  */
 export const CREATOR_LINK_ID = "builtin-creator";
 export const CREATOR_LINK_LABEL = "Swibble Creator werden";
-export const CREATOR_LINK_SUBLABEL = "Für Models, Content Creator & Moderation";
+export const CREATOR_LINK_SUBLABEL = "Models, Creator, Moderation & Promotion";
 export const CREATOR_LINK_HREF = "/bewerben/creator";
 export const CREATOR_LINK_DEFAULT_SLUG = "swibble";
 
