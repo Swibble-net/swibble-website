@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { GetServerSideProps } from "next";
 import SEO from "@/components/SEO";
 import CreatorCard from "@/components/creators/CreatorCard";
+import InquiryForm from "@/components/creators/InquiryForm";
 import { CREATOR_ROLES, type CreatorRole } from "@/lib/applications/config";
 import { toPublicCreator } from "@/lib/creators/config";
 import { getPublishedCreators } from "@/lib/creators/store";
@@ -40,6 +41,16 @@ const CreatorOverview = ({ creators }: Props) => {
             Models, Content Creator, Moderation und Promotion für Videos,
             Shootings und Events.
           </p>
+          <Link
+            href="/bewerben/creator"
+            className="group mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-gradient-to-r from-[#B718EC] to-[#7B3CF0] px-6 py-3 font-bold text-white shadow-lg shadow-purple-200 transition hover:shadow-xl hover:shadow-purple-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] motion-safe:hover:-translate-y-0.5"
+          >
+            <span aria-hidden>✨</span>
+            Swibble Creator werden
+            <span aria-hidden className="transition motion-safe:group-hover:translate-x-0.5">
+              →
+            </span>
+          </Link>
         </header>
 
         {roles.length > 1 && (
@@ -70,25 +81,21 @@ const CreatorOverview = ({ creators }: Props) => {
             ))}
           </ul>
         ) : (
-          <p className="rounded-2xl bg-[#FDF5FF] p-8 text-center text-[#556987]">
-            Bald stellen wir hier unsere Creator vor.
-          </p>
+          <p className="text-center text-[#556987]">Bald stellen wir hier unsere Creator vor.</p>
         )}
 
-        <div className="mt-12 grid gap-3 sm:grid-cols-2">
-          <Link
-            href="/#kontakt"
-            className="rounded-2xl bg-[#B718EC] px-6 py-4 text-center font-bold text-white shadow-lg shadow-purple-200 hover:bg-[#a514d6]"
-          >
-            Creator für ein Projekt anfragen
-          </Link>
-          <Link
-            href="/bewerben/creator"
-            className="rounded-2xl border border-[#E4D3EC] bg-white px-6 py-4 text-center font-medium text-[#000D36] hover:border-[#B718EC]"
-          >
-            Selbst Swibble Creator werden
-          </Link>
-        </div>
+        <section
+          id="anfrage"
+          className="mx-auto mt-14 max-w-3xl scroll-mt-28 rounded-3xl bg-white p-5 shadow-[0_25px_100px_rgba(76,64,247,0.08)] ring-1 ring-[#F6ECFA] sm:p-8"
+        >
+          <h2 className="text-xl font-bold text-[#000D36] lg:text-2xl">Creator anfragen</h2>
+          <p className="mt-1 text-sm text-[#556987]">
+            Sag uns kurz, wen du suchst – wir melden uns mit passenden Creatorn.
+          </p>
+          <div className="mt-5">
+            <InquiryForm />
+          </div>
+        </section>
       </section>
     </>
   );

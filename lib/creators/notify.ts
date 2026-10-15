@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { EMAIL_LOGO_ATTACHMENT, SITE_URL } from "@/lib/contact/mailLayout";
 import {
+  GENERAL_INQUIRY_NAME,
   buildInquiryConfirmation,
   buildInquiryNotification,
   type BuiltMail,
@@ -23,11 +24,12 @@ function siteUrl(): string {
 
 /**
  * Sends an inquiry to Swibble (reply-to: the sender) and a confirmation to
- * the sender. Throws when the mail to Swibble fails — then nothing arrived.
+ * the sender — for one creator, or general (creator null, from /creator).
+ * Throws when the mail to Swibble fails — then nothing arrived.
  */
 export async function sendCreatorInquiry(
   inquiry: CreatorInquiry,
-  creator: CreatorProfile,
+  creator: CreatorProfile | null,
 ): Promise<{ confirmationSent: boolean }> {
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD } = process.env;
   const transporter = nodemailer.createTransport({
@@ -37,7 +39,8 @@ export async function sendCreatorInquiry(
   });
 
   const base = siteUrl();
-  const pageUrl = `${base.replace(/^https:\/\//, "")}/creator/${creator.slug}`;
+  const pageUrl = `${base.replace(/^https:\/\//, "")}/creator${creator ? `/${creator.slug}` : ""}`;
+  const name = creator?.name ?? GENERAL_INQUIRY_NAME;
   const send = (to: string, mail: BuiltMail, replyTo: string) =>
     transporter.sendMail({
       from: { name: "Swibble", address: String(SMTP_USER) },
@@ -52,15 +55,15 @@ export async function sendCreatorInquiry(
   await send(
     String(SMTP_USER),
     buildInquiryNotification(inquiry, {
-      name: creator.name,
+      name,
       pageUrl,
-      adminUrl: `${base}/admin/creator/${creator.id}`,
+      adminUrl: `${base}/admin/creator${creator ? `/${creator.id}` : ""}`,
     }),
     inquiry.email,
   );
 
   try {
-    await send(inquiry.email, buildInquiryConfirmation(inquiry, { name: creator.name, pageUrl }), String(SMTP_USER));
+    await send(inquiry.email, buildInquiryConfirmation(inquiry, { name, pageUrl }), String(SMTP_USER));
     return { confirmationSent: true };
   } catch {
     // No details in the logs: SMTP errors can echo addresses.

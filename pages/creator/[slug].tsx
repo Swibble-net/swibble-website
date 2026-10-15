@@ -10,13 +10,13 @@ import {
   IoLogoYoutube,
 } from "react-icons/io5";
 import SEO from "@/components/SEO";
-import CreatorVideos from "@/components/creators/CreatorVideos";
+import CreatorWork from "@/components/creators/CreatorWork";
 import InquiryForm from "@/components/creators/InquiryForm";
-import PhotoGallery from "@/components/creators/PhotoGallery";
 import { isAuthenticated } from "@/lib/adminAuth";
 import { roleLabel } from "@/lib/applications/config";
 import { SOCIAL_PLATFORMS, profileUrl, type SocialPlatform } from "@/lib/applications/handles";
 import { toPublicCreator } from "@/lib/creators/config";
+import { refreshCreatorAppVideos } from "@/lib/creators/appVideos";
 import { getCreatorBySlug } from "@/lib/creators/store";
 import type { PublicCreator } from "@/lib/creators/types";
 
@@ -140,48 +140,48 @@ const CreatorPage = ({ creator, preview }: Props) => {
           </div>
         </header>
 
-        {creator.videos.length > 0 && (
-          <Section title="Videos">
-            <CreatorVideos videos={creator.videos} />
-          </Section>
-        )}
-
-        {creator.photos.length > 1 && (
-          <Section title="Fotos">
-            <PhotoGallery photos={creator.photos.slice(1)} name={creator.name} />
-          </Section>
-        )}
-
-        {creator.references.length > 0 && (
-          <Section title="Referenzen">
-            <ul className="flex flex-wrap gap-2">
-              {creator.references.map((ref) => {
-                const label = (
-                  <>
-                    <span className="font-semibold">{ref.name}</span>
-                    {ref.detail && <span className="text-[#556987]"> · {ref.detail}</span>}
-                  </>
-                );
-                return (
-                  <li key={ref.id}>
-                    {ref.url ? (
-                      <a
-                        href={ref.url}
-                        target="_blank"
-                        rel="noopener noreferrer nofollow"
-                        className="block rounded-xl border border-[#F0E6F4] bg-white px-4 py-2.5 text-sm text-[#000D36] hover:border-[#B718EC]"
-                      >
-                        {label} ↗
-                      </a>
-                    ) : (
-                      <span className="block rounded-xl border border-[#F0E6F4] bg-white px-4 py-2.5 text-sm text-[#000D36]">
-                        {label}
-                      </span>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+        {(creator.videos.length > 0 || creator.photos.length > 1 || creator.references.length > 0) && (
+          <Section title="Arbeiten & Referenzen">
+            {(creator.videos.length > 0 || creator.photos.length > 1) && (
+              <CreatorWork
+                photos={creator.photos.slice(1)}
+                videos={creator.videos}
+                name={creator.name}
+              />
+            )}
+            {creator.references.length > 0 && (
+              <ul className="mt-4 flex flex-wrap gap-2" aria-label="Weitere Referenzen">
+                {creator.references.map((ref) => {
+                  const label = (
+                    <>
+                      <span className="font-semibold text-[#000D36]">{ref.name}</span>
+                      {ref.detail && <span className="text-[#556987]"> · {ref.detail}</span>}
+                    </>
+                  );
+                  const pill =
+                    "inline-flex min-h-10 items-center rounded-full bg-[#FDF5FF] px-4 py-2 text-sm ring-1 ring-[#F0E6F4]";
+                  return (
+                    <li key={ref.id}>
+                      {ref.url ? (
+                        <a
+                          href={ref.url}
+                          target="_blank"
+                          rel="noopener noreferrer nofollow"
+                          className={`${pill} hover:ring-[#B718EC]`}
+                        >
+                          {label}
+                          <span aria-hidden className="ml-1 text-[#B718EC]">
+                            ↗
+                          </span>
+                        </a>
+                      ) : (
+                        <span className={pill}>{label}</span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </Section>
         )}
 
@@ -203,7 +203,9 @@ const CreatorPage = ({ creator, preview }: Props) => {
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ params, req, res }) => {
   const slug = typeof params?.slug === "string" ? params.slug : "";
-  const profile = await getCreatorBySlug(slug).catch(() => null);
+  const found = await getCreatorBySlug(slug).catch(() => null);
+  // Web copies from the Swibble app that finished since the editor was closed.
+  const profile = found ? await refreshCreatorAppVideos(found) : null;
   const admin = profile && !profile.published ? isAuthenticated(req) : false;
   if (!profile || (!profile.published && !admin)) return { notFound: true };
 

@@ -4,6 +4,7 @@
 
 import { downscale, toBase64 } from "@/lib/applications/clientFile";
 import { inspectVideo, videoType } from "@/lib/applications/clientVideo";
+import { compressVideo } from "@/lib/applications/compressVideo";
 import {
   PHOTO_LARGE_MAX_BYTES,
   PHOTO_LARGE_MAX_SIDE,
@@ -72,22 +73,30 @@ async function put(url: string, body: Blob) {
   }
 }
 
-/** Uploads a video file in pieces and puts it on the creator page. */
+/**
+ * Compresses a video in the browser (720p MP4 where possible), uploads it in
+ * pieces and puts it on the creator page.
+ */
 export async function uploadCreatorVideo(
   creatorId: string,
-  file: File,
+  source: File,
   title: string,
-  onProgress: (sent: number, total: number) => void,
+  onProgress: (phase: "compress" | "upload", done: number, total: number) => void,
 ): Promise<CreatorProfile> {
-  const contentType = videoType(file);
-  if (!contentType) throw new MediaError("Bitte ein MP4-, MOV- oder WebM-Video wählen.");
+  const sourceType = videoType(source);
+  if (!sourceType) throw new MediaError("Bitte ein MP4-, MOV- oder WebM-Video wählen.");
+
+  const meta = await inspectVideo(source);
+  onProgress("compress", 0, 1);
+  const compressed = await compressVideo(source, sourceType, (p) => onProgress("compress", p, 1))
+    .result;
+  const file = compressed.blob;
+  const contentType = compressed.contentType;
   if (file.size > VIDEO_MAX_BYTES) {
     throw new MediaError(
-      `Das Video ist größer als ${VIDEO_MAX_BYTES / 1024 ** 2} MB. Bitte kürzer exportieren oder über die Swibble-App hinzufügen.`,
+      `Das Video ist auch verkleinert größer als ${VIDEO_MAX_BYTES / 1024 ** 2} MB. Bitte kürzen oder über die Swibble-App hinzufügen.`,
     );
   }
-
-  const meta = await inspectVideo(file);
   const base = `/api/admin/creators/${encodeURIComponent(creatorId)}`;
   const started = await request(`${base}/media`, {
     method: "POST",
@@ -108,7 +117,7 @@ export async function uploadCreatorVideo(
   try {
     const indexes = Array.from({ length: Math.max(1, Math.ceil(file.size / chunkBytes)) }, (_, i) => i);
     let sent = 0;
-    onProgress(0, file.size);
+    onProgress("upload", 0, file.size);
     let next = 0;
     const worker = async () => {
       while (next < indexes.length) {
@@ -116,7 +125,7 @@ export async function uploadCreatorVideo(
         const piece = file.slice(index * chunkBytes, (index + 1) * chunkBytes);
         await put(uploadUrl(`index=${index}`), piece);
         sent += piece.size;
-        onProgress(sent, file.size);
+        onProgress("upload", sent, file.size);
       }
     };
     await Promise.all([worker(), worker(), worker()]);

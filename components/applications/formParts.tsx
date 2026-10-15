@@ -1,4 +1,5 @@
 import {
+  useRef,
   useState,
   type ChangeEvent,
   type ReactNode,
@@ -11,6 +12,7 @@ import {
   type PreparedFile,
 } from "@/lib/applications/clientFile";
 import { inspectVideo, videoType } from "@/lib/applications/clientVideo";
+import { compressVideo } from "@/lib/applications/compressVideo";
 import {
   PHONE_COUNTRIES,
   PINNED_PHONE_COUNTRIES,
@@ -425,17 +427,65 @@ export function PhotoPicker({
 }
 
 export interface VideoItem {
+  id: string;
   file: File;
-  contentType: string;
   /** Object URL of the cover frame ("" when the browser can't read the video) */
   previewUrl: string;
   cover: Blob | null;
+  status: "compressing" | "ready";
+  /** 0–1 while compressing */
+  progress: number;
+  /** What gets uploaded: the compressed MP4 or, where that isn't possible, the original */
+  output: Blob;
+  outputType: string;
+  compressed: boolean;
 }
 
-/** Selected videos: format and size checked, a cover frame taken right away. */
-export function useVideos(max: number, maxBytes: number, onError: (message: string) => void) {
+/**
+ * Selected videos: format checked, a cover frame taken right away, then
+ * compressed in the background one after another (the form can go on).
+ */
+export function useVideos(
+  max: number,
+  sourceMaxBytes: number,
+  maxBytes: number,
+  onError: (message: string) => void,
+) {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [busy, setBusy] = useState(false);
+  const queue = useRef<Promise<void>>(Promise.resolve());
+  const cancels = useRef(new Map<string, () => void>());
+  const removed = useRef(new Set<string>());
+
+  const update = (id: string, patch: Partial<VideoItem>) =>
+    setVideos((prev) => prev.map((v) => (v.id === id ? { ...v, ...patch } : v)));
+
+  const compress = (item: VideoItem) => {
+    queue.current = queue.current.then(async () => {
+      if (removed.current.has(item.id)) return;
+      const job = compressVideo(item.file, item.outputType, (progress) =>
+        update(item.id, { progress }),
+      );
+      cancels.current.set(item.id, job.cancel);
+      const result = await job.result;
+      cancels.current.delete(item.id);
+      if (removed.current.has(item.id)) return;
+      if (result.blob.size > maxBytes) {
+        setVideos((prev) => prev.filter((v) => v.id !== item.id));
+        onError(
+          `${item.file.name} ist auch verkleinert noch größer als ${Math.round(maxBytes / 1024 ** 2)} MB – bitte kürzen.`,
+        );
+        return;
+      }
+      update(item.id, {
+        status: "ready",
+        progress: 1,
+        output: result.blob,
+        outputType: result.contentType,
+        compressed: result.compressed,
+      });
+    });
+  };
 
   const add = async (e: ChangeEvent<HTMLInputElement>) => {
     const chosen = [...(e.target.files ?? [])];
@@ -454,17 +504,24 @@ export function useVideos(max: number, maxBytes: number, onError: (message: stri
           problems.push(`${file.name}: Bitte ein MP4-, MOV- oder WebM-Video wählen.`);
           continue;
         }
-        if (file.size > maxBytes) {
-          problems.push(
-            `${file.name} ist größer als ${Math.round(maxBytes / 1024 ** 2)} MB – bitte kürzen oder kleiner exportieren.`,
-          );
+        if (file.size > sourceMaxBytes) {
+          problems.push(`${file.name} ist zu groß – bitte kürzen.`);
           continue;
         }
         const { cover } = await inspectVideo(file);
-        setVideos((prev) => [
-          ...prev,
-          { file, contentType, cover, previewUrl: cover ? URL.createObjectURL(cover) : "" },
-        ]);
+        const item: VideoItem = {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          file,
+          cover,
+          previewUrl: cover ? URL.createObjectURL(cover) : "",
+          status: "compressing",
+          progress: 0,
+          output: file,
+          outputType: contentType,
+          compressed: false,
+        };
+        setVideos((prev) => [...prev, item]);
+        compress(item);
       }
     } finally {
       setBusy(false);
@@ -474,13 +531,18 @@ export function useVideos(max: number, maxBytes: number, onError: (message: stri
 
   const remove = (index: number) => {
     setVideos((prev) => {
-      if (prev[index].previewUrl) URL.revokeObjectURL(prev[index].previewUrl);
+      const item = prev[index];
+      if (!item) return prev;
+      removed.current.add(item.id);
+      cancels.current.get(item.id)?.();
+      if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
       return prev.filter((_, i) => i !== index);
     });
     onError("");
   };
 
-  return { videos, busy, add, remove };
+  const compressing = videos.some((v) => v.status === "compressing");
+  return { videos, busy, compressing, add, remove };
 }
 
 const formatMb = (bytes: number) =>
@@ -511,7 +573,7 @@ export function VideoPicker({
     <div>
       <ul className="grid grid-cols-3 gap-2.5">
         {videos.map((video, index) => (
-          <li key={`${video.file.name}-${index}`} className="relative">
+          <li key={video.id} className="relative">
             <div className="flex aspect-[9/16] w-full items-center justify-center overflow-hidden rounded-xl bg-[#000D36] text-3xl">
               {video.previewUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element -- local object URL preview
@@ -520,9 +582,15 @@ export function VideoPicker({
                 <span aria-hidden>🎬</span>
               )}
             </div>
-            <span className="absolute bottom-1.5 left-1.5 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-medium text-[#000D36]">
-              {formatMb(video.file.size)}
-            </span>
+            {video.status === "compressing" ? (
+              <span className="absolute inset-x-1.5 bottom-1.5 rounded-full bg-white/90 px-2 py-0.5 text-center text-[10px] font-medium text-[#000D36]">
+                Verkleinern … {Math.round(video.progress * 100)} %
+              </span>
+            ) : (
+              <span className="absolute bottom-1.5 left-1.5 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-medium text-[#000D36]">
+                {formatMb(video.output.size)}
+              </span>
+            )}
             <button
               type="button"
               onClick={() => onRemove(index)}

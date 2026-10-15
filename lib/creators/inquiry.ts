@@ -93,6 +93,9 @@ function build(content: MailContent, logoSrc?: string): BuiltMail {
   return { subject: content.title, text: renderText(content), html: renderMailHtml(content, logoSrc) };
 }
 
+/** A request from /creator without a specific person. */
+export const GENERAL_INQUIRY_NAME = "Swibble Creator (allgemein)";
+
 const rows = (inquiry: CreatorInquiry, creatorName: string) =>
   [
     { label: "Creator", value: creatorName },
@@ -111,8 +114,11 @@ export function buildInquiryNotification(
   return build(
     {
       title: `Creator-Anfrage: ${creator.name} – ${inquiry.company}`,
-      heading: `Neue Anfrage für ${creator.name}`,
-      intro: `Über die Creator-Seite ${creator.pageUrl} ist eine Anfrage eingegangen. Antworten geht direkt an ${inquiry.name}.`,
+      heading:
+        creator.name === GENERAL_INQUIRY_NAME
+          ? "Neue Anfrage für Swibble Creator"
+          : `Neue Anfrage für ${creator.name}`,
+      intro: `Über ${creator.pageUrl} ist eine Anfrage eingegangen. Antworten geht direkt an ${inquiry.name}.`,
       rowsLabel: "Anfrage",
       rows: rows(inquiry, creator.name),
       messageLabel: "Nachricht",
@@ -135,9 +141,15 @@ export function buildInquiryConfirmation(
   const firstName = inquiry.name.split(" ")[0] ?? "";
   return build(
     {
-      title: `Deine Anfrage für ${creator.name} ist angekommen`,
+      title:
+        creator.name === GENERAL_INQUIRY_NAME
+          ? "Deine Creator-Anfrage ist angekommen"
+          : `Deine Anfrage für ${creator.name} ist angekommen`,
       heading: firstName ? `Danke, ${firstName}!` : "Danke für deine Anfrage!",
-      intro: `Deine Anfrage für ${creator.name} ist bei uns angekommen. Wir melden uns schnellstmöglich bei dir.`,
+      intro:
+        creator.name === GENERAL_INQUIRY_NAME
+          ? "Deine Anfrage ist bei uns angekommen. Wir melden uns schnellstmöglich mit passenden Creatorn bei dir."
+          : `Deine Anfrage für ${creator.name} ist bei uns angekommen. Wir melden uns schnellstmöglich bei dir.`,
       rowsLabel: "Deine Anfrage",
       rows: rows(inquiry, creator.name),
       messageLabel: "Deine Nachricht",

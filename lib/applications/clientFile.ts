@@ -215,8 +215,9 @@ export async function prepareSetcard(
     throw new ConsentFileError("Bitte wähle ein PDF oder ein Bild (JPG, PNG, HEIC).");
   }
 
+  // Small JPEG/PNG stay as they are; everything else is compressed.
   const keepAsIs =
-    file.size <= SETCARD_MAX_BYTES &&
+    file.size <= 1024 * 1024 &&
     (/^image\/(jpeg|png)$/.test(file.type) ||
       (!file.type && /\.(jpe?g|png)$/i.test(file.name)));
   if (keepAsIs) {
@@ -258,8 +259,8 @@ export async function prepareSetcard(
 }
 
 /**
- * Creator pool photo: larger than the /bewerben ones (2000 px), uploaded on
- * its own as raw JPEG, so no base64 copy is made.
+ * Creator pool photo: compressed (≤ 2400 px JPEG) but not cut down to a fixed
+ * size — only the request limit applies. Uploaded on its own as raw JPEG.
  */
 export async function prepareCreatorPhoto(
   file: File,
@@ -269,9 +270,9 @@ export async function prepareCreatorPhoto(
   }
   let blob: Blob | null = null;
   for (const [maxSide, quality] of [
-    [2000, 0.82],
-    [1600, 0.75],
-    [1200, 0.7],
+    [2400, 0.85],
+    [2000, 0.75],
+    [1600, 0.7],
   ]) {
     blob = await downscale(file, maxSide, quality);
     if (!blob || blob.size <= CREATOR_PHOTO_MAX_BYTES) break;

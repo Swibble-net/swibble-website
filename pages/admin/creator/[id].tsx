@@ -14,7 +14,6 @@ import {
   SLUG_MAX_LENGTH,
   TAGLINE_MAX_LENGTH,
   VIDEOS_MAX,
-  VIDEO_MAX_BYTES,
   VIDEO_TITLE_MAX_LENGTH,
   thumbUrl,
   videoCoverUrl,
@@ -55,7 +54,9 @@ type FormState = {
   city: string;
   tagline: string;
   socials: CreatorProfile["socials"];
+  publicSocials: CreatorProfile["publicSocials"];
   portfolioUrl: string;
+  showPortfolio: boolean;
   showSetcard: boolean;
   references: CreatorReference[];
 };
@@ -68,14 +69,16 @@ const formOf = (c: CreatorProfile): FormState => ({
   city: c.city,
   tagline: c.tagline,
   socials: c.socials,
+  publicSocials: c.publicSocials,
   portfolioUrl: c.portfolioUrl,
+  showPortfolio: c.showPortfolio,
   showSetcard: c.showSetcard,
   references: c.references,
 });
 
 const STATUS_LABEL: Record<CreatorVideo["status"], string> = {
   uploading: "Upload unvollständig",
-  processing: "Wird in der App erstellt …",
+  processing: "Wird in der Swibble-App komprimiert – meist 1–3 Minuten, dann erscheint das Cover",
   ready: "",
   failed: "Fehlgeschlagen",
 };
@@ -197,8 +200,12 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
     setMessage("");
     try {
       setVideoProgress("Video wird vorbereitet …");
-      const updated = await uploadCreatorVideo(creator.id, file, "", (sent, total) =>
-        setVideoProgress(`Upload ${Math.round((sent / total) * 100)} % (${Math.round(total / 1024 ** 2)} MB)`),
+      const updated = await uploadCreatorVideo(creator.id, file, "", (phase, done, total) =>
+        setVideoProgress(
+          phase === "compress"
+            ? `Wird verkleinert … ${Math.round((done / total) * 100)} %`
+            : `Upload ${Math.round((done / total) * 100)} % (${Math.max(1, Math.round(total / 1024 ** 2))} MB)`,
+        ),
       );
       setCreator(updated);
       setMessage("Video hochgeladen.");
@@ -221,6 +228,12 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
     call(`${base}/media?${kind}=${encodeURIComponent(id)}`, { method: "DELETE" });
   };
 
+  const setHidden = (kind: "photo" | "video", id: string, hidden: boolean) =>
+    call(`${base}/media`, { method: "PATCH", body: JSON.stringify({ type: "visibility", kind, id, hidden }) });
+
+  const savePhotoCaption = (photoId: string, caption: string) =>
+    call(`${base}/media`, { method: "PATCH", body: JSON.stringify({ type: "photoCaption", photoId, caption }) });
+
   const saveVideoTitle = (videoId: string, title: string) =>
     call(`${base}/media`, { method: "PATCH", body: JSON.stringify({ type: "videoTitle", videoId, title }) });
 
@@ -235,6 +248,7 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
   };
 
   const publicUrl = `/creator/${saved.slug}`;
+  const coverId = creator.photos.find((p) => !p.hidden)?.id;
 
   return (
     <>
@@ -283,7 +297,10 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
         </div>
 
         {/* Photos */}
-        <Card title={`Fotos (${creator.photos.length})`} hint="Das erste Foto ist das Titelbild. Eigene Shootings einfach hochladen.">
+        <Card
+          title={`Fotos (${creator.photos.length})`}
+          hint="Das erste sichtbare Foto ist das Titelbild, die übrigen erscheinen mit den Videos unter „Arbeiten & Referenzen“ (mit Bildunterschrift). „Auf der Seite“ ausschalten blendet ein Foto aus, ohne es zu löschen."
+        >
           {creator.photos.length > 0 && (
             <ul className="mb-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
               {creator.photos.map((photo, index) => (
@@ -294,11 +311,16 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
                       src={thumbUrl(creator.id, photo.id)}
                       alt={`Foto ${index + 1}`}
                       loading="lazy"
-                      className="aspect-[4/5] w-full rounded-lg border border-[#F0E4F5] object-cover"
+                      className={`aspect-[4/5] w-full rounded-lg border border-[#F0E4F5] object-cover ${photo.hidden ? "opacity-40 grayscale" : ""}`}
                     />
-                    {index === 0 && (
+                    {photo.id === coverId && (
                       <span className="absolute left-1.5 top-1.5 rounded-full bg-[#B718EC] px-2 py-0.5 text-[10px] font-medium text-white">
                         Titelbild
+                      </span>
+                    )}
+                    {photo.hidden && (
+                      <span className="absolute left-1.5 top-1.5 rounded-full bg-[#000D36] px-2 py-0.5 text-[10px] font-medium text-white">
+                        Ausgeblendet
                       </span>
                     )}
                     {photo.origin === "swibble" && (
@@ -307,6 +329,27 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
                       </span>
                     )}
                   </div>
+                  <label className="flex items-center gap-1.5 text-xs text-[#556987]">
+                    <input
+                      type="checkbox"
+                      className="h-3.5 w-3.5 accent-[#B718EC]"
+                      checked={!photo.hidden}
+                      onChange={(e) => setHidden("photo", photo.id, !e.target.checked)}
+                    />
+                    Auf der Seite
+                  </label>
+                  {photo.id !== coverId && (
+                    <input
+                      aria-label={`Bildunterschrift Foto ${index + 1}`}
+                      className="w-full rounded-md bg-[#F6F6F6] px-2 py-1 text-xs text-[#2A3342] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B718EC]/40"
+                      defaultValue={photo.caption}
+                      maxLength={VIDEO_TITLE_MAX_LENGTH}
+                      placeholder="z. B. Kunde · Projekt"
+                      onBlur={(e) => {
+                        if (e.target.value.trim() !== photo.caption) savePhotoCaption(photo.id, e.target.value);
+                      }}
+                    />
+                  )}
                   <div className="flex flex-wrap gap-1">
                     <button type="button" className={smallButton} disabled={index === 0} aria-label="Nach vorne"
                       onClick={() => reorder("photos", move(creator.photos, index, -1).map((p) => p.id))}>
@@ -316,7 +359,7 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
                       onClick={() => reorder("photos", move(creator.photos, index, 1).map((p) => p.id))}>
                       →
                     </button>
-                    {index > 0 && (
+                    {photo.id !== coverId && !photo.hidden && (
                       <button type="button" className={smallButton}
                         onClick={() => reorder("photos", [photo.id, ...creator.photos.filter((p) => p.id !== photo.id).map((p) => p.id)])}>
                         Titelbild
@@ -340,18 +383,25 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
         {/* Videos */}
         <Card
           title={`Videos (${creator.videos.length})`}
-          hint={`Aus der Swibble-App (wird automatisch komprimiert) oder als Datei bis ${VIDEO_MAX_BYTES / 1024 ** 2} MB (MP4 empfohlen).`}
+          hint="Aus der Swibble-App oder als Datei – beides wird automatisch verkleinert."
         >
           {creator.videos.length > 0 && (
             <ul className="mb-4 flex flex-col gap-3">
               {creator.videos.map((video, index) => {
                 const cover = video.source === "app" ? video.coverUrl : video.coverPath ? videoCoverUrl(creator.id, video.id) : "";
                 return (
-                  <li key={video.id} className="flex gap-3 rounded-lg border border-[#F0E4F5] p-2">
-                    <div className="h-24 w-[54px] shrink-0 overflow-hidden rounded-md bg-[#FDF5FF]">
-                      {cover && (
+                  <li
+                    key={video.id}
+                    className={`flex gap-3 rounded-lg border border-[#F0E4F5] p-2 ${video.hidden ? "bg-[#F6F6F6]" : ""}`}
+                  >
+                    <div
+                      className={`flex h-24 w-[54px] shrink-0 items-center justify-center overflow-hidden rounded-md bg-[#FDF5FF] text-lg ${video.hidden ? "opacity-40 grayscale" : ""}`}
+                    >
+                      {cover ? (
                         // eslint-disable-next-line @next/next/no-img-element -- cover from the app or the private media route
                         <img src={cover} alt="" loading="lazy" className="h-full w-full object-cover" />
+                      ) : (
+                        <span aria-hidden>{video.status === "processing" ? "⏳" : "🎬"}</span>
                       )}
                     </div>
                     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -360,11 +410,20 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
                         className={inputClass}
                         defaultValue={video.title}
                         maxLength={VIDEO_TITLE_MAX_LENGTH}
-                        placeholder="Bildunterschrift, z. B. Kunde"
+                        placeholder="Bildunterschrift, z. B. Kunde · Projekt"
                         onBlur={(e) => {
                           if (e.target.value.trim() !== video.title) saveVideoTitle(video.id, e.target.value);
                         }}
                       />
+                      <label className="flex items-center gap-1.5 text-xs text-[#556987]">
+                        <input
+                          type="checkbox"
+                          className="h-3.5 w-3.5 accent-[#B718EC]"
+                          checked={!video.hidden}
+                          onChange={(e) => setHidden("video", video.id, !e.target.checked)}
+                        />
+                        Auf der Seite
+                      </label>
                       <p className="text-xs text-[#8a7791]">
                         {video.source === "app" ? "Swibble-App" : "Upload"}
                         {STATUS_LABEL[video.status] && (
@@ -471,6 +530,10 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
               <p className="mt-1 text-right text-xs text-[#8a7791]">{form.tagline.length} / {TAGLINE_MAX_LENGTH}</p>
             </div>
 
+            <p className="-mb-2 text-xs text-[#8a7791]">
+              Kanäle und Portfolio sind intern. Auf der Seite erscheint nur, was du mit
+              „auf der Seite zeigen“ freigibst – sonst laufen Anfragen nur über Swibble.
+            </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {(["instagram", "tiktok", "youtube", "snapchat"] as const).map((platform) => (
                 <div key={platform}>
@@ -484,6 +547,23 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
                     placeholder="name"
                     onChange={(e) => set("socials", { ...form.socials, [platform]: e.target.value })}
                   />
+                  <label className="mt-1 flex items-center gap-2 text-xs text-[#556987]">
+                    <input
+                      type="checkbox"
+                      className="h-3.5 w-3.5 accent-[#B718EC]"
+                      disabled={!form.socials[platform].trim()}
+                      checked={form.publicSocials.includes(platform) && Boolean(form.socials[platform].trim())}
+                      onChange={(e) =>
+                        set(
+                          "publicSocials",
+                          e.target.checked
+                            ? [...form.publicSocials, platform]
+                            : form.publicSocials.filter((p) => p !== platform),
+                        )
+                      }
+                    />
+                    auf der Seite zeigen
+                  </label>
                 </div>
               ))}
             </div>
@@ -491,6 +571,16 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
             <div>
               <label className={labelClass} htmlFor="c-portfolio">Portfolio / Website</label>
               <input id="c-portfolio" className={inputClass} value={form.portfolioUrl} onChange={(e) => set("portfolioUrl", e.target.value)} />
+              <label className="mt-1 flex items-center gap-2 text-xs text-[#556987]">
+                <input
+                  type="checkbox"
+                  className="h-3.5 w-3.5 accent-[#B718EC]"
+                  disabled={!form.portfolioUrl.trim()}
+                  checked={form.showPortfolio && Boolean(form.portfolioUrl.trim())}
+                  onChange={(e) => set("showPortfolio", e.target.checked)}
+                />
+                auf der Seite zeigen
+              </label>
             </div>
 
             {creator.setcardPath && (
@@ -503,7 +593,10 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
         </Card>
 
         {/* References */}
-        <Card title="Referenzen" hint="Kurz: Kunde und was gemacht wurde.">
+        <Card
+          title="Weitere Referenzen"
+          hint="Nur für Kunden ohne Fotos oder Videos – erscheinen klein unter der Galerie. Mit Bildern einfach als Bildunterschrift eintragen."
+        >
           <div className="flex flex-col gap-2">
             {form.references.map((ref, index) => (
               <div key={ref.id} className="grid grid-cols-1 gap-2 rounded-lg border border-[#F0E4F5] p-2 sm:grid-cols-[1fr_1fr_1fr_auto]">

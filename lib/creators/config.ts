@@ -100,17 +100,25 @@ export function toPublicCreator(profile: CreatorProfile): PublicCreator {
     roles: profile.roles,
     city: profile.city,
     tagline: profile.tagline,
-    socials: profile.socials,
-    portfolioUrl: profile.portfolioUrl,
+    // Only what was released for the page; the rest stays with Swibble.
+    socials: {
+      tiktok: profile.publicSocials.includes("tiktok") ? profile.socials.tiktok : "",
+      instagram: profile.publicSocials.includes("instagram") ? profile.socials.instagram : "",
+      snapchat: profile.publicSocials.includes("snapchat") ? profile.socials.snapchat : "",
+      youtube: profile.publicSocials.includes("youtube") ? profile.socials.youtube : "",
+    },
+    portfolioUrl: profile.showPortfolio ? profile.portfolioUrl : "",
     setcardUrl: profile.showSetcard && profile.setcardPath ? setcardUrl(profile.id) : "",
-    photos: profile.photos.map((photo) => ({
+    // The first visible photo is the cover.
+    photos: profile.photos.filter((photo) => !photo.hidden).map((photo) => ({
       id: photo.id,
       url: photoUrl(profile.id, photo.id),
       thumbUrl: thumbUrl(profile.id, photo.id),
       width: photo.width,
       height: photo.height,
+      caption: photo.caption,
     })),
-    videos: profile.videos.filter(isPlayableVideo).map((video) => ({
+    videos: profile.videos.filter((v) => !v.hidden && isPlayableVideo(v)).map((video) => ({
       id: video.id,
       title: video.title,
       videoUrl: video.source === "upload" ? videoFileUrl(profile.id, video.id) : video.videoUrl,
@@ -177,6 +185,12 @@ export function validateCreatorInput(input: unknown, newId: () => string): Creat
   const portfolioUrl = normalizePortfolioUrl(raw.portfolioUrl);
   if (portfolioUrl === null) return fail("Der Portfolio-Link ist ungültig.");
 
+  // Released for the page: only platforms that have a handle.
+  const rawPublic = Array.isArray(raw.publicSocials) ? raw.publicSocials : [];
+  const publicSocials = (Object.keys(socials) as SocialPlatform[]).filter(
+    (platform) => rawPublic.includes(platform) && socials[platform],
+  );
+
   const rawReferences = Array.isArray(raw.references) ? raw.references : [];
   if (rawReferences.length > REFERENCES_MAX) return fail(`Höchstens ${REFERENCES_MAX} Referenzen.`);
   const references: CreatorReference[] = [];
@@ -205,7 +219,9 @@ export function validateCreatorInput(input: unknown, newId: () => string): Creat
       city,
       tagline,
       socials,
+      publicSocials,
       portfolioUrl,
+      showPortfolio: raw.showPortfolio === true && Boolean(portfolioUrl),
       showSetcard: raw.showSetcard === true,
       references,
     },

@@ -48,6 +48,15 @@ describe("validateCreatorInput", () => {
     ]);
   });
 
+  it("only releases channels that have a handle, and the portfolio only with a link", () => {
+    const result = validateCreatorInput(
+      { ...valid, publicSocials: ["instagram", "youtube", "bogus"], showPortfolio: true, portfolioUrl: "" },
+      newId,
+    );
+    expect(result.ok && result.value.publicSocials).toEqual(["instagram"]);
+    expect(result.ok && result.value.showPortfolio).toBe(false);
+  });
+
   it("rejects invalid slugs, missing roles and markup", () => {
     expect(validateCreatorInput({ ...valid, slug: "Testina T" }, newId).ok).toBe(false);
     expect(validateCreatorInput({ ...valid, slug: "../admin" }, newId).ok).toBe(false);
@@ -94,12 +103,12 @@ describe("toPublicCreator", () => {
     setcardType: "application/pdf",
     showSetcard: false,
     photos: [
-      { id: "p1", path: "creators/cr1/photos/p1.jpg", thumbPath: "creators/cr1/photos/p1-thumb.jpg", width: 4, height: 5, origin: "swibble" },
+      { id: "p1", path: "creators/cr1/photos/p1.jpg", thumbPath: "creators/cr1/photos/p1-thumb.jpg", width: 4, height: 5, origin: "swibble", caption: "Aquis Plaza", hidden: false },
     ],
     videos: [
-      { id: "v1", source: "upload", title: "Kunde", status: "ready", appJobId: "", videoUrl: "", coverUrl: "", path: "creators/cr1/videos/v1/video.mp4", coverPath: "", contentType: "video/mp4", size: 10, width: 9, height: 16 },
-      { id: "v2", source: "upload", title: "", status: "uploading", appJobId: "", videoUrl: "", coverUrl: "", path: "x", coverPath: "", contentType: "video/mp4", size: 10, width: 0, height: 0 },
-      { id: "v3", source: "app", title: "", status: "ready", appJobId: "j", videoUrl: "https://evil.example/v.mp4", coverUrl: "", path: "", coverPath: "", contentType: "", size: 0, width: 0, height: 0 },
+      { id: "v1", source: "upload", title: "Kunde", status: "ready", appJobId: "", videoUrl: "", coverUrl: "", path: "creators/cr1/videos/v1/video.mp4", coverPath: "", contentType: "video/mp4", size: 10, width: 9, height: 16 , hidden: false },
+      { id: "v2", source: "upload", title: "", status: "uploading", appJobId: "", videoUrl: "", coverUrl: "", path: "x", coverPath: "", contentType: "video/mp4", size: 10, width: 0, height: 0 , hidden: false },
+      { id: "v3", source: "app", title: "", status: "ready", appJobId: "j", videoUrl: "https://evil.example/v.mp4", coverUrl: "", path: "", coverPath: "", contentType: "", size: 0, width: 0, height: 0 , hidden: false },
     ],
   });
   const publicCreator = toPublicCreator(profile);
@@ -111,8 +120,38 @@ describe("toPublicCreator", () => {
     expect(publicCreator.photos[0].url).toBe("/api/creator-media/cr1/photo-p1");
   });
 
+  it("leaves out media hidden in the CMS (the first visible photo is the cover)", () => {
+    const withHidden = {
+      ...profile,
+      photos: [
+        { ...profile.photos[0], id: "p0", hidden: true },
+        ...profile.photos,
+      ],
+      videos: profile.videos.map((v) => ({ ...v, hidden: v.id === "v1" })),
+    };
+    const result = toPublicCreator(withHidden);
+    expect(result.photos.map((p) => p.id)).toEqual(["p1"]);
+    expect(result.videos).toEqual([]);
+  });
+
   it("only lists playable videos with trusted URLs", () => {
     expect(publicCreator.videos.map((v) => v.id)).toEqual(["v1"]);
+  });
+
+  it("keeps channels and portfolio internal unless released", () => {
+    const withContacts = {
+      ...profile,
+      socials: { instagram: "fynn.test", tiktok: "fynn_test", youtube: "", snapchat: "" },
+      portfolioUrl: "https://fynn.example/",
+    };
+    const hidden = toPublicCreator(withContacts);
+    expect(hidden.socials).toEqual({ instagram: "", tiktok: "", youtube: "", snapchat: "" });
+    expect(hidden.portfolioUrl).toBe("");
+
+    const released = toPublicCreator({ ...withContacts, publicSocials: ["tiktok"], showPortfolio: true });
+    expect(released.socials.tiktok).toBe("fynn_test");
+    expect(released.socials.instagram).toBe("");
+    expect(released.portfolioUrl).toBe("https://fynn.example/");
   });
 
   it("offers the setcard only when switched on", () => {
