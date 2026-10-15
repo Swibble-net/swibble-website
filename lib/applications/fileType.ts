@@ -1,4 +1,9 @@
-import { CONSENT_FILE_MAX_BYTES, PHOTO_MAX_BYTES } from "./config";
+import {
+  CONSENT_FILE_MAX_BYTES,
+  PHOTO_MAX_BYTES,
+  RELEASE_FILE_MAX_BYTES,
+  SETCARD_MAX_BYTES,
+} from "./config";
 
 export type ConsentFileType =
   | { mime: "application/pdf"; extension: "pdf" }
@@ -125,6 +130,35 @@ export function parsePhoto(
     allowed: ["image/jpeg", "image/png"],
     missingMessage: "Das Foto konnte nicht gelesen werden.",
     typeMessage: "Bitte lade Fotos als JPG oder PNG hoch.",
+  });
+}
+
+/** Decodes and checks the optional setcard / portfolio (PDF, JPEG or PNG). */
+export function parseSetcard(
+  base64: unknown,
+  maxBytes: number = SETCARD_MAX_BYTES,
+): ConsentFileResult {
+  return parseUpload(base64, {
+    maxBytes,
+    allowed: ["application/pdf", "image/jpeg", "image/png"],
+    missingMessage: "Die Setcard konnte nicht gelesen werden.",
+    typeMessage: "Bitte lade die Setcard als PDF oder Bild (JPG, PNG) hoch.",
+  });
+}
+
+/**
+ * Decodes and checks the release document the browser renders from the
+ * signed creator release (always a JPEG).
+ */
+export function parseReleaseDocument(
+  base64: unknown,
+  maxBytes: number = RELEASE_FILE_MAX_BYTES,
+): ConsentFileResult {
+  return parseUpload(base64, {
+    maxBytes,
+    allowed: ["image/jpeg", "image/png"],
+    missingMessage: "Bitte unterschreibe die Erklärung.",
+    typeMessage: "Die Unterschrift konnte nicht verarbeitet werden.",
   });
 }
 

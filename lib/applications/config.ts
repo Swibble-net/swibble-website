@@ -10,6 +10,30 @@ export const APPLICATION_ROLES = [
 
 export type ApplicationRole = (typeof APPLICATION_ROLES)[number]["id"];
 
+/**
+ * Both application pages store into the same applicant pool and show up in
+ * /admin/bewerbungen; `pool` tells them apart. Documents without the field
+ * come from /bewerben ("videos").
+ */
+export const APPLICATION_POOLS = [
+  { id: "videos", label: "Center-Videos", path: "/bewerben" },
+  { id: "creator", label: "Creator Pool", path: "/bewerben/creator" },
+] as const;
+
+export type ApplicationPool = (typeof APPLICATION_POOLS)[number]["id"];
+
+/** Roles of the Swibble Creator Pool (/bewerben/creator) — always all open. */
+export const CREATOR_ROLES = [
+  { id: "model", label: "Model", icon: "📸", hint: "Shootings, Kampagnen, Videos" },
+  { id: "creator", label: "Content Creator", icon: "🎬", hint: "TikTok, Reels, UGC" },
+  { id: "moderation", label: "Moderation", icon: "🎤", hint: "Events, Bühne, Kamera" },
+] as const;
+
+export type CreatorRole = (typeof CREATOR_ROLES)[number]["id"];
+
+/** Any role id that can be stored with an application. */
+export type AnyApplicationRole = ApplicationRole | CreatorRole;
+
 export const APPLICATION_STATUSES = [
   { id: "neu", label: "Neu" },
   { id: "kontaktiert", label: "Kontaktiert" },
@@ -121,7 +145,74 @@ export function guardianDeclarationText(roleIds: readonly string[]): string {
 }
 
 export function roleLabel(id: string): string {
-  return APPLICATION_ROLES.find((r) => r.id === id)?.label ?? id;
+  return (
+    APPLICATION_ROLES.find((r) => r.id === id)?.label ??
+    CREATOR_ROLES.find((r) => r.id === id)?.label ??
+    id
+  );
+}
+
+export function poolLabel(id: string): string {
+  return APPLICATION_POOLS.find((p) => p.id === id)?.label ?? id;
+}
+
+/* ── Swibble Creator Pool (/bewerben/creator) ─────────────────────────── */
+
+/**
+ * The creator pool is for adults only: applicants sign the release
+ * themselves. Younger people are pointed to /bewerben, where parents sign.
+ */
+export const CREATOR_MIN_AGE = 18;
+
+/** At least this many photos; the upper limit is PHOTO_MAX_COUNT. */
+export const CREATOR_PHOTO_MIN_COUNT = 1;
+
+/**
+ * Optional setcard / portfolio as PDF or image. Large PDFs are rebuilt from
+ * page images in the browser until they fit. Budget per request (base64,
+ * +33 %): 5 photos × 300 KB + setcard 1 MB + signed release ≤ 600 KB ≈ 4.1 MB.
+ */
+export const SETCARD_MAX_BYTES = 1024 * 1024;
+export const RELEASE_FILE_MAX_BYTES = 600 * 1024;
+
+export const PORTFOLIO_URL_MAX_LENGTH = 300;
+
+export const CREATOR_CONSENT_VERSION = "2026-10-creator-v1";
+
+/**
+ * Release the creator signs online. Single source for the signing step, the
+ * generated document, the stored text and the confirmation mail. "{name}" and
+ * "{roles}" are filled in. DRAFT — needs legal review.
+ */
+export const CREATOR_RELEASE_INTRO =
+  "Ich, {name}, möchte in den Swibble Creator Pool der Swibble UG (haftungsbeschränkt), Königstraße 30, 52064 Aachen, aufgenommen werden – als: {roles}. Dazu erkläre ich:";
+
+export const CREATOR_RELEASE_CLAUSES = [
+  "Vorstellung bei Kunden: Swibble darf mich als „Swibble Creator“ bestehenden und möglichen Kunden vorstellen und mich für Aufträge vorschlagen. Dafür darf Swibble meinen Namen, mein Alter, meinen Wohnort (Stadt), meine Fotos, meine Social-Media-Profile samt Reichweite sowie meine Setcard bzw. mein Portfolio an diese Kunden weitergeben, z. B. in Angeboten, Präsentationen und Creator-Übersichten. Meine Telefonnummer und E-Mail-Adresse gibt Swibble nur nach Rücksprache mit mir weiter.",
+  "Werbung mit mir als Swibble Creator: Swibble darf mich als Teil des Swibble-Creator-Netzwerks zeigen und dafür meinen Namen, meine Fotos und meine Social-Media-Profile auf der eigenen Website, in den eigenen Social-Media-Kanälen, in Pitch-Decks und in sonstigem Werbematerial verwenden und verlinken.",
+  "Rechte an Fotos und Unterlagen: Ich versichere, dass die hochgeladenen Fotos mich zeigen und dass ich sie sowie meine Setcard bzw. mein Portfolio für diese Zwecke nutzen und weitergeben darf (z. B. mit Zustimmung der Fotografin bzw. des Fotografen).",
+  "Aufträge: Die Aufnahme in den Creator Pool verpflichtet weder mich noch Swibble zu einer Zusammenarbeit. Für jeden konkreten Auftrag – einschließlich Vergütung und Nutzungsrechten an den dabei entstehenden Inhalten – treffen wir eine eigene Vereinbarung.",
+  "Speicherung und Kontakt: Swibble speichert meine Angaben, Fotos, Unterlagen und diese Erklärung im Creator Pool bis zu meinem Widerruf und darf mich per E-Mail, Telefon/WhatsApp und über meine Social-Media-Profile kontaktieren.",
+  "Widerruf: Ich kann diese Erklärung jederzeit mit Wirkung für die Zukunft widerrufen, z. B. per E-Mail an info@swibble.net. Swibble nimmt mich dann aus dem Creator Pool, löscht meine Daten, entfernt mich von der eigenen Website und verwendet mich nicht mehr in neuen Präsentationen oder Werbemitteln. Bereits an Kunden verschickte Unterlagen und bereits veröffentlichte Social-Media-Beiträge müssen nicht zurückgerufen werden.",
+] as const;
+
+/** Ticked by the creator next to the signature field. */
+export const CREATOR_RELEASE_ACCEPT_TEXT =
+  "Ich habe die Erklärung gelesen und gebe sie mit meiner Unterschrift ab.";
+
+/** The release as plain text, as signed and stored with the application. */
+export function creatorReleaseText(
+  name: string,
+  roleIds: readonly string[],
+): string {
+  const roles = roleIds.length > 0 ? roleIds.map(roleLabel).join(", ") : "–";
+  return [
+    CREATOR_RELEASE_INTRO.replace("{name}", name.trim() || "–").replace(
+      "{roles}",
+      roles,
+    ),
+    ...CREATOR_RELEASE_CLAUSES.map((clause, i) => `${i + 1}. ${clause}`),
+  ].join("\n\n");
 }
 
 export function statusLabel(id: string): string {

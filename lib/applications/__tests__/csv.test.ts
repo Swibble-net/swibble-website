@@ -33,6 +33,29 @@ describe("applicationsToCsv", () => {
     expect(lines[1]).toContain('"Testina";"Testperson"');
     expect(lines[1]).toContain('"Im Video mitmachen, Promoter:in für Events"');
     expect(lines[1]).toContain('"Kontaktiert"');
+    expect(lines[1]).toContain('"Center-Videos"');
+  });
+
+  it("marks creator pool applications with their documents", () => {
+    const csv = applicationsToCsv([
+      toApplication("test-2", {
+        pool: "creator",
+        roles: ["creator"],
+        portfolioUrl: "https://carla.example/",
+        releaseFile: {
+          path: "applications/releases/r.jpg",
+          contentType: "image/jpeg",
+          extension: "jpg",
+          size: 1,
+        },
+      }),
+    ]);
+    const row = csv.trim().split("\r\n")[1];
+    expect(row).toContain('"Creator Pool"');
+    expect(row).toContain('"Content Creator"');
+    expect(row).toContain('"https://carla.example/"');
+    // Setcard missing, release signed
+    expect(row).toContain('"nein";"ja"');
   });
 });
 
@@ -43,5 +66,11 @@ describe("toApplication", () => {
     expect(application.socials.tiktok).toBe("");
     expect(application.guardian).toBeNull();
     expect(application.consentFile).toBeNull();
+    // Documents from before the creator pool belong to /bewerben.
+    expect(application.pool).toBe("videos");
+    expect(application.releaseFile).toBeNull();
+    expect(application.setcardFile).toBeNull();
+    expect(application.portfolioUrl).toBe("");
+    expect(application.consent.creatorRelease).toBe("");
   });
 });

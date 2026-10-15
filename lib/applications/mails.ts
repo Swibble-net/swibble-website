@@ -7,7 +7,7 @@
 
 import { EMAIL } from "@/lib/cta";
 import { SITE_URL, renderMailHtml, type MailContent } from "@/lib/contact/mailLayout";
-import { roleLabel } from "./config";
+import { APPLICATION_POOLS, roleLabel } from "./config";
 import type { Application } from "./types";
 
 export interface BuiltMail {
@@ -55,9 +55,41 @@ function build(content: MailContent, logoSrc?: string): BuiltMail {
 
 const roles = (a: Application) => a.roles.map(roleLabel).join(", ");
 const center = (a: Application) => a.centerName || "kein bestimmtes Center";
+/** swibble.net/bewerben or swibble.net/bewerben/creator */
+const formUrl = (a: Application) =>
+  `swibble.net${APPLICATION_POOLS.find((p) => p.id === a.pool)?.path ?? "/bewerben"}`;
+
+/** Confirmation for a creator pool applicant, with the signed release. */
+function buildCreatorApplicantMail(a: Application, logoSrc?: string): BuiltMail {
+  return build(
+    {
+      title: "Deine Bewerbung für den Swibble Creator Pool ist angekommen",
+      heading: `Danke für deine Bewerbung, ${a.firstName}!`,
+      intro:
+        "Deine Bewerbung für den Swibble Creator Pool ist bei uns angekommen. Wir schauen uns dein Profil in Ruhe an und melden uns bei dir – per E-Mail, WhatsApp oder über deine Kanäle –, sobald es passt.",
+      rowsLabel: "Deine Bewerbung",
+      rows: [
+        { label: "Beworben als", value: roles(a) },
+        { label: "Name", value: `${a.firstName} ${a.lastName}` },
+        { label: "Fotos", value: `${a.photos.length} hochgeladen` },
+        ...(a.setcardFile ? [{ label: "Setcard", value: "hochgeladen" }] : []),
+        ...(a.portfolioUrl ? [{ label: "Portfolio", value: a.portfolioUrl }] : []),
+      ],
+      messageLabel: "Deine unterschriebene Erklärung",
+      message: a.consent.creatorRelease,
+      ctaIntro: "In der Zwischenzeit: Schau dir an, was wir so machen.",
+      cta: { href: SITE_URL, label: "Mehr über Swibble" },
+      closing: ["Viele Grüße", "Dein Swibble-Team"],
+      footerNote: `Du erhältst diese E-Mail, weil über ${formUrl(a)} eine Bewerbung mit deiner E-Mail-Adresse abgeschickt wurde. Du möchtest sie zurückziehen oder das warst nicht du? Schreib an ${EMAIL} – dann löschen wir die Bewerbung.`,
+    },
+    logoSrc,
+  );
+}
 
 /** Confirmation for the applicant (Du-Form). */
 export function buildApplicantMail(a: Application, logoSrc?: string): BuiltMail {
+  if (a.pool === "creator") return buildCreatorApplicantMail(a, logoSrc);
+
   const consents = [
     `Kontakt & Bewerberpool: ${a.consent.contactText}`,
     a.consent.mediaText ? `Veröffentlichung: ${a.consent.mediaText}` : "",
@@ -138,19 +170,30 @@ export function buildInternalMail(
   adminUrl: string,
   logoSrc?: string,
 ): BuiltMail {
+  const creator = a.pool === "creator";
   return build(
     {
-      title: `Neue Bewerbung: ${a.firstName} ${a.lastName} (${roles(a)})`,
-      heading: "Neue Bewerbung eingegangen",
-      intro:
-        "Über swibble.net/bewerben ist eine neue Bewerbung eingegangen. Alle Angaben, Fotos und Einwilligungen findest du im Admin-Bereich.",
+      title: creator
+        ? `Neue Creator-Bewerbung: ${a.firstName} ${a.lastName} (${roles(a)})`
+        : `Neue Bewerbung: ${a.firstName} ${a.lastName} (${roles(a)})`,
+      heading: creator
+        ? "Neue Bewerbung für den Creator Pool"
+        : "Neue Bewerbung eingegangen",
+      intro: `Über ${formUrl(a)} ist eine neue Bewerbung eingegangen. Alle Angaben, Fotos und Einwilligungen findest du im Admin-Bereich.`,
       rowsLabel: "Kurzüberblick",
-      rows: [
-        { label: "Name", value: `${a.firstName} ${a.lastName}` },
-        { label: "Bewirbt sich als", value: roles(a) },
-        { label: "Center", value: center(a) },
-        { label: "Minderjährig", value: a.isMinor ? "ja" : "nein" },
-      ],
+      rows: creator
+        ? [
+            { label: "Name", value: `${a.firstName} ${a.lastName}` },
+            { label: "Bewirbt sich als", value: roles(a) },
+            { label: "Fotos", value: String(a.photos.length) },
+            { label: "Setcard", value: a.setcardFile ? "ja" : "nein" },
+          ]
+        : [
+            { label: "Name", value: `${a.firstName} ${a.lastName}` },
+            { label: "Bewirbt sich als", value: roles(a) },
+            { label: "Center", value: center(a) },
+            { label: "Minderjährig", value: a.isMinor ? "ja" : "nein" },
+          ],
       messageLabel: "",
       message: "",
       ctaIntro: "Kontaktdaten und Dateien stehen bewusst nicht in dieser E-Mail.",

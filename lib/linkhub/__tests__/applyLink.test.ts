@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   APPLY_LINK_DEFAULT_LABEL,
   APPLY_LINK_LABEL_MAX_LENGTH,
+  CREATOR_LINK_HREF,
   applyHref,
   buildApplyLink,
+  buildCreatorLink,
   parseApplyFields,
 } from "../applyLink";
 import { toProfile } from "../profiles";
@@ -79,22 +81,59 @@ describe("parseApplyFields", () => {
       ok: true,
       showApplyLink: undefined,
       applyLinkLabel: undefined,
+      showCreatorLink: undefined,
     });
   });
 
   it("passes through valid values and trims the label", () => {
     expect(
       parseApplyFields({ showApplyLink: false, applyLinkLabel: " Mach mit " }),
-    ).toEqual({ ok: true, showApplyLink: false, applyLinkLabel: "Mach mit" });
+    ).toEqual({
+      ok: true,
+      showApplyLink: false,
+      applyLinkLabel: "Mach mit",
+      showCreatorLink: undefined,
+    });
+    expect(parseApplyFields({ showCreatorLink: true })).toMatchObject({
+      ok: true,
+      showCreatorLink: true,
+    });
   });
 
   it("rejects wrong types and over-long labels", () => {
     expect(parseApplyFields({ showApplyLink: "yes" }).ok).toBe(false);
+    expect(parseApplyFields({ showCreatorLink: 1 }).ok).toBe(false);
     expect(parseApplyFields({ applyLinkLabel: 5 }).ok).toBe(false);
     expect(
       parseApplyFields({
         applyLinkLabel: "x".repeat(APPLY_LINK_LABEL_MAX_LENGTH + 1),
       }).ok,
     ).toBe(false);
+  });
+});
+
+describe("creator pool entry", () => {
+  it("is on by default for the Swibble profile only", () => {
+    expect(toProfile("id-1", { slug: "swibble", name: "Swibble" }).showCreatorLink).toBe(true);
+    expect(toProfile("id-2", { slug: "demo-center", name: "Demo" }).showCreatorLink).toBe(false);
+  });
+
+  it("keeps an explicit choice", () => {
+    expect(
+      toProfile("id-1", { slug: "swibble", name: "Swibble", showCreatorLink: false })
+        .showCreatorLink,
+    ).toBe(false);
+    expect(
+      toProfile("id-2", { slug: "demo-center", name: "Demo", showCreatorLink: true })
+        .showCreatorLink,
+    ).toBe(true);
+  });
+
+  it("links to the creator application when switched on", () => {
+    expect(buildCreatorLink({ showCreatorLink: true })).toMatchObject({
+      href: CREATOR_LINK_HREF,
+      external: false,
+    });
+    expect(buildCreatorLink({ showCreatorLink: false })).toBeNull();
   });
 });

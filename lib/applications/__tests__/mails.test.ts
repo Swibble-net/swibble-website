@@ -18,6 +18,7 @@ const adult = toApplication("app-1", {
     mediaText: "MEDIA-TEXT",
     guardianText: "",
     guardianDeclaration: "",
+    creatorRelease: "",
     version: "test",
     givenAt: 1,
   },
@@ -105,6 +106,59 @@ describe("buildInternalMail", () => {
     expect(mail.text).toContain("https://example.test/admin/bewerbungen/app-2");
     expect(mail.text).toContain("Minderjährig: ja");
     for (const secret of ["testina@example.com", "+491510000000", "eltern@example.com"]) {
+      expect(mail.text).not.toContain(secret);
+      expect(mail.html).not.toContain(secret);
+    }
+  });
+});
+
+describe("creator pool mails", () => {
+  const creator = toApplication("app-3", {
+    pool: "creator",
+    roles: ["model", "moderation"],
+    firstName: "Carla",
+    lastName: "Creator",
+    birthDate: "1998-03-03",
+    email: "carla@example.com",
+    phone: "+491520000003",
+    city: "Teststadt",
+    portfolioUrl: "https://carla.example/",
+    photos: [
+      { path: "applications/photos/x.jpg", contentType: "image/jpeg", extension: "jpg", size: 1 },
+    ],
+    setcardFile: {
+      path: "applications/setcards/y.pdf",
+      contentType: "application/pdf",
+      extension: "pdf",
+      size: 1,
+    },
+    consent: {
+      ...adult.consent,
+      mediaText: "",
+      creatorRelease: "FREIGABE IM WORTLAUT",
+    },
+  });
+
+  it("confirms the creator application with the signed release", () => {
+    const mail = buildApplicantMail(creator);
+    expect(mail.subject).toMatch(/Creator Pool/);
+    for (const part of [mail.text, mail.html]) {
+      expect(part).toContain("Model, Moderation");
+      expect(part).toContain("FREIGABE IM WORTLAUT");
+      expect(part).toContain("https://carla.example/");
+      expect(part).toContain("swibble.net/bewerben/creator");
+      expect(part).not.toContain("+491520000003");
+      expect(part).not.toContain("1998-03-03");
+    }
+    expect(mail.text).not.toContain("Center:");
+  });
+
+  it("marks the internal mail as creator application, still without contact data", () => {
+    const mail = buildInternalMail(creator, "https://example.test/admin/bewerbungen/app-3");
+    expect(mail.subject).toContain("Neue Creator-Bewerbung: Carla Creator");
+    expect(mail.text).toContain("Setcard: ja");
+    expect(mail.text).toContain("swibble.net/bewerben/creator");
+    for (const secret of ["carla@example.com", "+491520000003"]) {
       expect(mail.text).not.toContain(secret);
       expect(mail.html).not.toContain(secret);
     }

@@ -1,4 +1,4 @@
-import { roleLabel, statusLabel } from "./config";
+import { poolLabel, roleLabel, statusLabel } from "./config";
 import type { Application } from "./types";
 
 /** Escapes one CSV cell; neutralises spreadsheet formulas (=, +, -, @). */
@@ -11,6 +11,7 @@ export function csvCell(value: string | number | boolean): string {
 const COLUMNS: Array<[string, (a: Application) => string | number | boolean]> = [
   ["Eingegangen", (a) => new Date(a.createdAt).toISOString()],
   ["Status", (a) => statusLabel(a.status)],
+  ["Bereich", (a) => poolLabel(a.pool)],
   ["Center", (a) => a.centerName || a.center],
   ["Rollen", (a) => a.roles.map(roleLabel).join(", ")],
   ["Vorname", (a) => a.firstName],
@@ -25,6 +26,7 @@ const COLUMNS: Array<[string, (a: Application) => string | number | boolean]> = 
   ["Instagram", (a) => a.socials.instagram],
   ["Snapchat", (a) => a.socials.snapchat],
   ["YouTube", (a) => a.socials.youtube],
+  ["Portfolio", (a) => a.portfolioUrl],
   ["Über mich", (a) => a.about],
   ["Erziehungsberechtigte:r", (a) => a.guardian?.name ?? ""],
   ["Eltern Telefon", (a) => a.guardian?.phone ?? ""],
@@ -37,6 +39,8 @@ const COLUMNS: Array<[string, (a: Application) => string | number | boolean]> = 
   ],
   ["Muttizettel vorhanden", (a) => (a.consentFile ? "ja" : "nein")],
   ["Fotos", (a) => a.photos.length],
+  ["Setcard vorhanden", (a) => (a.setcardFile ? "ja" : "nein")],
+  ["Creator-Freigabe unterschrieben", (a) => (a.releaseFile ? "ja" : "nein")],
   ["Einwilligung Veröffentlichung", (a) => (a.consent.mediaText ? "ja" : "nein")],
   ["Einwilligung erteilt am", (a) => new Date(a.consent.givenAt).toISOString()],
   ["Interne Notiz", (a) => a.note],

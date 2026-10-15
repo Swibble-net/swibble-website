@@ -1,6 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
-import { getApplication, readConsentFile } from "@/lib/applications/store";
+import {
+  getApplication,
+  readApplicationFile,
+  type ApplicationFileTarget,
+} from "@/lib/applications/store";
 
 // The file is streamed through this admin-only route; the bucket itself is
 // never exposed (no public objects, no signed URLs).
@@ -23,27 +27,40 @@ export default async function handler(
   }
 
   try {
-    // ?photo=<index> serves one of the optional applicant photos instead.
+    // Default: the parental consent file. ?photo=<index> serves one of the
+    // applicant photos, ?file=release|setcard the creator pool documents.
+    let target: ApplicationFileTarget = { kind: "consent" };
     const photoParam = req.query.photo;
-    let photoIndex: number | undefined;
+    const fileParam = req.query.file;
     if (photoParam !== undefined) {
-      photoIndex = typeof photoParam === "string" ? Number(photoParam) : NaN;
-      if (!Number.isInteger(photoIndex) || photoIndex < 0 || photoIndex > 20) {
+      const index = typeof photoParam === "string" ? Number(photoParam) : NaN;
+      if (!Number.isInteger(index) || index < 0 || index > 20) {
         return res.status(400).json({ message: "Ungültiges Foto." });
       }
+      target = { kind: "photo", index };
+    } else if (fileParam !== undefined) {
+      if (fileParam !== "release" && fileParam !== "setcard") {
+        return res.status(400).json({ message: "Unbekannte Datei." });
+      }
+      target = { kind: fileParam };
     }
 
     const application = await getApplication(id);
     const file = application
-      ? await readConsentFile(application, photoIndex)
+      ? await readApplicationFile(application, target)
       : null;
     if (!file) return res.status(404).json({ message: "Keine Datei vorhanden." });
 
     // Neutral file name: no applicant name in download history or headers.
+    const short = id.slice(0, 8);
     const filename =
-      photoIndex === undefined
-        ? `einverstaendnis-${id.slice(0, 8)}.${file.extension}`
-        : `foto-${id.slice(0, 8)}-${photoIndex + 1}.${file.extension}`;
+      target.kind === "photo"
+        ? `foto-${short}-${target.index + 1}.${file.extension}`
+        : target.kind === "release"
+          ? `creator-freigabe-${short}.${file.extension}`
+          : target.kind === "setcard"
+            ? `setcard-${short}.${file.extension}`
+            : `einverstaendnis-${short}.${file.extension}`;
     const disposition = req.query.download === "1" ? "attachment" : "inline";
 
     res.setHeader("Content-Type", file.contentType);

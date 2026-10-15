@@ -8,6 +8,7 @@ import StatusBadge from "@/components/applications/StatusBadge";
 import {
   APPLICATION_STATUSES,
   NOTE_MAX_LENGTH,
+  poolLabel,
   roleLabel,
   type ApplicationStatus,
 } from "@/lib/applications/config";
@@ -67,7 +68,10 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
   const file = application.consentFile;
   const fileUrl = `/api/applications/${application.id}/file`;
   const isImage = file ? ["jpg", "png"].includes(file.extension) : false;
-  const hasUploads = Boolean(file) || application.photos.length > 0;
+  const isCreator = application.pool === "creator";
+  const { releaseFile, setcardFile } = application;
+  const hasUploads =
+    Boolean(file || releaseFile || setcardFile) || application.photos.length > 0;
 
   const request = async (init: RequestInit) => {
     setBusy(true);
@@ -146,6 +150,11 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
               Minderjährig bei Bewerbung
             </span>
           )}
+          {isCreator && (
+            <span className="rounded-full bg-[#F9EAFF] px-2 py-0.5 text-xs font-medium text-[#B718EC]">
+              Creator Pool
+            </span>
+          )}
         </div>
 
         <div aria-live="polite">
@@ -187,22 +196,58 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
 
         <Card title="Bewerbung">
           <dl>
+            <Row label="Bereich">{poolLabel(application.pool)}</Row>
             <Row label="Bewirbt sich als">
               {application.roles.map(roleLabel).join(", ")}
             </Row>
-            <Row label="Center">
-              {application.center ? (
-                <Link
-                  href={`/linkhub/${application.center}`}
+            {!isCreator && (
+              <Row label="Center">
+                {application.center ? (
+                  <Link
+                    href={`/linkhub/${application.center}`}
+                    target="_blank"
+                    className={linkClass}
+                  >
+                    {application.centerName || application.center}
+                  </Link>
+                ) : (
+                  "Egal / nicht angegeben"
+                )}
+              </Row>
+            )}
+            {application.portfolioUrl && (
+              <Row label="Portfolio">
+                <a
+                  href={application.portfolioUrl}
                   target="_blank"
+                  rel="noopener noreferrer nofollow"
                   className={linkClass}
                 >
-                  {application.centerName || application.center}
-                </Link>
-              ) : (
-                "Egal / nicht angegeben"
-              )}
-            </Row>
+                  {application.portfolioUrl}
+                </a>
+              </Row>
+            )}
+            {setcardFile && (
+              <Row label="Setcard">
+                <span className="flex flex-wrap gap-x-4 gap-y-1">
+                  <a
+                    href={`${fileUrl}?file=setcard`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={linkClass}
+                  >
+                    Öffnen
+                  </a>
+                  <a href={`${fileUrl}?file=setcard&download=1`} className={linkClass}>
+                    Herunterladen
+                  </a>
+                  <span className="text-[#8a7791]">
+                    {setcardFile.extension.toUpperCase()},{" "}
+                    {Math.max(1, Math.round(setcardFile.size / 1024))} KB
+                  </span>
+                </span>
+              </Row>
+            )}
             <Row label="Eingegangen">{formatDateTime(application.createdAt)}</Row>
             {application.about && (
               <Row label="Über sich">
@@ -324,6 +369,53 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
           </Card>
         )}
 
+        {isCreator && (
+          <Card title="Creator-Freigabe (online unterschrieben)">
+            <dl>
+              <Row label="Dokument">
+                {releaseFile ? (
+                  <span className="flex flex-wrap gap-x-4 gap-y-1">
+                    <a
+                      href={`${fileUrl}?file=release`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={linkClass}
+                    >
+                      Öffnen
+                    </a>
+                    <a href={`${fileUrl}?file=release&download=1`} className={linkClass}>
+                      Herunterladen
+                    </a>
+                  </span>
+                ) : (
+                  <span className="text-red-600">Keine Datei vorhanden</span>
+                )}
+              </Row>
+              {application.consent.creatorRelease && (
+                <Row label="Text">
+                  <details>
+                    <summary className="cursor-pointer text-[#b718ec]">
+                      Unterschriebenen Text anzeigen
+                    </summary>
+                    <p className="mt-2 whitespace-pre-wrap text-[13px]">
+                      {application.consent.creatorRelease}
+                    </p>
+                  </details>
+                </Row>
+              )}
+            </dl>
+            {releaseFile && (
+              // eslint-disable-next-line @next/next/no-img-element -- private, admin-only API route; must not go through the image optimizer cache
+              <img
+                src={`${fileUrl}?file=release`}
+                alt="Unterschriebene Creator-Freigabe"
+                loading="lazy"
+                className="mt-3 max-h-[32rem] w-full rounded-lg border border-[#F0E4F5] object-contain object-top"
+              />
+            )}
+          </Card>
+        )}
+
         <Card title="Einwilligungen">
           <dl>
             <Row label="Erteilt am">
@@ -332,15 +424,21 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
             </Row>
             <Row label="Kontakt">„{application.consent.contactText}“</Row>
             <Row label="Datenschutz">„{application.consent.privacyText}“</Row>
-            <Row label="Veröffentlichung">
-              {application.consent.mediaText ? (
-                `„${application.consent.mediaText}“`
-              ) : (
-                <span className="text-red-600">
-                  Nicht erteilt (Bewerbung vor Einführung dieser Einwilligung)
-                </span>
-              )}
-            </Row>
+            {isCreator ? (
+              <Row label="Veröffentlichung">
+                Siehe Creator-Freigabe (Vorstellung bei Kunden, Werbung)
+              </Row>
+            ) : (
+              <Row label="Veröffentlichung">
+                {application.consent.mediaText ? (
+                  `„${application.consent.mediaText}“`
+                ) : (
+                  <span className="text-red-600">
+                    Nicht erteilt (Bewerbung vor Einführung dieser Einwilligung)
+                  </span>
+                )}
+              </Row>
+            )}
             {application.consent.guardianText && (
               <Row label="Eltern (Haken)">
                 „{application.consent.guardianText}“
@@ -414,6 +512,8 @@ const AdminApplicationDetail = ({ application: initial }: Props) => {
             Bei Widerruf der Einwilligung oder einer Löschanfrage (DSGVO):
             entfernt alle Angaben
             {file ? ", die Einverständniserklärung" : ""}
+            {releaseFile ? ", die Creator-Freigabe" : ""}
+            {setcardFile ? ", die Setcard" : ""}
             {application.photos.length > 0 ? ", die Fotos" : ""} unwiderruflich.
           </p>
           <button

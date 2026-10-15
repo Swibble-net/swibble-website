@@ -10,7 +10,7 @@ import {
   getProfileBySlug,
   getProfileBySubdomain,
 } from "@/lib/linkhub/profiles";
-import { buildApplyLink } from "@/lib/linkhub/applyLink";
+import { buildApplyLink, buildCreatorLink } from "@/lib/linkhub/applyLink";
 import type { LinkhubProfile, LinkhubLink } from "@/lib/linkhub/types";
 
 const poppins = Poppins({
@@ -21,7 +21,7 @@ const poppins = Poppins({
 
 interface Props {
   profile: LinkhubProfile;
-  /** The profile's links plus the built-in "Jetzt bewerben" entry, if enabled */
+  /** The profile's links plus the built-in apply / creator entries, if enabled */
   links: LinkhubLink[];
 }
 
@@ -186,8 +186,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     (await getProfileBySlug(slug)) ?? (await getProfileBySubdomain(slug));
   if (!profile) return { notFound: true };
 
-  const applyLink = buildApplyLink(profile);
-  const links = applyLink ? [...profile.links, applyLink] : profile.links;
+  const links = [
+    ...profile.links,
+    buildApplyLink(profile),
+    buildCreatorLink(profile),
+  ].filter((link): link is LinkhubLink => link !== null);
 
   return { props: { profile, links } };
 };

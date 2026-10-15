@@ -1,9 +1,11 @@
-import { useRef, useState, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 
 interface Props {
   id: string;
   /** PNG data URL of the signature, or null when empty / cleared */
   onChange: (dataUrl: string | null) => void;
+  /** Signature given earlier (e.g. before stepping back and forth) */
+  initialValue?: string | null;
   invalid?: boolean;
   describedBy?: string;
 }
@@ -15,12 +17,31 @@ const HEIGHT = 300;
 const MIN_STROKE_LENGTH = 180;
 
 /** Signature field for finger, pen or mouse (Pointer Events). */
-const SignaturePad = ({ id, onChange, invalid, describedBy }: Props) => {
+const SignaturePad = ({
+  id,
+  onChange,
+  initialValue,
+  invalid,
+  describedBy,
+}: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const last = useRef<{ x: number; y: number } | null>(null);
   const strokeLength = useRef(0);
-  const [hasInk, setHasInk] = useState(false);
+  const [hasInk, setHasInk] = useState(Boolean(initialValue));
+
+  // Redraw a signature given earlier; it counts as complete.
+  const initial = useRef(initialValue);
+  useEffect(() => {
+    const dataUrl = initial.current;
+    if (!dataUrl) return;
+    const img = new Image();
+    img.onload = () => {
+      canvasRef.current?.getContext("2d")?.drawImage(img, 0, 0, WIDTH, HEIGHT);
+      strokeLength.current = Math.max(strokeLength.current, MIN_STROKE_LENGTH);
+    };
+    img.src = dataUrl;
+  }, []);
 
   const point = (e: PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current!;

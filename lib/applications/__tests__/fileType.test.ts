@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { detectConsentFileType, parseConsentFile, parsePhoto } from "../fileType";
+import {
+  detectConsentFileType,
+  parseConsentFile,
+  parsePhoto,
+  parseReleaseDocument,
+  parseSetcard,
+} from "../fileType";
 
 const ascii = (s: string) => [...s].map((c) => c.charCodeAt(0));
 const pad = (values: number[], length = 32) =>
@@ -85,5 +91,28 @@ describe("parsePhoto", () => {
     const tooBig = new Uint8Array(1025);
     tooBig.set(JPEG);
     expect(parsePhoto(b64(tooBig), 1024).ok).toBe(false);
+  });
+});
+
+describe("parseSetcard / parseReleaseDocument (creator pool)", () => {
+  const b64 = (data: Uint8Array) => Buffer.from(data).toString("base64");
+
+  it("accepts a setcard as PDF, JPEG or PNG, but not HEIC", () => {
+    expect(parseSetcard(b64(PDF)).ok).toBe(true);
+    expect(parseSetcard(b64(JPEG)).ok).toBe(true);
+    expect(parseSetcard(b64(PNG)).ok).toBe(true);
+    expect(parseSetcard(b64(isoBmff("heic"))).ok).toBe(false);
+  });
+
+  it("accepts the rendered release as image only", () => {
+    expect(parseReleaseDocument(b64(JPEG)).ok).toBe(true);
+    expect(parseReleaseDocument(b64(PDF)).ok).toBe(false);
+    expect(parseReleaseDocument(undefined).ok).toBe(false);
+  });
+
+  it("enforces the setcard size limit", () => {
+    const overLimit = new Uint8Array(4097);
+    overLimit.set(PDF);
+    expect(parseSetcard(b64(overLimit), 4096).ok).toBe(false);
   });
 });

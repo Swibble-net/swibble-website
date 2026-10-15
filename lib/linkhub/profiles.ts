@@ -1,6 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { getDb, isFirebaseConfigured } from "@/lib/firebaseAdmin";
 import { slugify } from "@/lib/blog/slug";
+import { resolveShowCreatorLink } from "./applyLink";
 import type { LinkhubProfile, LinkhubProfileInput, LinkhubLink } from "./types";
 
 const COLLECTION = "linkhubs";
@@ -14,6 +15,7 @@ interface ProfileDocument {
   /** Missing on documents created before the apply entry existed */
   showApplyLink?: boolean;
   applyLinkLabel?: string;
+  showCreatorLink?: boolean;
   subdomain?: string;
   createdAt: number;
   updatedAt: number;
@@ -41,6 +43,7 @@ export function toProfile(
     // Default on: existing profiles get the apply entry without a migration.
     showApplyLink: data.showApplyLink ?? true,
     applyLinkLabel: data.applyLinkLabel ?? "",
+    showCreatorLink: resolveShowCreatorLink(data.showCreatorLink, data.slug),
     subdomain: data.subdomain ?? "",
     createdAt: data.createdAt ?? 0,
     updatedAt: data.updatedAt ?? data.createdAt ?? 0,
@@ -161,6 +164,7 @@ export async function createProfile(
     links: normaliseLinks(input.links),
     showApplyLink: input.showApplyLink ?? true,
     applyLinkLabel: input.applyLinkLabel?.trim() ?? "",
+    showCreatorLink: input.showCreatorLink ?? false,
     subdomain: input.subdomain ?? "",
     createdAt: now,
     updatedAt: now,
@@ -198,6 +202,9 @@ export async function updateProfile(
     showApplyLink: input.showApplyLink ?? current.showApplyLink ?? true,
     applyLinkLabel:
       input.applyLinkLabel?.trim() ?? current.applyLinkLabel ?? "",
+    showCreatorLink:
+      input.showCreatorLink ??
+      resolveShowCreatorLink(current.showCreatorLink, current.slug),
     subdomain: input.subdomain ?? current.subdomain ?? "",
     createdAt: current.createdAt,
     updatedAt: Date.now(),

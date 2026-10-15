@@ -30,6 +30,11 @@ export interface LinkhubProfile {
   showApplyLink: boolean;
   /** Optional custom label for the apply entry; "" = default label */
   applyLinkLabel: string;
+  /**
+   * Show the built-in "Swibble Creator werden" entry (→ /bewerben/creator).
+   * Documents without the field: on for the Swibble profile only.
+   */
+  showCreatorLink: boolean;
   /** Optional: page is also served at <subdomain>.swibble.net; "" = none */
   subdomain: string;
   createdAt: number;
@@ -45,6 +50,8 @@ export interface LinkhubProfileInput {
   /** Omitted = keep the stored value (true for new profiles) */
   showApplyLink?: boolean;
   applyLinkLabel?: string;
+  /** Omitted = keep the stored value (off for new profiles) */
+  showCreatorLink?: boolean;
   /** Omitted = keep the stored value; "" clears it */
   subdomain?: string;
   links: Array<{

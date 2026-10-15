@@ -3,15 +3,24 @@ import { requireAdmin } from "@/lib/adminAuth";
 import {
   CONSENT_VERSION,
   CONTACT_CONSENT_TEXT,
+  CREATOR_CONSENT_VERSION,
+  CREATOR_PHOTO_MIN_COUNT,
+  CREATOR_RELEASE_CLAUSES,
   GUARDIAN_CONFIRM_TEXT,
   GUARDIAN_ONLINE_ACCEPT_TEXT,
   MEDIA_CONSENT_TEXT,
   PHOTO_MAX_COUNT,
   PRIVACY_ACK_TEXT,
+  creatorReleaseText,
   guardianDeclarationText,
 } from "@/lib/applications/config";
 import { applicationsToCsv } from "@/lib/applications/csv";
-import { parseConsentFile, parsePhoto } from "@/lib/applications/fileType";
+import {
+  parseConsentFile,
+  parsePhoto,
+  parseReleaseDocument,
+  parseSetcard,
+} from "@/lib/applications/fileType";
 import { sendApplicationMails } from "@/lib/applications/notify";
 import { createRateLimiter } from "@/lib/applications/rateLimit";
 import { getApplicationSettings } from "@/lib/applications/settings";
@@ -23,7 +32,11 @@ import {
   listApplications,
   type ConsentUpload,
 } from "@/lib/applications/store";
-import { validateApplication } from "@/lib/applications/validation";
+import type { ApplicationErrors } from "@/lib/applications/types";
+import {
+  validateApplication,
+  validateCreatorApplication,
+} from "@/lib/applications/validation";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
 // The consent file arrives base64-encoded inside the JSON body. 4.5 MB is
@@ -51,6 +64,35 @@ function logError(scope: string, error: unknown) {
 const UNAVAILABLE_MESSAGE =
   "Bewerbungen können gerade leider nicht gespeichert werden. Bitte versuch es später noch einmal oder schreib uns an info@swibble.net.";
 
+const CHECK_FIELDS = "Bitte prüfe die markierten Felder.";
+
+type Body = Record<string, unknown>;
+
+class FieldErrors extends Error {
+  constructor(readonly errors: ApplicationErrors) {
+    super("invalid fields");
+  }
+}
+
+/** Decodes the photos of an application (all-or-nothing). */
+function parsePhotos(body: Body): ConsentUpload[] {
+  const rawPhotos = Array.isArray(body.photos) ? body.photos : [];
+  if (rawPhotos.length > PHOTO_MAX_COUNT) {
+    throw new FieldErrors({
+      photos: `Bitte lade höchstens ${PHOTO_MAX_COUNT} Fotos hoch.`,
+    });
+  }
+  return rawPhotos.map((raw) => {
+    const photo = parsePhoto((raw as { data?: unknown } | null)?.data);
+    if (!photo.ok) throw new FieldErrors({ photos: photo.error });
+    return { buffer: photo.buffer, type: photo.type };
+  });
+}
+
+function fileData(value: unknown): unknown {
+  return (value as { data?: unknown } | null | undefined)?.data;
+}
+
 async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   const ip = clientIp(req);
   if (!limiter.allow(ip)) {
@@ -60,9 +102,9 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
-  const body =
+  const body: Body =
     req.body && typeof req.body === "object"
-      ? (req.body as Record<string, unknown>)
+      ? (req.body as Body)
       : {};
 
   // Honeypot: real users never see or fill this field. Pretend success so
@@ -80,14 +122,20 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
+  try {
+    if (body.pool === "creator") return await handleCreator(body, res);
+    return await handleVideos(body, res);
+  } catch (error) {
+    if (!(error instanceof FieldErrors)) throw error;
+    return res.status(400).json({ message: CHECK_FIELDS, errors: error.errors });
+  }
+}
+
+/** /bewerben: videos in the centers, minors with parental consent. */
+async function handleVideos(body: Body, res: NextApiResponse) {
   const { enabledRoles } = await getApplicationSettings();
   const result = validateApplication(body, new Date(), enabledRoles);
-  if (!result.ok) {
-    return res.status(400).json({
-      message: "Bitte prüfe die markierten Felder.",
-      errors: result.errors,
-    });
-  }
+  if (!result.ok) throw new FieldErrors(result.errors);
 
   // The center must be a known Linkhub profile; anything else is dropped
   // rather than rejected, the application itself is still valid.
@@ -101,37 +149,13 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
   let upload: ConsentUpload | null = null;
   if (result.isMinor) {
-    const file = parseConsentFile(
-      (body.consentFile as { data?: unknown } | undefined)?.data,
-    );
-    if (!file.ok) {
-      return res.status(400).json({
-        message: "Bitte prüfe die markierten Felder.",
-        errors: { consentFile: file.error },
-      });
-    }
+    const file = parseConsentFile(fileData(body.consentFile));
+    if (!file.ok) throw new FieldErrors({ consentFile: file.error });
     upload = { buffer: file.buffer, type: file.type };
   }
 
   // Optional photos of the applicant.
-  const photos: ConsentUpload[] = [];
-  const rawPhotos = Array.isArray(body.photos) ? body.photos : [];
-  if (rawPhotos.length > PHOTO_MAX_COUNT) {
-    return res.status(400).json({
-      message: "Bitte prüfe die markierten Felder.",
-      errors: { photos: `Bitte lade höchstens ${PHOTO_MAX_COUNT} Fotos hoch.` },
-    });
-  }
-  for (const raw of rawPhotos) {
-    const photo = parsePhoto((raw as { data?: unknown } | null)?.data);
-    if (!photo.ok) {
-      return res.status(400).json({
-        message: "Bitte prüfe die markierten Felder.",
-        errors: { photos: photo.error },
-      });
-    }
-    photos.push({ buffer: photo.buffer, type: photo.type });
-  }
+  const photos = parsePhotos(body);
 
   if (!isApplicationStoreAvailable()) {
     return res.status(503).json({ message: UNAVAILABLE_MESSAGE });
@@ -149,6 +173,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   const application = await createApplication(
     {
       ...result.value,
+      pool: "videos",
       center,
       centerName,
       isMinor: result.isMinor,
@@ -167,20 +192,98 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
           guardian?.method === "signature"
             ? guardianDeclarationText(result.value.roles)
             : "",
+        creatorRelease: "",
         version: CONSENT_VERSION,
         givenAt: now,
       },
       consentFile: null,
+      releaseFile: null,
+      setcardFile: null,
       photos: [],
       status: "neu",
       note: "",
       createdAt: now,
       updatedAt: now,
     },
-    upload,
-    // Without the private bucket the photos are dropped; they are optional and
-    // the form doesn't offer the field in that case.
-    isConsentUploadAvailable() ? photos : [],
+    {
+      consent: upload,
+      release: null,
+      setcard: null,
+      // Without the private bucket the photos are dropped; they are optional
+      // and the form doesn't offer the field in that case.
+      photos: isConsentUploadAvailable() ? photos : [],
+    },
+  );
+
+  await sendApplicationMails(application);
+
+  return res.status(201).json({ success: true });
+}
+
+/**
+ * /bewerben/creator: Swibble Creator Pool. Adults only; photos and the release
+ * signed online are mandatory, setcard and portfolio link optional.
+ */
+async function handleCreator(body: Body, res: NextApiResponse) {
+  const result = validateCreatorApplication(body, new Date());
+  if (!result.ok) throw new FieldErrors(result.errors);
+
+  const photos = parsePhotos(body);
+  if (photos.length < CREATOR_PHOTO_MIN_COUNT) {
+    throw new FieldErrors({ photos: "Bitte lade mindestens ein Foto von dir hoch." });
+  }
+
+  const release = parseReleaseDocument(fileData(body.releaseFile));
+  if (!release.ok) throw new FieldErrors({ signature: release.error });
+
+  let setcard: ConsentUpload | null = null;
+  if (body.setcardFile !== undefined && body.setcardFile !== null) {
+    const file = parseSetcard(fileData(body.setcardFile));
+    if (!file.ok) throw new FieldErrors({ setcard: file.error });
+    setcard = { buffer: file.buffer, type: file.type };
+  }
+
+  if (!isApplicationStoreAvailable() || !isConsentUploadAvailable()) {
+    // Photos and the signed release are the point of this application.
+    return res.status(503).json({ message: UNAVAILABLE_MESSAGE });
+  }
+
+  const now = Date.now();
+  const { firstName, lastName, roles } = result.value;
+  const application = await createApplication(
+    {
+      ...result.value,
+      pool: "creator",
+      centerName: "",
+      isMinor: false,
+      ageAtSubmission: result.age,
+      consent: {
+        // The storage/contact clause of the signed release.
+        contactText: CREATOR_RELEASE_CLAUSES[4],
+        privacyText: PRIVACY_ACK_TEXT,
+        mediaText: "",
+        guardianText: "",
+        guardianDeclaration: "",
+        // Exact wording that was signed, with name and roles filled in.
+        creatorRelease: creatorReleaseText(`${firstName} ${lastName}`, roles),
+        version: CREATOR_CONSENT_VERSION,
+        givenAt: now,
+      },
+      consentFile: null,
+      releaseFile: null,
+      setcardFile: null,
+      photos: [],
+      status: "neu",
+      note: "",
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      consent: null,
+      release: { buffer: release.buffer, type: release.type },
+      setcard,
+      photos,
+    },
   );
 
   await sendApplicationMails(application);

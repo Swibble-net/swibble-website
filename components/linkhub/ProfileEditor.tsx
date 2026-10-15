@@ -6,6 +6,9 @@ import {
   APPLY_LINK_DEFAULT_LABEL,
   APPLY_LINK_LABEL_MAX_LENGTH,
   APPLY_LINK_SUBLABEL,
+  CREATOR_LINK_HREF,
+  CREATOR_LINK_LABEL,
+  CREATOR_LINK_SUBLABEL,
   applyHref,
 } from "@/lib/linkhub/applyLink";
 
@@ -43,6 +46,9 @@ const ProfileEditor = ({ profile }: Props) => {
   );
   const [applyLinkLabel, setApplyLinkLabel] = useState(
     profile?.applyLinkLabel ?? "",
+  );
+  const [showCreatorLink, setShowCreatorLink] = useState(
+    profile?.showCreatorLink ?? false,
   );
   const [links, setLinks] = useState<LinkhubLink[]>(
     profile?.links.length ? profile.links : [newLink()],
@@ -98,6 +104,7 @@ const ProfileEditor = ({ profile }: Props) => {
             logoUrl: logoUrl.trim() || undefined,
             showApplyLink,
             applyLinkLabel: applyLinkLabel.trim(),
+            showCreatorLink,
             subdomain: subdomain.trim(),
             links: links.map(({ id, ...rest }) => ({ id, ...rest })),
           }),
@@ -377,6 +384,28 @@ const ProfileEditor = ({ profile }: Props) => {
             />
           </div>
         )}
+      </div>
+
+      {/* Built-in creator pool entry */}
+      <div className="mt-4 rounded-xl border border-[#F0E4F5] bg-[#FDF5FF] p-4">
+        <label className="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            checked={showCreatorLink}
+            onChange={(e) => setShowCreatorLink(e.target.checked)}
+            className="mt-1 accent-[#b718ec]"
+          />
+          <span>
+            <span className="block text-sm font-semibold text-[#000D36]">
+              Eintrag „{CREATOR_LINK_LABEL}“ anzeigen
+            </span>
+            <span className="mt-0.5 block text-xs text-[#556987]">
+              Fester Eintrag am Ende der Linkliste („{CREATOR_LINK_SUBLABEL}“).
+              Führt zur Bewerbung für den Creator Pool (
+              <code>{CREATOR_LINK_HREF}</code>).
+            </span>
+          </span>
+        </label>
       </div>
 
       {/* Save */}

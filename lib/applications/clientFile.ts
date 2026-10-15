@@ -2,7 +2,11 @@
 // phone camera are often 4–10 MB, more than fits through a Vercel function, so
 // they are downscaled to a readable JPEG before upload.
 
-import { CONSENT_FILE_MAX_BYTES, PHOTO_MAX_BYTES } from "./config";
+import {
+  CONSENT_FILE_MAX_BYTES,
+  PHOTO_MAX_BYTES,
+  SETCARD_MAX_BYTES,
+} from "./config";
 
 // "image/*" rather than a list of types: file pickers (notably on macOS) grey
 // out everything that isn't listed — WebP, AVIF, HEIC variants … Whatever the
@@ -19,6 +23,8 @@ export interface PreparedFile {
 export class ConsentFileError extends Error {}
 
 export const PHOTO_ACCEPT = "image/*,.heic,.heif";
+
+export const SETCARD_ACCEPT = "application/pdf,.pdf,image/*,.heic,.heif";
 
 const MAX_MB = (CONSENT_FILE_MAX_BYTES / (1024 * 1024)).toLocaleString("de-DE", {
   maximumFractionDigits: 1,
@@ -168,5 +174,78 @@ export async function preparePhoto(
     name: file.name,
     size: blob.size,
     previewUrl: URL.createObjectURL(blob),
+  };
+}
+
+/**
+ * Prepares the optional setcard / portfolio of a creator: a PDF stays as it
+ * is when it fits, otherwise it is rebuilt from page images; images are
+ * converted to JPEG and shrunk (the server takes PDF, JPEG and PNG only).
+ */
+export async function prepareSetcard(
+  file: File,
+): Promise<PreparedFile & { kind: "pdf" | "image"; compressed: boolean }> {
+  if (isPdf(file)) {
+    if (file.size <= SETCARD_MAX_BYTES) {
+      return {
+        data: await toBase64(file),
+        name: file.name,
+        size: file.size,
+        kind: "pdf",
+        compressed: false,
+      };
+    }
+    const { shrinkPdf } = await import("./setcardPdf");
+    const pdf = await shrinkPdf(file, SETCARD_MAX_BYTES);
+    return {
+      data: await toBase64(pdf),
+      name: file.name,
+      size: pdf.size,
+      kind: "pdf",
+      compressed: true,
+    };
+  }
+
+  if (!isImage(file)) {
+    throw new ConsentFileError("Bitte wähle ein PDF oder ein Bild (JPG, PNG, HEIC).");
+  }
+
+  const keepAsIs =
+    file.size <= SETCARD_MAX_BYTES &&
+    (/^image\/(jpeg|png)$/.test(file.type) ||
+      (!file.type && /\.(jpe?g|png)$/i.test(file.name)));
+  if (keepAsIs) {
+    return {
+      data: await toBase64(file),
+      name: file.name,
+      size: file.size,
+      kind: "image",
+      compressed: false,
+    };
+  }
+
+  let blob: Blob | null = null;
+  for (const [maxSide, quality] of [
+    [2400, 0.82],
+    [2000, 0.72],
+    [1600, 0.62],
+  ]) {
+    blob = await downscale(file, maxSide, quality);
+    if (!blob || blob.size <= SETCARD_MAX_BYTES) break;
+  }
+  if (!blob) {
+    throw new ConsentFileError(
+      "Dieses Bildformat kann dein Browser nicht verarbeiten. Tipp: Mach einen Screenshot davon und lade den hoch.",
+    );
+  }
+  if (blob.size > SETCARD_MAX_BYTES) {
+    throw new ConsentFileError("Das Bild ist zu groß. Bitte wähle ein anderes.");
+  }
+  return {
+    data: await toBase64(blob),
+    name: file.name,
+    size: blob.size,
+    kind: "image",
+    compressed: true,
   };
 }
