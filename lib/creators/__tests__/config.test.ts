@@ -5,6 +5,7 @@ import {
   slugBase,
   toPublicCreator,
   validateCreatorInput,
+  validateCreatorName,
   videoChunkCount,
 } from "../config";
 import { imageSize } from "../imageSize";
@@ -89,6 +90,16 @@ describe("helpers", () => {
   it("reorders by id and keeps unknown ones behind", () => {
     const items = [{ id: "a" }, { id: "b" }, { id: "c" }];
     expect(reorderById(items, ["c", "x", "a"]).map((i) => i.id)).toEqual(["c", "a", "b"]);
+  });
+});
+
+describe("validateCreatorName", () => {
+  it("tidies the name of a page without application and refuses bad ones", () => {
+    expect(validateCreatorName("  Karina   Gepper ")).toBe("Karina Gepper");
+    expect(validateCreatorName("   ")).toBeNull();
+    expect(validateCreatorName("x".repeat(61))).toBeNull();
+    expect(validateCreatorName("<b>X</b>")).toBeNull();
+    expect(validateCreatorName(42)).toBeNull();
   });
 });
 

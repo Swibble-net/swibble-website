@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import type { GetServerSideProps } from "next";
 import AdminNav from "@/components/admin/AdminNav";
 import { isAuthenticated } from "@/lib/adminAuth";
@@ -46,15 +46,20 @@ const AdminCreators = ({ creators, open, available }: Props) => {
   const router = useRouter();
   const [creating, setCreating] = useState("");
   const [error, setError] = useState("");
+  const [manualName, setManualName] = useState("");
+  const [manualConsent, setManualConsent] = useState(false);
 
+  /** `applicationId` = page from that application, "" = empty page for `manualName` */
   const createPage = async (applicationId: string) => {
-    setCreating(applicationId);
+    setCreating(applicationId || "manual");
     setError("");
     try {
       const res = await fetch("/api/admin/creators", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ applicationId }),
+        body: JSON.stringify(
+          applicationId ? { applicationId } : { name: manualName, consent: manualConsent },
+        ),
       });
       if (res.status === 401) return router.push("/admin/login");
       const data = await res.json();
@@ -97,6 +102,46 @@ const AdminCreators = ({ creators, open, available }: Props) => {
           {error}
         </p>
       )}
+
+      <form
+        onSubmit={(event: FormEvent) => {
+          event.preventDefault();
+          void createPage("");
+        }}
+        className="mb-8 flex flex-col gap-3 rounded-xl border border-[#F0E4F5] bg-white p-4"
+      >
+        <h2 className="text-base font-semibold text-[#000D36]">Creator ohne Bewerbung anlegen</h2>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <label className="sr-only" htmlFor="manual-name">
+            Name
+          </label>
+          <input
+            id="manual-name"
+            value={manualName}
+            onChange={(e) => setManualName(e.target.value)}
+            maxLength={60}
+            placeholder="Vor- und Nachname"
+            className="min-h-10 flex-1 rounded-[10px] border border-[#E4D3EC] px-3 text-sm focus:border-[#B718EC] focus:outline-none"
+          />
+          <button
+            type="submit"
+            disabled={Boolean(creating) || !manualName.trim() || !manualConsent}
+            className="rounded-[10px] bg-[#B718EC] px-4 py-2 text-sm font-medium text-white hover:bg-[#a514d6] disabled:opacity-50"
+          >
+            {creating === "manual" ? "Wird angelegt …" : "Anlegen"}
+          </button>
+        </div>
+        <label className="flex items-start gap-2 text-sm text-[#2A3342]">
+          <input
+            type="checkbox"
+            checked={manualConsent}
+            onChange={(e) => setManualConsent(e.target.checked)}
+            className="mt-0.5 h-4 w-4 accent-[#B718EC]"
+          />
+          Einverständnis liegt vor (z. B. Vertrag oder Absprache): Swibble darf mit Fotos und Videos dieser Person
+          werben und sie Kunden als Swibble Creator vorstellen.
+        </label>
+      </form>
 
       {open.length > 0 && (
         <section className="mb-8">
@@ -152,7 +197,7 @@ const AdminCreators = ({ creators, open, available }: Props) => {
 
       {creators.length === 0 ? (
         <p className="rounded-xl bg-[#FDF5FF] p-6 text-center text-[#556987]">
-          Noch keine Creator-Seiten – leg oben eine aus einer Bewerbung an.
+          Noch keine Creator-Seiten.
         </p>
       ) : (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

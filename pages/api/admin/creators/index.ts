@@ -1,14 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
 import { getApplication } from "@/lib/applications/store";
+import { validateCreatorName } from "@/lib/creators/config";
 import {
   createCreatorFromApplication,
+  createCreatorWithoutApplication,
   getCreatorForApplication,
   isCreatorStoreAvailable,
   listCreators,
 } from "@/lib/creators/store";
 
-/** GET: all creator pages · POST {applicationId}: page from an application */
+/**
+ * GET: all creator pages · POST {applicationId}: page from an application
+ * · POST {name, consent: true}: empty page without an application
+ */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!requireAdmin(req, res)) return;
   res.setHeader("Cache-Control", "private, no-store");
@@ -22,7 +27,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!isCreatorStoreAvailable()) {
         return res.status(503).json({ message: "Speicher nicht konfiguriert (FIREBASE_STORAGE_BUCKET)." });
       }
-      const { applicationId } = (req.body ?? {}) as { applicationId?: unknown };
+      const body = (req.body ?? {}) as { applicationId?: unknown; name?: unknown; consent?: unknown };
+      if (body.applicationId === undefined && body.name !== undefined) {
+        const name = validateCreatorName(body.name);
+        if (!name) return res.status(400).json({ message: "Bitte gib einen Namen an (max. 60 Zeichen)." });
+        // No signed release in the system: the admin vouches for the creator's consent.
+        if (body.consent !== true) {
+          return res.status(400).json({ message: "Bitte bestätige, dass das Einverständnis vorliegt." });
+        }
+        return res.status(201).json({ creator: await createCreatorWithoutApplication(name) });
+      }
+      const { applicationId } = body;
       if (typeof applicationId !== "string" || !applicationId) {
         return res.status(400).json({ message: "Bewerbung fehlt." });
       }

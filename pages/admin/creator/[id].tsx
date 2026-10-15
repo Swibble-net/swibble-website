@@ -286,6 +286,15 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable }: Props) => {
             </Link>
           )}
         </div>
+        {!creator.applicationId && creator.consentConfirmedAt > 0 && (
+          <p className="text-xs text-[#556987]">
+            Ohne Bewerbung angelegt · Einverständnis bestätigt am{" "}
+            {new Date(creator.consentConfirmedAt).toLocaleDateString("de-DE", {
+              dateStyle: "medium",
+              timeZone: "Europe/Berlin",
+            })}
+          </p>
+        )}
 
         <div aria-live="polite">
           {message && <p className="rounded-lg bg-green-50 p-3 text-sm text-green-700">{message}</p>}
