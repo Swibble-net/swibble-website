@@ -7,6 +7,7 @@ import {
   toPublicCreator,
   validateCreatorInput,
   validateCreatorName,
+  validateCreatorRoles,
   videoChunkCount,
 } from "../config";
 import { imageSize } from "../imageSize";
@@ -92,6 +93,14 @@ describe("helpers", () => {
   it("reorders by id and keeps unknown ones behind", () => {
     const items = [{ id: "a" }, { id: "b" }, { id: "c" }];
     expect(reorderById(items, ["c", "x", "a"]).map((i) => i.id)).toEqual(["c", "a", "b"]);
+  });
+});
+
+describe("validateCreatorRoles", () => {
+  it("keeps known services in order and needs at least one", () => {
+    expect(validateCreatorRoles(["promoter", "model", "dj"])).toEqual(["model", "promoter"]);
+    expect(validateCreatorRoles([])).toBeNull();
+    expect(validateCreatorRoles("model")).toBeNull();
   });
 });
 

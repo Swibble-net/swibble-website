@@ -152,6 +152,13 @@ function line(value: unknown, max: number): string | null {
   return text;
 }
 
+/** Known services in their usual order; null when none is left. */
+export function validateCreatorRoles(value: unknown): CreatorRole[] | null {
+  const raw = Array.isArray(value) ? value : [];
+  const roles = CREATOR_ROLES.map((r) => r.id).filter((id) => raw.includes(id)) as CreatorRole[];
+  return roles.length > 0 ? roles : null;
+}
+
 /** Name of a new profile, or null when empty / too long / not allowed. */
 export function validateCreatorName(value: unknown): string | null {
   return line(value, NAME_MAX_LENGTH) || null;

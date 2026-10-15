@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
-import { isValidId, validateCreatorInput } from "@/lib/creators/config";
+import { isValidId, validateCreatorInput, validateCreatorRoles } from "@/lib/creators/config";
 import { refreshCreatorAppVideos } from "@/lib/creators/appVideos";
 import {
   deleteCreator,
@@ -8,9 +8,13 @@ import {
   isSlugTaken,
   newMediaId,
   updateCreatorProfile,
+  updateCreatorRoles,
 } from "@/lib/creators/store";
 
-/** GET (refreshes processing app videos) · PUT profile fields · DELETE page with files */
+/**
+ * GET (refreshes processing app videos) · PUT profile fields
+ * · PATCH {roles} services only · DELETE page with files
+ */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!requireAdmin(req, res)) return;
   res.setHeader("Cache-Control", "private, no-store");
@@ -41,12 +45,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ creator });
     }
 
+    if (req.method === "PATCH") {
+      const roles = validateCreatorRoles((req.body ?? {}).roles);
+      if (!roles) return res.status(400).json({ message: "Mindestens eine Leistung muss aktiv bleiben." });
+      return res.status(200).json({ creator: await updateCreatorRoles(profile.id, roles) });
+    }
+
     if (req.method === "DELETE") {
       await deleteCreator(profile);
       return res.status(200).json({ success: true });
     }
 
-    res.setHeader("Allow", "GET, PUT, DELETE");
+    res.setHeader("Allow", "GET, PUT, PATCH, DELETE");
     return res.status(405).json({ message: "Method not allowed" });
   } catch (error) {
     console.error("[/api/admin/creators/:id]", error instanceof Error ? error.name : "UnknownError");

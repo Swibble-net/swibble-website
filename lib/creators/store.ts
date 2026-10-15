@@ -513,6 +513,14 @@ export async function updateCreatorProfile(
   }));
 }
 
+/** Switches services (Model, Promoter …) on or off without touching the rest. */
+export async function updateCreatorRoles(
+  id: string,
+  roles: CreatorRole[],
+): Promise<CreatorProfile | null> {
+  return backend().mutate(id, (current) => ({ ...withoutId(current), roles }));
+}
+
 /** Deletes a profile with all of its files. */
 export async function deleteCreator(profile: CreatorProfile): Promise<void> {
   const store = backend();
