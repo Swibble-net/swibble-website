@@ -26,12 +26,6 @@ interface Props {
   uploadsAvailable: boolean;
 }
 
-const STEPS = [
-  ["1", "Formular ausfüllen", "Dauert keine zwei Minuten."],
-  ["2", "Wir schauen uns dein Profil an", "Passt es, melden wir uns bei dir – per Mail, WhatsApp oder DM."],
-  ["3", "Kennenlernen & loslegen", "Wir sprechen alles mit dir ab. Du entscheidest, ob du dabei bist."],
-];
-
 /** Intro sentence matching the roles that are currently open. */
 function introText(enabledRoles: ApplicationRole[]): string {
   const has = (role: ApplicationRole) => enabledRoles.includes(role);
@@ -171,30 +165,6 @@ const BewerbenPage: NextPageWithLayout<Props> = ({
             </section>
           ) : (
             <>
-              <ol className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-                {STEPS.map(([number, title, text]) => (
-                  <li
-                    key={number}
-                    className="flex gap-3 rounded-2xl bg-white/70 p-4 sm:flex-col sm:gap-2"
-                  >
-                    <span
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#B718EC] text-sm font-bold text-white"
-                      aria-hidden
-                    >
-                      {number}
-                    </span>
-                    <span>
-                      <span className="block text-sm font-semibold text-[#000D36]">
-                        {title}
-                      </span>
-                      <span className="mt-0.5 block text-xs text-[#556987]">
-                        {text}
-                      </span>
-                    </span>
-                  </li>
-                ))}
-              </ol>
-
               {storeAvailable ? (
                 <ApplicationForm
                   center={center}
@@ -219,6 +189,16 @@ const BewerbenPage: NextPageWithLayout<Props> = ({
                   .
                 </p>
               )}
+
+              <p className="text-center text-sm text-[#556987]">
+                Model, Content Creator oder Moderation?{" "}
+                <Link
+                  href="/bewerben/creator"
+                  className="font-medium text-[#B718EC] underline"
+                >
+                  Zum Swibble Creator Pool
+                </Link>
+              </p>
 
               <p className="text-center text-xs text-[#8a7791]">
                 Wir nehmen dich in unseren Bewerberpool auf und speichern deine

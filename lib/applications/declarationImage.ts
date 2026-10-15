@@ -1,10 +1,35 @@
-// Browser-only: renders the online-signed parental declaration into one image
+// Browser-only: renders a declaration signed online — the parental consent
+// (/bewerben) or the creator release (/bewerben/creator) — into one image
 // (A4 proportions), so the admin area holds a complete signed document rather
 // than a bare signature. The server additionally stores the declaration text,
-// the guardian's details and the timestamp as data.
+// the personal details and the timestamp as data.
 
 import Wordmark from "@/public/logo/SwibbleWordmark.svg";
 import { CONSENT_TEMPLATE_IS_DRAFT } from "./config";
+
+/** Generic signed document: header, detail sections, declaration, signature. */
+export interface SignedDocumentInput {
+  /** Small pill in the header, e.g. "Bewerbung · Einverständnis der Eltern" */
+  tag: string;
+  title: string;
+  /** Line under the title, e.g. "online abgegeben über www.swibble.net/bewerben" */
+  source: string;
+  /** Numbered detail blocks before the declaration */
+  sections: Array<{ heading: string; lines: string[] }>;
+  declarationHeading: string;
+  /** Intro + numbered clauses, separated by blank lines */
+  declarationText: string;
+  /** Optional line below the declaration, e.g. the ticked confirmation */
+  confirmation?: string;
+  signerName: string;
+  /** PNG data URL from the signature pad */
+  signatureDataUrl: string;
+  signedAt: Date;
+  /** CSS font-family of the page (Poppins), so the document matches the site */
+  fontFamily?: string;
+  /** Re-encode with lower quality while the JPEG is larger than this */
+  maxBytes?: number;
+}
 
 export interface DeclarationDocumentInput {
   childName: string;
@@ -53,9 +78,40 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-/** Returns the document as base64 JPEG (without the data: prefix). */
-export async function renderDeclarationDocument(
+/** Parental consent of a minor, signed online on /bewerben. */
+export function renderDeclarationDocument(
   input: DeclarationDocumentInput,
+): Promise<{ data: string; size: number }> {
+  return renderSignedDocument({
+    tag: "Bewerbung · Einverständnis der Eltern",
+    title: "Einverständniserklärung der Erziehungsberechtigten",
+    source: "online abgegeben über www.swibble.net/bewerben",
+    sections: [
+      {
+        heading: "1. Angaben zum Kind",
+        lines: [`${input.childName}, geboren am ${input.birthDate}`],
+      },
+      {
+        heading: "2. Erziehungsberechtigte Person",
+        lines: [
+          input.guardianName,
+          input.guardianContact,
+          input.guardianAddress,
+        ].filter(Boolean),
+      },
+    ],
+    declarationHeading: "3. Erklärung",
+    declarationText: input.declarationText,
+    signerName: input.guardianName,
+    signatureDataUrl: input.signatureDataUrl,
+    signedAt: input.signedAt,
+    fontFamily: input.fontFamily,
+  });
+}
+
+/** Returns the document as base64 JPEG (without the data: prefix). */
+export async function renderSignedDocument(
+  input: SignedDocumentInput,
 ): Promise<{ data: string; size: number }> {
   const signature = await loadImage(input.signatureDataUrl);
   const logo = await loadImage(Wordmark.src).catch(() => null);
@@ -99,7 +155,7 @@ export async function renderDeclarationDocument(
       if (paint) ctx.drawImage(logo, MARGIN, y, logoWidth, logoHeight);
     }
     ctx.font = font(17);
-    const tag = "Bewerbung · Einverständnis der Eltern";
+    const tag = input.tag;
     const tagWidth = ctx.measureText(tag).width + 36;
     if (paint) {
       ctx.fillStyle = TINT;
@@ -127,25 +183,25 @@ export async function renderDeclarationDocument(
     }
 
     ctx.fillStyle = INK;
-    paragraph("Einverständniserklärung der Erziehungsberechtigten", font(36, true), 48, 6);
+    paragraph(input.title, font(36, true), 48, 6);
     ctx.fillStyle = MUTED;
-    paragraph("online abgegeben über www.swibble.net/bewerben", font(20), 28, 28);
+    paragraph(input.source, font(20), 28, 28);
     ctx.fillStyle = INK;
 
-    heading("1. Angaben zum Kind");
-    paragraph(`${input.childName}, geboren am ${input.birthDate}`, font(22), 32, 22);
+    for (const section of input.sections) {
+      heading(section.heading);
+      for (const line of section.lines) paragraph(line, font(22), 32, 0);
+      y += 22;
+    }
 
-    heading("2. Erziehungsberechtigte Person");
-    paragraph(input.guardianName, font(22), 32, 0);
-    paragraph(input.guardianContact, font(22), 32, 0);
-    if (input.guardianAddress) paragraph(input.guardianAddress, font(22), 32, 0);
-    y += 22;
-
-    heading("3. Erklärung");
+    heading(input.declarationHeading);
     for (const block of input.declarationText.split(/\n\n+/)) {
       paragraph(block, font(19), 29, 12);
     }
     y += 16;
+    if (input.confirmation) {
+      paragraph(`☑ ${input.confirmation}`, font(19), 29, 16);
+    }
 
     const signedAt = input.signedAt.toLocaleString("de-DE", {
       dateStyle: "long",
@@ -163,7 +219,7 @@ export async function renderDeclarationDocument(
     }
     y += sigHeight + 10;
     ctx.fillStyle = MUTED;
-    paragraph(`Unterschrift: ${input.guardianName}`, font(18), 26, 30);
+    paragraph(`Unterschrift: ${input.signerName}`, font(18), 26, 30);
 
     // Footer
     if (paint) {
@@ -195,9 +251,15 @@ export async function renderDeclarationDocument(
   ctx.fillRect(0, 0, WIDTH, height);
   draw(ctx, true);
 
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, "image/jpeg", 0.85),
-  );
+  const encode = (quality: number) =>
+    new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", quality),
+    );
+  let blob = await encode(0.85);
+  for (const quality of [0.7, 0.55]) {
+    if (!blob || !input.maxBytes || blob.size <= input.maxBytes) break;
+    blob = await encode(quality);
+  }
   if (!blob) throw new Error("document could not be rendered");
 
   const dataUrl = await new Promise<string>((resolve, reject) => {

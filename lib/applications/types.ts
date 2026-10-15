@@ -1,5 +1,6 @@
 import type {
-  ApplicationRole,
+  AnyApplicationRole,
+  ApplicationPool,
   ApplicationStatus,
   GuardianMethod,
 } from "./config";
@@ -43,6 +44,8 @@ export interface ApplicationConsent {
   guardianText: string;
   /** Minors who signed online: full text of the signed declaration */
   guardianDeclaration: string;
+  /** Creator pool: full text of the release the applicant signed online */
+  creatorRelease: string;
   version: string;
   /** Epoch ms at which the consents were given (server time) */
   givenAt: number;
@@ -50,7 +53,7 @@ export interface ApplicationConsent {
 
 /** Validated, normalised applicant data (output of validateApplication). */
 export interface ApplicationData {
-  roles: ApplicationRole[];
+  roles: AnyApplicationRole[];
   firstName: string;
   lastName: string;
   /** ISO date, YYYY-MM-DD */
@@ -64,11 +67,15 @@ export interface ApplicationData {
   /** Linkhub slug the applicant came from; "" = unknown / doesn't matter */
   center: string;
   guardian: ApplicationGuardian | null;
+  /** Creator pool: optional link to a website / online portfolio ("" = none) */
+  portfolioUrl: string;
 }
 
 export interface Application extends ApplicationData {
   /** Firestore document id */
   id: string;
+  /** Which page the application came from (missing in old documents = "videos") */
+  pool: ApplicationPool;
   /** Display name of the center at submission time */
   centerName: string;
   /** Minor at the time of submission */
@@ -78,6 +85,10 @@ export interface Application extends ApplicationData {
   consentFile: ApplicationConsentFile | null;
   /** Optional photos the applicant added (private bucket, same rules) */
   photos: ApplicationConsentFile[];
+  /** Creator pool: the release signed online, rendered as one document */
+  releaseFile: ApplicationConsentFile | null;
+  /** Creator pool: optional setcard / portfolio (PDF or image) */
+  setcardFile: ApplicationConsentFile | null;
   status: ApplicationStatus;
   /** Internal admin note */
   note: string;

@@ -4,8 +4,10 @@ import { useMemo, useState } from "react";
 import type { GetServerSideProps } from "next";
 import { isAuthenticated } from "@/lib/adminAuth";
 import {
+  APPLICATION_POOLS,
   APPLICATION_ROLES,
   APPLICATION_STATUSES,
+  CREATOR_ROLES,
   roleLabel,
   type ApplicationRole,
 } from "@/lib/applications/config";
@@ -24,6 +26,7 @@ import type { Application } from "@/lib/applications/types";
 type ApplicationSummary = Pick<
   Application,
   | "id"
+  | "pool"
   | "firstName"
   | "lastName"
   | "roles"
@@ -44,6 +47,11 @@ interface Props {
 }
 
 const NO_CENTER = "__none__";
+
+// Roles of both forms for the filter; "model" exists in both.
+const ALL_ROLES = [...APPLICATION_ROLES, ...CREATOR_ROLES].filter(
+  (role, index, list) => list.findIndex((r) => r.id === role.id) === index,
+);
 
 const formatDateTime = (ms: number) =>
   new Date(ms).toLocaleString("de-DE", {
@@ -95,6 +103,7 @@ const AdminApplications = ({
     }
   };
 
+  const [pool, setPool] = useState("");
   const [center, setCenter] = useState("");
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("");
@@ -110,6 +119,7 @@ const AdminApplications = ({
 
   const filtered = applications.filter(
     (a) =>
+      (!pool || a.pool === pool) &&
       (!center || (center === NO_CENTER ? !a.center : a.center === center)) &&
       (!role || a.roles.includes(role as (typeof a.roles)[number])) &&
       (!status || a.status === status) &&
@@ -163,7 +173,8 @@ const AdminApplications = ({
           <p className="mb-4 rounded-lg bg-amber-50 p-4 text-sm text-amber-700">
             <strong>Storage fehlt:</strong> <code>FIREBASE_STORAGE_BUCKET</code>{" "}
             ist nicht gesetzt. Minderjährige können sich deshalb aktuell nicht
-            bewerben (der Muttizettel-Upload ist deaktiviert).
+            bewerben (der Muttizettel-Upload ist deaktiviert), und der Creator
+            Pool ist geschlossen (Fotos und Unterschrift brauchen den Speicher).
           </p>
         )}
         {!turnstileEnforced && (
@@ -181,7 +192,9 @@ const AdminApplications = ({
           </p>
           <p className="mb-3 text-xs text-[#8a7791]">
             Nur aktivierte Optionen stehen auf /bewerben zur Auswahl – für alle
-            Center. Mindestens eine muss aktiv bleiben.
+            Center. Mindestens eine muss aktiv bleiben. Der Creator Pool
+            (/bewerben/creator) bietet immer Model, Content Creator und
+            Moderation an.
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {APPLICATION_ROLES.map((r) => {
@@ -210,7 +223,22 @@ const AdminApplications = ({
         </div>
 
         {/* Filters */}
-        <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl border border-[#F0E4F5] bg-white p-4 sm:grid-cols-4">
+        <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl border border-[#F0E4F5] bg-white p-4 sm:grid-cols-5">
+          <label className="text-xs font-medium text-[#556987]">
+            Bereich
+            <select
+              className={`${selectClass} mt-1`}
+              value={pool}
+              onChange={(e) => setPool(e.target.value)}
+            >
+              <option value="">Alle</option>
+              {APPLICATION_POOLS.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </label>
           <label className="text-xs font-medium text-[#556987]">
             Center
             <select
@@ -235,7 +263,7 @@ const AdminApplications = ({
               onChange={(e) => setRole(e.target.value)}
             >
               <option value="">Alle</option>
-              {APPLICATION_ROLES.map((r) => (
+              {ALL_ROLES.map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.label}
                 </option>
@@ -292,6 +320,11 @@ const AdminApplications = ({
                   <div className="flex items-start justify-between gap-3">
                     <h2 className="font-semibold">
                       {a.firstName} {a.lastName}
+                      {a.pool === "creator" && (
+                        <span className="ml-2 rounded-full bg-[#F9EAFF] px-2 py-0.5 text-xs font-medium text-[#B718EC]">
+                          Creator Pool
+                        </span>
+                      )}
                       {a.isMinor && (
                         <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
                           U18{a.hasConsentFile ? " · Zettel ✓" : ""}
@@ -305,7 +338,8 @@ const AdminApplications = ({
                   </p>
                   <p className="mt-1 text-xs text-[#8a7791]">
                     {a.age !== null && `${a.age} Jahre · `}
-                    {a.centerName || "Ohne Center"} · {a.city}
+                    {a.pool === "creator" ? "" : `${a.centerName || "Ohne Center"} · `}
+                    {a.city}
                     {a.photoCount > 0 && ` · ${a.photoCount} Foto${a.photoCount > 1 ? "s" : ""}`} ·{" "}
                     {formatDateTime(a.createdAt)}
                   </p>
@@ -331,6 +365,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
       age: birth ? calculateAge(birth, today) : null,
       photoCount: a.photos.length,
       id: a.id,
+      pool: a.pool,
       firstName: a.firstName,
       lastName: a.lastName,
       roles: a.roles,

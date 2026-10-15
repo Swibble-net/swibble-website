@@ -10,7 +10,9 @@ import {
 import {
   normalizeEmail,
   normalizePhone,
+  normalizePortfolioUrl,
   validateApplication,
+  validateCreatorApplication,
 } from "../validation";
 
 // Fixed "now": 19 September 2026, midday in Germany.
@@ -367,5 +369,110 @@ describe("consent wording", () => {
 
   it("guardian confirmation covers processing of the child's data", () => {
     expect(GUARDIAN_CONFIRM_TEXT).toMatch(/Verarbeitung meiner Daten/);
+  });
+});
+
+describe("validateCreatorApplication", () => {
+  const creator = {
+    pool: "creator",
+    roles: ["model", "moderation"],
+    firstName: "Carla",
+    lastName: "Creator",
+    birthDate: "1998-03-03",
+    postalCode: "52064",
+    city: "Aachen",
+    email: "carla@example.com",
+    phone: "0152 0000003",
+    tiktok: "",
+    instagram: "https://www.instagram.com/carla.creates/",
+    snapchat: "",
+    youtube: "",
+    about: "",
+    portfolioUrl: "carla.example/portfolio",
+    releaseAccepted: true,
+    privacyAck: true,
+  };
+
+  const errorsOfCreator = (input: unknown) => {
+    const result = validateCreatorApplication(input, NOW);
+    return result.ok ? {} : result.errors;
+  };
+
+  it("accepts and normalises a valid creator application", () => {
+    const result = validateCreatorApplication(creator, NOW);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.isMinor).toBe(false);
+    expect(result.value).toMatchObject({
+      roles: ["model", "moderation"],
+      phone: "+491520000003",
+      socials: { instagram: "carla.creates" },
+      portfolioUrl: "https://carla.example/portfolio",
+      center: "",
+      guardian: null,
+    });
+  });
+
+  it("is for adults only", () => {
+    expect(errorsOfCreator({ ...creator, birthDate: "2009-01-01" }).birthDate).toMatch(
+      /mindestens 18/,
+    );
+    // Turns 18 on the day of application.
+    expect(errorsOfCreator({ ...creator, birthDate: "2008-09-19" }).birthDate).toBeUndefined();
+  });
+
+  it("only accepts creator roles", () => {
+    expect(errorsOfCreator({ ...creator, roles: [] }).roles).toBeDefined();
+    expect(errorsOfCreator({ ...creator, roles: ["video"] }).roles).toBeDefined();
+    expect(errorsOfCreator({ ...creator, roles: ["creator", "kamera"] }).roles).toBeDefined();
+  });
+
+  it("asks content creators for at least one channel", () => {
+    const noChannel = { ...creator, roles: ["creator"], instagram: "" };
+    expect(errorsOfCreator(noChannel).socials).toMatch(/mindestens einen Kanal/);
+    expect(errorsOfCreator({ ...noChannel, tiktok: "carla" }).socials).toBeUndefined();
+    // A model needs no channel.
+    expect(errorsOfCreator({ ...noChannel, roles: ["model"] }).socials).toBeUndefined();
+    // An invalid handle is reported on its own field only.
+    const invalid = errorsOfCreator({ ...noChannel, tiktok: "a b" });
+    expect(invalid.tiktok).toBeDefined();
+    expect(invalid.socials).toBeUndefined();
+  });
+
+  it("requires the signed release and the privacy acknowledgement", () => {
+    const errors = errorsOfCreator({ ...creator, releaseAccepted: false, privacyAck: "yes" });
+    expect(errors.releaseAccepted).toBeDefined();
+    expect(errors.privacyAck).toBeDefined();
+  });
+
+  it("rejects a portfolio value that is not a web link", () => {
+    expect(errorsOfCreator({ ...creator, portfolioUrl: "javascript:alert(1)" }).portfolioUrl).toBeDefined();
+    expect(errorsOfCreator({ ...creator, portfolioUrl: "" }).portfolioUrl).toBeUndefined();
+  });
+});
+
+describe("normalizePortfolioUrl", () => {
+  it("adds https:// and keeps http(s) links", () => {
+    expect(normalizePortfolioUrl("www.example.com")).toBe("https://www.example.com/");
+    expect(normalizePortfolioUrl(" https://linktr.ee/carla ")).toBe("https://linktr.ee/carla");
+    expect(normalizePortfolioUrl("http://example.de/setcard.pdf")).toBe(
+      "http://example.de/setcard.pdf",
+    );
+    expect(normalizePortfolioUrl("")).toBe("");
+  });
+
+  it("rejects other schemes, hosts without TLD and credentials", () => {
+    for (const value of [
+      "javascript:alert(1)",
+      "data:text/html,x",
+      "ftp://example.com",
+      "localhost:3000",
+      "https://192.168.0.1",
+      "https://user:pw@example.com",
+      "not a link",
+      `https://example.com/${"x".repeat(400)}`,
+    ]) {
+      expect(normalizePortfolioUrl(value)).toBeNull();
+    }
   });
 });

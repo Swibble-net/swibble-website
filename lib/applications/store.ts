@@ -7,13 +7,22 @@ import {
   isStorageConfigured,
 } from "@/lib/firebaseAdmin";
 import { getAllProfiles } from "@/lib/linkhub/profiles";
-import { APPLICATION_STATUSES, type ApplicationStatus } from "./config";
+import {
+  APPLICATION_POOLS,
+  APPLICATION_STATUSES,
+  type ApplicationPool,
+  type ApplicationStatus,
+} from "./config";
 import type { ConsentFileType } from "./fileType";
 import type { Application, ApplicationConsentFile } from "./types";
 
 const COLLECTION = "applications";
-const CONSENT_FILE_PREFIX = "applications/consents";
-const PHOTO_PREFIX = "applications/photos";
+const FILE_PREFIXES = {
+  consent: "applications/consents",
+  release: "applications/releases",
+  setcard: "applications/setcards",
+  photo: "applications/photos",
+} as const;
 
 export type ApplicationDocument = Omit<Application, "id">;
 
@@ -21,6 +30,24 @@ export interface ConsentUpload {
   buffer: Buffer;
   type: ConsentFileType;
 }
+
+/** Files that arrive with an application; all optional except by pool rules. */
+export interface ApplicationUploads {
+  /** Parental consent of a minor (/bewerben) */
+  consent: ConsentUpload | null;
+  /** Release signed online (/bewerben/creator) */
+  release: ConsentUpload | null;
+  /** Setcard / portfolio (/bewerben/creator) */
+  setcard: ConsentUpload | null;
+  photos: ConsentUpload[];
+}
+
+/** Which stored file of an application to read. */
+export type ApplicationFileTarget =
+  | { kind: "consent" }
+  | { kind: "release" }
+  | { kind: "setcard" }
+  | { kind: "photo"; index: number };
 
 export interface StoredConsentFile {
   buffer: Buffer;
@@ -45,8 +72,7 @@ interface Backend {
   canUpload(): boolean;
   create(
     doc: ApplicationDocument,
-    upload: ConsentUpload | null,
-    photos: ConsentUpload[],
+    uploads: ApplicationUploads,
   ): Promise<Application>;
   list(): Promise<Application[]>;
   get(id: string): Promise<Application | null>;
@@ -65,8 +91,13 @@ export function toApplication(
     ? (data.status as ApplicationStatus)
     : "neu";
 
+  const pool: ApplicationPool = APPLICATION_POOLS.some((p) => p.id === data.pool)
+    ? (data.pool as ApplicationPool)
+    : "videos";
+
   return {
     id,
+    pool,
     roles: data.roles ?? [],
     firstName: data.firstName ?? "",
     lastName: data.lastName ?? "",
@@ -84,6 +115,7 @@ export function toApplication(
     about: data.about ?? "",
     center: data.center ?? "",
     centerName: data.centerName ?? "",
+    portfolioUrl: data.portfolioUrl ?? "",
     guardian: data.guardian
       ? {
           name: data.guardian.name ?? "",
@@ -103,16 +135,34 @@ export function toApplication(
       mediaText: data.consent?.mediaText ?? "",
       guardianText: data.consent?.guardianText ?? "",
       guardianDeclaration: data.consent?.guardianDeclaration ?? "",
+      creatorRelease: data.consent?.creatorRelease ?? "",
       version: data.consent?.version ?? "",
       givenAt: data.consent?.givenAt ?? 0,
     },
     consentFile: data.consentFile ?? null,
     photos: data.photos ?? [],
+    releaseFile: data.releaseFile ?? null,
+    setcardFile: data.setcardFile ?? null,
     status,
     note: data.note ?? "",
     createdAt: data.createdAt ?? 0,
     updatedAt: data.updatedAt ?? data.createdAt ?? 0,
   };
+}
+
+/** Every stored file of an application (for deletion). */
+export function applicationFiles(
+  application: Pick<
+    Application,
+    "consentFile" | "releaseFile" | "setcardFile" | "photos"
+  >,
+): ApplicationConsentFile[] {
+  return [
+    application.consentFile,
+    application.releaseFile,
+    application.setcardFile,
+    ...application.photos,
+  ].filter((file): file is ApplicationConsentFile => file !== null);
 }
 
 function newFilePath(prefix: string, type: ConsentFileType): string {
@@ -135,7 +185,7 @@ const firebaseBackend: Backend = {
   canStore: () => isFirebaseConfigured(),
   canUpload: () => isStorageConfigured(),
 
-  async create(doc, upload, photos) {
+  async create(doc, uploads) {
     const bucket = () => getPrivateBucket();
     const stored: ApplicationConsentFile[] = [];
     const save = async (prefix: string, item: ConsentUpload) => {
@@ -158,14 +208,28 @@ const firebaseBackend: Backend = {
         ),
       );
 
+    const saveOptional = (prefix: string, item: ConsentUpload | null) =>
+      item ? save(prefix, item) : Promise.resolve(null);
+
     try {
       // Files first: an application of a minor must never exist without the
-      // consent file, and no document may point to files that don't exist.
-      const consentFile = upload ? await save(CONSENT_FILE_PREFIX, upload) : null;
+      // consent file (nor a creator without the signed release), and no
+      // document may point to files that don't exist.
+      const consentFile = await saveOptional(FILE_PREFIXES.consent, uploads.consent);
+      const releaseFile = await saveOptional(FILE_PREFIXES.release, uploads.release);
+      const setcardFile = await saveOptional(FILE_PREFIXES.setcard, uploads.setcard);
       const photoFiles: ApplicationConsentFile[] = [];
-      for (const photo of photos) photoFiles.push(await save(PHOTO_PREFIX, photo));
+      for (const photo of uploads.photos) {
+        photoFiles.push(await save(FILE_PREFIXES.photo, photo));
+      }
 
-      const data: ApplicationDocument = { ...doc, consentFile, photos: photoFiles };
+      const data: ApplicationDocument = {
+        ...doc,
+        consentFile,
+        releaseFile,
+        setcardFile,
+        photos: photoFiles,
+      };
       const ref = await getDb()
         .collection(COLLECTION)
         .add({ ...data, serverCreatedAt: FieldValue.serverTimestamp() });
@@ -207,13 +271,13 @@ const firebaseBackend: Backend = {
     const existing = await ref.get();
     if (!existing.exists) return false;
 
-    // Delete the file before the document: if this fails, the record (and
-    // with it the pointer to the file) is still there for another attempt.
-    const { consentFile, photos } = toApplication(
+    // Delete the files before the document: if this fails, the record (and
+    // with it the pointers to the files) is still there for another attempt.
+    const application = toApplication(
       id,
       existing.data() as Partial<ApplicationDocument>,
     );
-    for (const file of [...(consentFile ? [consentFile] : []), ...photos]) {
+    for (const file of applicationFiles(application)) {
       await getPrivateBucket().file(file.path).delete({ ignoreNotFound: true });
     }
 
@@ -259,18 +323,24 @@ const memoryBackend: Backend = {
   canStore: () => true,
   canUpload: () => process.env.APPLICATIONS_DEV_UPLOADS !== "off",
 
-  async create(doc, upload, photos) {
+  async create(doc, uploads) {
     const state = memoryState();
-    const consentFile = upload ? fileMeta(CONSENT_FILE_PREFIX, upload) : null;
-    if (upload && consentFile) state.files.set(consentFile.path, upload.buffer);
-    const photoFiles = photos.map((photo) => {
-      const meta = fileMeta(PHOTO_PREFIX, photo);
-      state.files.set(meta.path, photo.buffer);
+    const keep = (prefix: string, item: ConsentUpload) => {
+      const meta = fileMeta(prefix, item);
+      state.files.set(meta.path, item.buffer);
       return meta;
-    });
+    };
+    const keepOptional = (prefix: string, item: ConsentUpload | null) =>
+      item ? keep(prefix, item) : null;
 
     const id = crypto.randomUUID();
-    const data = { ...doc, consentFile, photos: photoFiles };
+    const data = {
+      ...doc,
+      consentFile: keepOptional(FILE_PREFIXES.consent, uploads.consent),
+      releaseFile: keepOptional(FILE_PREFIXES.release, uploads.release),
+      setcardFile: keepOptional(FILE_PREFIXES.setcard, uploads.setcard),
+      photos: uploads.photos.map((photo) => keep(FILE_PREFIXES.photo, photo)),
+    };
     state.docs.set(id, data);
     return toApplication(id, data);
   },
@@ -299,8 +369,9 @@ const memoryBackend: Backend = {
     const state = memoryState();
     const data = state.docs.get(id);
     if (!data) return false;
-    if (data.consentFile) state.files.delete(data.consentFile.path);
-    for (const photo of data.photos ?? []) state.files.delete(photo.path);
+    for (const file of applicationFiles(toApplication(id, data))) {
+      state.files.delete(file.path);
+    }
     state.docs.delete(id);
     return true;
   },
@@ -338,10 +409,9 @@ export function isConsentUploadAvailable(): boolean {
 
 export function createApplication(
   doc: ApplicationDocument,
-  upload: ConsentUpload | null,
-  photos: ConsentUpload[] = [],
+  uploads: ApplicationUploads,
 ): Promise<Application> {
-  return backend().create(doc, upload, photos);
+  return backend().create(doc, uploads);
 }
 
 export async function listApplications(): Promise<Application[]> {
@@ -361,23 +431,24 @@ export function updateApplication(
   return backend().update(id, patch);
 }
 
-/** Permanently deletes an application including its consent file. */
+/** Permanently deletes an application including all of its files. */
 export function deleteApplication(id: string): Promise<boolean> {
   return backend().remove(id);
 }
 
-/**
- * Reads a stored file of an application: the consent file by default, or the
- * optional applicant photo with the given index.
- */
-export async function readConsentFile(
+/** Reads one stored file of an application (consent, release, setcard, photo). */
+export async function readApplicationFile(
   application: Application,
-  photoIndex?: number,
+  target: ApplicationFileTarget,
 ): Promise<StoredConsentFile | null> {
   const file =
-    photoIndex === undefined
-      ? application.consentFile
-      : application.photos[photoIndex];
+    target.kind === "photo"
+      ? application.photos[target.index]
+      : target.kind === "release"
+        ? application.releaseFile
+        : target.kind === "setcard"
+          ? application.setcardFile
+          : application.consentFile;
   if (!file) return null;
   const buffer = await backend().readFile(file);
   if (!buffer) return null;

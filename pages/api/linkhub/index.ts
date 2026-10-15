@@ -49,6 +49,7 @@ export default async function handler(
         logoUrl: body.logoUrl,
         showApplyLink: applyFields.showApplyLink,
         applyLinkLabel: applyFields.applyLinkLabel,
+        showCreatorLink: applyFields.showCreatorLink,
         subdomain: subdomain.subdomain,
         links: body.links ?? [],
       });

@@ -204,7 +204,7 @@ const Datenschutz = () => {
 
         <div className="my-5 scroll-mt-32" id="bewerbungen">
           <h4 className="mt-[0.6rem] mb-[0.4rem] text-base font-bold">
-            8. Bewerbungen für Videos, Promotion und Modeltätigkeit
+            8. Bewerbungen und Swibble Creator Pool
           </h4>
           <p>
             Über unser Bewerbungsformular (
@@ -290,7 +290,9 @@ const Datenschutz = () => {
             Wortlaut); der Versand erfolgt über unseren E-Mail-Anbieter. Eine Weitergabe Ihrer Bewerbungsdaten an
             Dritte – auch an die Betreiber der Einkaufszentren – erfolgt nicht
             ohne Ihre gesonderte Zustimmung. Das Formular ist durch Cloudflare
-            Turnstile vor Missbrauch geschützt (siehe Abschnitt 6).
+            Turnstile vor Missbrauch geschützt (siehe Abschnitt 6). Zur
+            Weitergabe an Kunden beim Swibble Creator Pool siehe den Absatz
+            „Swibble Creator Pool“ unten.
           </p>
           <br />
           <p>
@@ -317,6 +319,33 @@ const Datenschutz = () => {
             verlangen. Die Bereitstellung der Daten ist freiwillig; ohne die
             Pflichtangaben können wir eine Bewerbung jedoch nicht
             berücksichtigen.
+          </p>
+          <br />
+          <p id="creator-pool" className="scroll-mt-32">
+            <strong>Swibble Creator Pool:</strong> Über{" "}
+            <Link href="/bewerben/creator" className="text-[#0000EE] underline">
+              swibble.net/bewerben/creator
+            </Link>{" "}
+            können sich Volljährige als Model, Content Creator oder für
+            Moderation bewerben. Zusätzlich zu den oben genannten Daten
+            verarbeiten wir dabei mindestens ein Foto, optional eine Setcard
+            bzw. ein Portfolio (PDF oder Bild) und einen Link zu Website oder
+            Portfolio sowie die online abgegebene Erklärung mit Ihrer
+            Unterschrift (Erklärungstext, Unterschriftsbild, Zeitpunkt). Mit
+            dieser Erklärung willigen Sie ein, dass wir Sie bestehenden und
+            möglichen Kunden als „Swibble Creator“ vorstellen und dafür Name,
+            Alter, Wohnort (Stadt), Fotos, Social-Media-Profile sowie Setcard
+            bzw. Portfolio an diese Kunden weitergeben, und dass wir Sie mit
+            Name, Fotos und Profilen auf unserer Website, in unseren
+            Social-Media-Kanälen und in Werbematerial zeigen. Telefonnummer und
+            E-Mail-Adresse geben wir nur nach Rücksprache mit Ihnen weiter.
+            Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO,
+            § 22 KUG). Sie können sie jederzeit mit Wirkung für die Zukunft
+            widerrufen; wir löschen Ihre Daten dann und entfernen Sie von
+            unserer Website. Bereits an Kunden verschickte Unterlagen und
+            bereits veröffentlichte Social-Media-Beiträge werden nicht
+            zurückgerufen. Für Speicherort, Speicherdauer und Widerruf gilt im
+            Übrigen das oben Gesagte.
           </p>
         </div>
 
