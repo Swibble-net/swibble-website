@@ -413,12 +413,38 @@ describe("validateCreatorApplication", () => {
     });
   });
 
-  it("is for adults only", () => {
-    expect(errorsOfCreator({ ...creator, birthDate: "2009-01-01" }).birthDate).toMatch(
-      /mindestens 18/,
+  it("lets minors apply with a guardian who signs online", () => {
+    const minorCreator = { ...creator, birthDate: "2013-11-17" };
+    const missing = errorsOfCreator(minorCreator);
+    expect(missing.birthDate).toBeUndefined();
+    expect(missing.guardianName).toBeDefined();
+    expect(missing.guardianContact).toBeDefined();
+    expect(missing.guardianConfirmed).toBeDefined();
+
+    const result = validateCreatorApplication(
+      {
+        ...minorCreator,
+        // A paper form isn't offered here: the method is always "signature".
+        guardian: { name: "Erika Testperson", phone: "+49 170 1234567", method: "upload", confirmed: true },
+      },
+      NOW,
     );
-    // Turns 18 on the day of application.
-    expect(errorsOfCreator({ ...creator, birthDate: "2008-09-19" }).birthDate).toBeUndefined();
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.isMinor).toBe(true);
+    expect(result.value.guardian).toMatchObject({
+      name: "Erika Testperson",
+      phone: "+491701234567",
+      method: "signature",
+    });
+  });
+
+  it("discards guardian data of adults", () => {
+    const result = validateCreatorApplication(
+      { ...creator, guardian: { name: "Erika Testperson", phone: "0170 1234567", confirmed: true } },
+      NOW,
+    );
+    expect(result.ok && result.value.guardian).toBeNull();
   });
 
   it("accepts promoters, also combined with other roles", () => {

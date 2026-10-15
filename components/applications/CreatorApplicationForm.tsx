@@ -18,24 +18,32 @@ import {
   HandleField,
   PhoneField,
   PhotoPicker,
+  VideoPicker,
   fieldErrors,
   fileInputClass,
   inputClass,
   labelClass,
   optionalMark,
   usePhotos,
+  useVideos,
 } from "@/components/applications/formParts";
 import {
   ABOUT_MAX_LENGTH,
-  CREATOR_MIN_AGE,
+  ADULT_AGE,
+  CREATOR_GUARDIAN_CLAUSES,
+  CREATOR_GUARDIAN_INTRO,
+  CREATOR_PHOTO_MAX_COUNT,
   CREATOR_PHOTO_MIN_COUNT,
   CREATOR_RELEASE_ACCEPT_TEXT,
   CREATOR_RELEASE_CLAUSES,
   CREATOR_RELEASE_INTRO,
   CREATOR_ROLES,
-  PHOTO_MAX_COUNT,
+  CREATOR_VIDEO_MAX_BYTES,
+  CREATOR_VIDEO_MAX_COUNT,
+  GUARDIAN_ONLINE_ACCEPT_TEXT,
   PORTFOLIO_URL_MAX_LENGTH,
   RELEASE_FILE_MAX_BYTES,
+  creatorGuardianText,
   creatorReleaseText,
   roleLabel,
   type CreatorRole,
@@ -44,12 +52,14 @@ import { calculateAge, parseIsoDate, todayInBerlin } from "@/lib/applications/ag
 import {
   ConsentFileError,
   SETCARD_ACCEPT,
+  prepareCreatorPhoto,
   prepareSetcard,
   type PreparedFile,
 } from "@/lib/applications/clientFile";
+import { abortCreatorUpload, uploadCreatorFiles } from "@/lib/applications/clientUpload";
 import { renderSignedDocument } from "@/lib/applications/declarationImage";
 import { DEFAULT_PHONE_COUNTRY, combinePhone } from "@/lib/applications/phone";
-import { errorsForStep, firstStepWithErrors } from "@/lib/applications/steps";
+import { errorsForStep, firstStepWithErrors, type StepDefinition } from "@/lib/applications/steps";
 import { validateCreatorApplication } from "@/lib/applications/validation";
 import type { ApplicationErrors } from "@/lib/applications/types";
 
@@ -57,7 +67,22 @@ interface Props {
   onSuccess: () => void;
 }
 
-const STEPS = [
+type StepId =
+  | "roles"
+  | "person"
+  | "contact"
+  | "channels"
+  | "photos"
+  | "portfolio"
+  | "release"
+  | "guardian";
+
+interface Step extends StepDefinition<StepId> {
+  title: string;
+  hint: string;
+}
+
+const BASE_STEPS: Step[] = [
   {
     id: "roles",
     title: "Was machst du?",
@@ -84,9 +109,9 @@ const STEPS = [
   },
   {
     id: "photos",
-    title: "Fotos von dir",
-    hint: "Direkt aus deiner Fotos-App. Am besten ein Porträt, ein Ganzkörperfoto und eins, das zeigt, was du machst – aktuell und ohne starke Filter.",
-    fields: ["photos"],
+    title: "Fotos & Videos",
+    hint: "Direkt aus deiner Fotos-App: ein Porträt, ein Ganzkörperfoto und gern Clips, die zeigen, was du machst.",
+    fields: ["photos", "videos"],
   },
   {
     id: "portfolio",
@@ -98,24 +123,41 @@ const STEPS = [
     id: "release",
     title: "Deine Freigabe",
     hint: "Damit wir dich unseren Kunden als Swibble Creator vorstellen und mit dir werben dürfen.",
-    fields: ["releaseAccepted", "signature", "privacyAck", "turnstile"],
+    fields: ["releaseAccepted", "signature", "privacyAck"],
   },
-] as const;
+];
 
-type StepId = (typeof STEPS)[number]["id"];
-const STEP_IDS = STEPS.map((step) => step.id);
+/** Minors only: an extra last step on which a guardian signs. */
+const GUARDIAN_STEP: Step = {
+  id: "guardian",
+  title: "Unterschrift deiner Eltern",
+  hint: `Du bist unter ${ADULT_AGE} – deshalb unterschreibt zusätzlich eine erziehungsberechtigte Person.`,
+  fields: [
+    "guardianName",
+    "guardianContact",
+    "guardianPhone",
+    "guardianEmail",
+    "guardianAddress",
+    "guardianConfirmed",
+    "guardianSignature",
+  ],
+};
 
 /** Element to focus for an error key. */
 const focusIdFor = (key: string) =>
-  key === "birthDate" ? "f-birthDay" : key === "socials" ? "f-instagram" : `f-${key}`;
+  key === "birthDate"
+    ? "f-birthDay"
+    : key === "socials"
+      ? "f-instagram"
+      : key === "guardianContact"
+        ? "f-guardianPhone"
+        : `f-${key}`;
 
 const subscribeNever = () => () => {};
 
 const CreatorApplicationForm = ({ onSuccess }: Props) => {
   const formId = useId();
   const turnstileRequired = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
-  const flow = useStepFlow<StepId>(STEP_IDS, "creatorApplicationStep");
-  const step = STEPS[flow.index];
 
   const [roles, setRoles] = useState<CreatorRole[]>([]);
   const [fields, setFields] = useState({
@@ -134,8 +176,16 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
     snapchat: "",
     portfolioUrl: "",
     about: "",
+    guardianName: "",
+    guardianPhone: "",
+    guardianEmail: "",
+    guardianAddress: "",
     website: "", // honeypot
   });
+  const [guardianPhoneCode, setGuardianPhoneCode] = useState(DEFAULT_PHONE_COUNTRY);
+  const [guardianConfirmed, setGuardianConfirmed] = useState(false);
+  const [guardianSignature, setGuardianSignature] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [setcard, setSetcard] = useState<
     (PreparedFile & { kind: "pdf" | "image"; compressed: boolean }) | null
   >(null);
@@ -169,10 +219,14 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
     });
   }, []);
 
-  const photoList = usePhotos(PHOTO_MAX_COUNT, (message) =>
-    message
-      ? setErrors((prev) => ({ ...prev, photos: message }))
-      : clearError("photos"),
+  const photoList = usePhotos(
+    CREATOR_PHOTO_MAX_COUNT,
+    (message) =>
+      message ? setErrors((prev) => ({ ...prev, photos: message })) : clearError("photos"),
+    prepareCreatorPhoto,
+  );
+  const videoList = useVideos(CREATOR_VIDEO_MAX_COUNT, CREATOR_VIDEO_MAX_BYTES, (message) =>
+    message ? setErrors((prev) => ({ ...prev, videos: message })) : clearError("videos"),
   );
 
   /* ── derived ──────────────────────────────────────────────────────── */
@@ -189,6 +243,20 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
   }, [birthDate]);
 
   const fullName = `${fields.firstName.trim()} ${fields.lastName.trim()}`.trim();
+  const isMinor = age !== null && age >= 0 && age < ADULT_AGE;
+
+  // Minors get the parents' step at the end; the spam check sits on the last step.
+  const steps = useMemo<Step[]>(() => {
+    const list = isMinor ? [...BASE_STEPS, GUARDIAN_STEP] : BASE_STEPS;
+    return list.map((step, index) =>
+      index === list.length - 1 ? { ...step, fields: [...step.fields, "turnstile"] } : step,
+    );
+  }, [isMinor]);
+  const flow = useStepFlow<StepId>(
+    steps.map((step) => step.id),
+    "creatorApplicationStep",
+  );
+  const step = steps[flow.index];
 
   const payload = {
     pool: "creator",
@@ -208,6 +276,16 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
     about: fields.about,
     releaseAccepted,
     privacyAck,
+    guardian: isMinor
+      ? {
+          name: fields.guardianName,
+          phone: combinePhone(guardianPhoneCode, fields.guardianPhone),
+          email: fields.guardianEmail,
+          address: fields.guardianAddress,
+          method: "signature",
+          confirmed: guardianConfirmed,
+        }
+      : undefined,
   };
 
   /* ── helpers ──────────────────────────────────────────────────────── */
@@ -270,6 +348,7 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
       found.photos = "Bitte lade mindestens ein Foto von dir hoch.";
     }
     if (!signature) found.signature = "Bitte hier unterschreiben.";
+    if (isMinor && !guardianSignature) found.guardianSignature = "Bitte hier unterschreiben.";
     if (turnstileRequired && !turnstileToken) {
       found.turnstile = "Bitte warte kurz, bis die Spam-Prüfung abgeschlossen ist.";
     }
@@ -277,14 +356,14 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
   };
 
   const firstField = (found: ApplicationErrors, stepId: StepId) => {
-    const keys = STEPS.find((s) => s.id === stepId)?.fields ?? [];
+    const keys = steps.find((s) => s.id === stepId)?.fields ?? [];
     const key = keys.find((k) => found[k]);
     return key ? focusIdFor(key) : undefined;
   };
 
   /** Shows the messages of `found` on the first step that has one. */
   const showErrors = (found: ApplicationErrors) => {
-    const target = firstStepWithErrors(STEPS, found) ?? flow.current;
+    const target = firstStepWithErrors(steps, found) ?? flow.current;
     setErrors(found);
     flow.goTo(target, firstField(found, target));
   };
@@ -300,7 +379,7 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (submitting || photoList.busy || setcardBusy) return;
+    if (submitting || photoList.busy || videoList.busy || setcardBusy) return;
     // Read now: the event's currentTarget is gone after the first await.
     const pageFont = getComputedStyle(e.currentTarget).fontFamily;
     setFormError("");
@@ -351,41 +430,102 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
         maxBytes: RELEASE_FILE_MAX_BYTES,
       });
 
+      // Minors: the parents' declaration as a second signed document.
+      const consent = isMinor
+        ? await renderSignedDocument({
+            tag: "Swibble Creator Pool · Einverständnis der Eltern",
+            title: "Einverständniserklärung der Erziehungsberechtigten",
+            source: "online abgegeben über www.swibble.net/bewerben/creator",
+            sections: [
+              {
+                heading: "1. Angaben zum Kind",
+                lines: [
+                  `${fullName}, geboren am ${pad(fields.birthDay)}.${pad(fields.birthMonth)}.${fields.birthYear}`,
+                ],
+              },
+              {
+                heading: "2. Erziehungsberechtigte Person",
+                lines: [
+                  fields.guardianName.trim(),
+                  [payload.guardian?.phone ?? "", fields.guardianEmail.trim()].filter(Boolean).join(" · "),
+                  fields.guardianAddress.trim(),
+                ].filter(Boolean),
+              },
+            ],
+            declarationHeading: "3. Erklärung",
+            declarationText: creatorGuardianText(fullName, roles),
+            confirmation: GUARDIAN_ONLINE_ACCEPT_TEXT,
+            signerName: fields.guardianName.trim(),
+            signatureDataUrl: guardianSignature!,
+            signedAt: new Date(),
+            fontFamily: pageFont,
+            maxBytes: RELEASE_FILE_MAX_BYTES,
+          })
+        : null;
+
+      // 1) Form data: stores the application and returns an upload token.
       const res = await fetch("/api/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...payload,
-          photos: photoList.photos.map((photo) => ({ data: photo.data })),
-          releaseFile: { data: release.data },
-          setcardFile: setcard ? { data: setcard.data } : undefined,
+          files: {
+            photos: photoList.photos.length,
+            videos: videoList.videos.map((v) => ({ size: v.file.size, contentType: v.contentType })),
+            setcard: Boolean(setcard),
+          },
           turnstileToken,
           website: fields.website,
         }),
       });
 
-      if (res.ok) {
-        await flow.finish();
-        onSuccess();
-        return;
-      }
-
-      let data: { message?: string; errors?: ApplicationErrors } = {};
+      let data: {
+        message?: string;
+        errors?: ApplicationErrors;
+        id?: string;
+        token?: string;
+        chunkBytes?: number;
+      } = {};
       try {
         data = await res.json();
       } catch {
-        // e.g. a plain-text 413 from the platform
+        // e.g. a plain-text error page from the platform
       }
 
-      setFormError(
-        data.message ||
-          (res.status === 413
-            ? "Deine Dateien sind zusammen zu groß. Bitte lass ein Foto oder die Setcard weg."
-            : "Das hat leider nicht geklappt. Bitte versuch es noch einmal."),
-      );
-      if (data.errors) showErrors(data.errors);
-      // Turnstile tokens are single-use — get a fresh one for the next try.
-      resetTurnstile();
+      if (!res.ok || !data.id || !data.token) {
+        setFormError(data.message || "Das hat leider nicht geklappt. Bitte versuch es noch einmal.");
+        if (data.errors) showErrors(data.errors);
+        // Turnstile tokens are single-use — get a fresh one for the next try.
+        resetTurnstile();
+        return;
+      }
+
+      // 2) Files, one by one; 3) the server checks them and sends the mails.
+      const target = { id: data.id, token: data.token, chunkBytes: data.chunkBytes || 4 * 1024 * 1024 };
+      try {
+        setUploadProgress(0);
+        await uploadCreatorFiles(
+          target,
+          {
+            release: release.blob,
+            consent: consent?.blob ?? null,
+            setcard: setcard?.blob ?? null,
+            photos: photoList.photos.map((photo) => photo.blob!),
+            videos: videoList.videos.map((v) => ({ file: v.file, cover: v.cover })),
+          },
+          (sent, total) => setUploadProgress(total > 0 ? Math.round((sent / total) * 100) : 0),
+        );
+      } catch (err) {
+        await abortCreatorUpload(target);
+        setFormError(
+          `${err instanceof Error ? err.message : "Der Upload hat nicht geklappt."} Deine Eingaben sind noch da – bitte versuch es noch einmal.`,
+        );
+        resetTurnstile();
+        return;
+      }
+
+      await flow.finish();
+      onSuccess();
     } catch {
       setFormError(
         "Keine Verbindung. Deine Eingaben sind noch da – bitte prüf dein Netz und versuch es noch einmal.",
@@ -393,6 +533,7 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
       resetTurnstile();
     } finally {
       setSubmitting(false);
+      setUploadProgress(null);
     }
   };
 
@@ -411,7 +552,7 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
       <StepCard
         stepKey={step.id}
         index={flow.index}
-        total={STEPS.length}
+        total={steps.length}
         title={step.title}
         hint={
           step.id === "channels" && roles.includes("creator")
@@ -424,13 +565,15 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
         onBack={flow.isFirst ? undefined : handleBack}
         nextLabel={
           flow.isLast
-            ? submitting
-              ? "Wird gesendet …"
-              : "Bewerbung abschicken"
+            ? uploadProgress !== null
+              ? `Wird hochgeladen … ${uploadProgress} %`
+              : submitting
+                ? "Wird gesendet …"
+                : "Bewerbung abschicken"
             : "Weiter"
         }
         nextDisabled={
-          !hydrated || submitting || photoList.busy || setcardBusy
+          !hydrated || submitting || photoList.busy || videoList.busy || setcardBusy
         }
         footer={
           flow.isLast ? (
@@ -512,21 +655,14 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
               monthRef={monthRef}
               yearRef={yearRef}
               invalidProps={errorProps("birthDate")}
-              error={
-                <>
-                  {errorFor("birthDate")}
-                  {errors.birthDate && age !== null && age >= 0 && age < CREATOR_MIN_AGE && (
-                    <p className="mt-1.5 text-sm text-[#556987]">
-                      Unter {CREATOR_MIN_AGE}? Über{" "}
-                      <Link href="/bewerben" className="font-medium text-[#B718EC] underline">
-                        swibble.net/bewerben
-                      </Link>{" "}
-                      kannst du dich mit dem Okay deiner Eltern für unsere Videos bewerben.
-                    </p>
-                  )}
-                </>
-              }
+              error={errorFor("birthDate")}
             />
+            {isMinor && (
+              <p className="-mt-2 text-sm text-[#556987]">
+                Du bist unter {ADULT_AGE}? Kein Problem – am Ende unterschreibt zusätzlich
+                eine erziehungsberechtigte Person.
+              </p>
+            )}
 
             <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-2.5">
               <div>
@@ -648,16 +784,37 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
         )}
 
         {step.id === "photos" && (
-          <PhotoPicker
-            photos={photoList.photos}
-            max={PHOTO_MAX_COUNT}
-            busy={photoList.busy}
-            onAdd={photoList.add}
-            onRemove={photoList.remove}
-            invalidProps={errorProps("photos")}
-            error={errorFor("photos")}
-            hint={`Mindestens ${CREATOR_PHOTO_MIN_COUNT}, höchstens ${PHOTO_MAX_COUNT}. Wir verkleinern sie automatisch.`}
-          />
+          <>
+            <div>
+              <p className={labelClass}>Fotos*</p>
+              <PhotoPicker
+                photos={photoList.photos}
+                max={CREATOR_PHOTO_MAX_COUNT}
+                busy={photoList.busy}
+                onAdd={photoList.add}
+                onRemove={photoList.remove}
+                invalidProps={errorProps("photos")}
+                error={errorFor("photos")}
+                hint={`Mindestens ${CREATOR_PHOTO_MIN_COUNT}.`}
+              />
+            </div>
+            <div>
+              <p className={labelClass}>
+                Videos
+                {optionalMark}
+              </p>
+              <VideoPicker
+                videos={videoList.videos}
+                max={CREATOR_VIDEO_MAX_COUNT}
+                busy={videoList.busy}
+                onAdd={videoList.add}
+                onRemove={videoList.remove}
+                invalidProps={errorProps("videos")}
+                error={errorFor("videos")}
+                hint={`Max. ${CREATOR_VIDEO_MAX_BYTES / 1024 ** 2} MB pro Video.`}
+              />
+            </div>
+          </>
         )}
 
         {step.id === "portfolio" && (
@@ -824,7 +981,154 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
               </Link>{" "}
               zur Kenntnis genommen.*
             </CheckboxField>
+          </>
+        )}
 
+        {step.id === "guardian" && (
+          <>
+            <div>
+              <label className={labelClass} htmlFor="f-guardianName">
+                Name der erziehungsberechtigten Person*
+              </label>
+              <input
+                id="f-guardianName"
+                className={inputClass}
+                value={fields.guardianName}
+                onChange={setField("guardianName")}
+                maxLength={120}
+                autoComplete="off"
+                required
+                {...errorProps("guardianName")}
+              />
+              {errorFor("guardianName")}
+            </div>
+
+            <fieldset>
+              <legend className={labelClass}>Telefonnummer oder E-Mail dieser Person*</legend>
+              <div className="flex flex-col gap-2.5">
+                <div>
+                  <label className="sr-only" htmlFor="f-guardianPhone">
+                    Telefonnummer der erziehungsberechtigten Person
+                  </label>
+                  <PhoneField
+                    id="f-guardianPhone"
+                    country={guardianPhoneCode}
+                    onCountryChange={(code) => {
+                      setGuardianPhoneCode(code);
+                      clearError("guardianPhone", "guardianContact");
+                    }}
+                    value={fields.guardianPhone}
+                    onChange={setField("guardianPhone", "guardianContact")}
+                    autoComplete="off"
+                    placeholder="Telefon"
+                    invalidProps={errorProps("guardianPhone", "guardianContact")}
+                  />
+                  {errorFor("guardianPhone")}
+                </div>
+                <div>
+                  <label className="sr-only" htmlFor="f-guardianEmail">
+                    E-Mail der erziehungsberechtigten Person
+                  </label>
+                  <input
+                    id="f-guardianEmail"
+                    type="email"
+                    className={inputClass}
+                    value={fields.guardianEmail}
+                    onChange={setField("guardianEmail", "guardianContact")}
+                    inputMode="email"
+                    autoCapitalize="none"
+                    autoComplete="off"
+                    maxLength={254}
+                    placeholder="E-Mail"
+                    {...errorProps("guardianEmail", "guardianContact")}
+                  />
+                  {errorFor("guardianEmail")}
+                </div>
+              </div>
+              {errorFor("guardianContact")}
+            </fieldset>
+
+            <div>
+              <label className={labelClass} htmlFor="f-guardianAddress">
+                Anschrift
+                {optionalMark}
+              </label>
+              <input
+                id="f-guardianAddress"
+                className={inputClass}
+                value={fields.guardianAddress}
+                onChange={setField("guardianAddress")}
+                maxLength={200}
+                autoComplete="off"
+                placeholder="Straße, Hausnummer, PLZ, Ort"
+                {...errorProps("guardianAddress")}
+              />
+              {errorFor("guardianAddress")}
+            </div>
+
+            <div
+              className="max-h-72 overflow-y-auto rounded-xl bg-[#F9EAFF] p-4 text-[13px] leading-relaxed text-[#000D36]"
+              tabIndex={0}
+              role="region"
+              aria-label="Text der Einverständniserklärung"
+            >
+              <p>
+                {CREATOR_GUARDIAN_INTRO.split("{child}")
+                  .join(fullName || "das Kind")
+                  .replace("{roles}", releaseRoles)}
+              </p>
+              <ol className="mt-2 list-decimal space-y-2 pl-5">
+                {CREATOR_GUARDIAN_CLAUSES.map((clause) => {
+                  const [heading, ...rest] = clause.split(": ");
+                  return (
+                    <li key={clause}>
+                      {rest.length > 0 ? (
+                        <>
+                          <strong>{heading}:</strong> {rest.join(": ")}
+                        </>
+                      ) : (
+                        clause
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+
+            <CheckboxField
+              id="f-guardianConfirmed"
+              checked={guardianConfirmed}
+              onChange={(checked) => {
+                setGuardianConfirmed(checked);
+                clearError("guardianConfirmed");
+              }}
+              invalidProps={errorProps("guardianConfirmed")}
+              error={errorFor("guardianConfirmed")}
+            >
+              {GUARDIAN_ONLINE_ACCEPT_TEXT}*
+            </CheckboxField>
+
+            <div>
+              <p className={labelClass}>Unterschrift der erziehungsberechtigten Person*</p>
+              <SignaturePad
+                id="f-guardianSignature"
+                initialValue={guardianSignature}
+                onChange={(dataUrl) => {
+                  setGuardianSignature(dataUrl);
+                  clearError("guardianSignature");
+                }}
+                invalid={Boolean(errors.guardianSignature)}
+                describedBy={
+                  errors.guardianSignature ? `${formId}-guardianSignature-error` : undefined
+                }
+              />
+              {errorFor("guardianSignature")}
+            </div>
+          </>
+        )}
+
+        {flow.isLast && (
+          <>
             {/* Honeypot: hidden from people, tempting for bots */}
             <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden>
               <label htmlFor="f-website">Website (bitte leer lassen)</label>
@@ -850,6 +1154,20 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
               />
               {errorFor("turnstile")}
             </div>
+
+            {uploadProgress !== null && (
+              <div aria-live="polite">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#F3E8F9]">
+                  <div
+                    className="h-full rounded-full bg-[#B718EC] transition-[width] duration-300 motion-reduce:transition-none"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+                <p className="mt-1.5 text-xs text-[#556987]">
+                  Fotos und Videos werden hochgeladen – bitte die Seite offen lassen.
+                </p>
+              </div>
+            )}
           </>
         )}
       </StepCard>

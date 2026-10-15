@@ -220,6 +220,14 @@ const AdminApplicationDetail = ({ application: initial, creatorId }: Props) => {
           </Card>
         )}
 
+        {application.incomplete && (
+          <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+            Upload unvollständig: Die Angaben sind gespeichert, aber nicht alle Dateien sind
+            angekommen (z. B. Seite während des Uploads geschlossen). Es wurden keine Mails
+            verschickt.
+          </p>
+        )}
+
         {application.photos.length > 0 && (
           <Card title={`Fotos (${application.photos.length})`}>
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -237,6 +245,28 @@ const AdminApplicationDetail = ({ application: initial, creatorId }: Props) => {
                       loading="lazy"
                       className="aspect-[3/4] w-full rounded-lg border border-[#F0E4F5] object-cover"
                     />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        )}
+
+        {application.videos.length > 0 && (
+          <Card title={`Videos (${application.videos.length})`}>
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {application.videos.map((video, index) => (
+                <li key={video.path}>
+                  <video
+                    src={`${fileUrl}?video=${index}`}
+                    poster={video.coverPath ? `${fileUrl}?videoCover=${index}` : undefined}
+                    controls
+                    playsInline
+                    preload="none"
+                    className="aspect-[9/16] w-full rounded-lg border border-[#F0E4F5] bg-[#000D36] object-cover"
+                  />
+                  <a href={`${fileUrl}?video=${index}`} className={`${linkClass} mt-1 inline-block text-xs`}>
+                    Öffnen · {Math.max(1, Math.round(video.size / 1024 ** 2))} MB
                   </a>
                 </li>
               ))}

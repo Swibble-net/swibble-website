@@ -28,6 +28,7 @@ type ApplicationSummary = Pick<
   Application,
   | "id"
   | "pool"
+  | "incomplete"
   | "firstName"
   | "lastName"
   | "roles"
@@ -303,6 +304,11 @@ const AdminApplications = ({
                   <div className="flex items-start justify-between gap-3">
                     <h2 className="font-semibold">
                       {a.firstName} {a.lastName}
+                      {a.incomplete && (
+                        <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+                          Upload unvollständig
+                        </span>
+                      )}
                       {a.pool === "creator" && (
                         <span className="ml-2 rounded-full bg-[#F9EAFF] px-2 py-0.5 text-xs font-medium text-[#B718EC]">
                           Creator Pool
@@ -349,6 +355,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
       photoCount: a.photos.length,
       id: a.id,
       pool: a.pool,
+      incomplete: a.incomplete,
       firstName: a.firstName,
       lastName: a.lastName,
       roles: a.roles,

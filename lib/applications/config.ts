@@ -167,26 +167,33 @@ export function poolLabel(id: string): string {
 
 /* ── Swibble Creator Pool (/bewerben/creator) ─────────────────────────── */
 
-/**
- * The creator pool is for adults only: applicants sign the release
- * themselves. Younger people are pointed to /bewerben, where parents sign.
+/*
+ * Creator pool files are not sent with the form: the application is stored
+ * first, then every file goes up in its own request (videos in pieces) with
+ * a one-time upload token, and the application is completed at the end.
+ * Each request stays below Vercel's 4.5 MB body limit.
  */
-export const CREATOR_MIN_AGE = 18;
-
-/** At least this many photos; the upper limit is PHOTO_MAX_COUNT. */
 export const CREATOR_PHOTO_MIN_COUNT = 1;
+export const CREATOR_PHOTO_MAX_COUNT = 10;
+/** Creator photos are kept larger than the /bewerben ones (≤ 2000 px). */
+export const CREATOR_PHOTO_MAX_BYTES = Math.round(1.6 * 1024 * 1024);
+export const CREATOR_VIDEO_MAX_COUNT = 10;
+export const CREATOR_VIDEO_MAX_BYTES = 200 * 1024 * 1024;
+export const CREATOR_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"] as const;
+export const UPLOAD_CHUNK_BYTES = 4 * 1024 * 1024;
+/** Hours an upload token stays valid after the application was stored. */
+export const UPLOAD_TOKEN_HOURS = 6;
 
 /**
- * Optional setcard / portfolio as PDF or image. Large PDFs are rebuilt from
- * page images in the browser until they fit. Budget per request (base64,
- * +33 %): 5 photos × 300 KB + setcard 1 MB + signed release ≤ 600 KB ≈ 4.1 MB.
+ * Optional setcard / portfolio as PDF or image, one request: large PDFs are
+ * rebuilt from page images in the browser until they fit.
  */
-export const SETCARD_MAX_BYTES = 1024 * 1024;
-export const RELEASE_FILE_MAX_BYTES = 600 * 1024;
+export const SETCARD_MAX_BYTES = Math.round(3.5 * 1024 * 1024);
+export const RELEASE_FILE_MAX_BYTES = 800 * 1024;
 
 export const PORTFOLIO_URL_MAX_LENGTH = 300;
 
-export const CREATOR_CONSENT_VERSION = "2026-10-creator-v1";
+export const CREATOR_CONSENT_VERSION = "2026-10-creator-v2";
 
 /**
  * Release the creator signs online. Single source for the signing step, the
@@ -208,6 +215,33 @@ export const CREATOR_RELEASE_CLAUSES = [
 /** Ticked by the creator next to the signature field. */
 export const CREATOR_RELEASE_ACCEPT_TEXT =
   "Ich habe die Erklärung gelesen und gebe sie mit meiner Unterschrift ab.";
+
+/**
+ * Minors in the creator pool: a guardian signs in addition, on an extra last
+ * step. "{child}" and "{roles}" are filled in. DRAFT — needs legal review.
+ */
+export const CREATOR_GUARDIAN_INTRO =
+  "Ich bin / Wir sind für {child} sorgeberechtigt und damit einverstanden, dass sich {child} beim Swibble Creator Pool der Swibble UG (haftungsbeschränkt), Königstraße 30, 52064 Aachen, bewirbt – als: {roles}.";
+
+export const CREATOR_GUARDIAN_CLAUSES = [
+  "Creator-Freigabe: Ich stimme der Erklärung meines / unseres Kindes (Vorstellung bei Kunden, Werbung als Swibble Creator, Rechte an Fotos und Unterlagen, Aufträge, Speicherung und Kontakt, Widerruf) zu und gebe sie auch im eigenen Namen ab.",
+  "Aufträge: Konkrete Aufträge mit meinem / unserem Kind vereinbart Swibble nur mit mir / uns.",
+  "Kontakt: Swibble darf mich / uns und mein / unser Kind per E-Mail, Telefon/WhatsApp und über die angegebenen Social-Media-Profile kontaktieren.",
+  "Widerruf: Diese Erklärung kann ich / können wir jederzeit mit Wirkung für die Zukunft widerrufen, z. B. per E-Mail an info@swibble.net. Die Datenschutzhinweise unter www.swibble.net/datenschutz habe ich / haben wir zur Kenntnis genommen.",
+  "Bei gemeinsamem Sorgerecht versichere ich, im Einvernehmen mit dem anderen Elternteil zu handeln.",
+] as const;
+
+export function creatorGuardianText(child: string, roleIds: readonly string[]): string {
+  const roles =
+    roleIds.length > 0 ? roleIds.map((id) => roleLabel(id, "creator")).join(", ") : "–";
+  return [
+    CREATOR_GUARDIAN_INTRO.split("{child}").join(child.trim() || "das Kind").replace(
+      "{roles}",
+      roles,
+    ),
+    ...CREATOR_GUARDIAN_CLAUSES.map((clause, i) => `${i + 1}. ${clause}`),
+  ].join("\n\n");
+}
 
 /** The release as plain text, as signed and stored with the application. */
 export function creatorReleaseText(

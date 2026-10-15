@@ -31,11 +31,11 @@ export const PHOTO_THUMB_MAX_BYTES = 250 * 1024;
 
 /**
  * Uploaded videos travel in 4 MB pieces (Vercel's request limit) and are
- * joined in storage, which composes at most 32 objects: 128 MB per video.
- * Larger productions come through the Swibble app as a compressed web copy.
+ * joined in storage: 500 MB per video. Larger productions come through the
+ * Swibble app as a compressed web copy.
  */
 export const VIDEO_CHUNK_BYTES = 4 * 1024 * 1024;
-export const VIDEO_MAX_CHUNKS = 32;
+export const VIDEO_MAX_CHUNKS = 125;
 export const VIDEO_MAX_BYTES = VIDEO_CHUNK_BYTES * VIDEO_MAX_CHUNKS;
 export const VIDEO_COVER_MAX_BYTES = 1024 * 1024;
 export const VIDEO_CONTENT_TYPES = ["video/mp4", "video/quicktime", "video/webm"] as const;

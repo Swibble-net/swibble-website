@@ -7,7 +7,7 @@ import {
   isStorageConfigured,
 } from "@/lib/firebaseAdmin";
 import { CREATOR_ROLES, type CreatorRole } from "@/lib/applications/config";
-import { readApplicationFile } from "@/lib/applications/store";
+import { readApplicationFile, readApplicationObject } from "@/lib/applications/store";
 import type { Application } from "@/lib/applications/types";
 import { isTrustedMediaUrl } from "@/lib/videos/appVideos";
 import type { AppVideoJob } from "@/lib/videos/types";
@@ -48,6 +48,8 @@ interface Backend {
   deleteFile(path: string): Promise<void>;
   deleteFolder(prefix: string): Promise<void>;
   combine(chunks: string[], destination: string, contentType: string): Promise<number>;
+  /** Copies an object of the same bucket (no download through the function). */
+  copy(source: string, destination: string): Promise<boolean>;
   /** Short-lived link for large files (videos) that don't fit a function response */
   signedUrl(path: string, contentType: string): Promise<string | null>;
 }
@@ -159,14 +161,27 @@ const firebaseBackend: Backend = {
 
   async combine(chunks, destination, contentType) {
     const bucket = getPrivateBucket();
-    await bucket.combine(
-      chunks.map((path) => bucket.file(path)),
-      bucket.file(destination),
-    );
+    const target = bucket.file(destination);
+    // Storage composes at most 32 objects per call: step by step into the target.
+    await bucket.combine(chunks.slice(0, 32).map((path) => bucket.file(path)), target);
+    for (let start = 32; start < chunks.length; start += 31) {
+      await bucket.combine(
+        [target, ...chunks.slice(start, start + 31).map((path) => bucket.file(path))],
+        target,
+      );
+    }
     await bucket.file(destination).setMetadata({ contentType, cacheControl: "private, no-store" });
     await Promise.all(chunks.map((path) => bucket.file(path).delete({ ignoreNotFound: true })));
     const [metadata] = await bucket.file(destination).getMetadata();
     return Number(metadata.size) || 0;
+  },
+
+  async copy(source, destination) {
+    const bucket = getPrivateBucket();
+    const [exists] = await bucket.file(source).exists();
+    if (!exists) return false;
+    await bucket.file(source).copy(bucket.file(destination));
+    return true;
   },
 
   async signedUrl(path, contentType) {
@@ -252,6 +267,14 @@ const memoryBackend: Backend = {
     files.set(destination, joined);
     for (const path of chunks) files.delete(path);
     return joined.length;
+  },
+
+  async copy(source, destination) {
+    // The applications keep their own dev store.
+    const buffer = await readApplicationObject(source);
+    if (!buffer) return false;
+    memoryState().files.set(destination, buffer);
+    return true;
   },
 
   async signedUrl() {
@@ -395,10 +418,32 @@ export async function createCreatorFromApplication(
     await store.writeFile(setcardPath, setcard.buffer, setcard.contentType);
   }
 
+  // Videos can be large: copied inside the bucket.
+  const videos: CreatorVideo[] = [];
+  for (const source of application.videos) {
+    const id = newMediaId();
+    const folder = videoFolder(profile.id, id);
+    const path = `${folder}video.${EXTENSIONS[source.contentType] ?? "mp4"}`;
+    if (!(await store.copy(source.path, path))) continue;
+    const coverPath =
+      source.coverPath && (await store.copy(source.coverPath, `${folder}cover.jpg`))
+        ? `${folder}cover.jpg`
+        : "";
+    videos.push({
+      ...emptyVideo(id, "upload", ""),
+      status: "ready",
+      path,
+      coverPath,
+      contentType: source.contentType,
+      size: source.size,
+    });
+  }
+
   return (
     (await store.mutate(profile.id, (current) => ({
       ...withoutId(current),
       photos,
+      videos,
       setcardPath,
       setcardType,
     }))) ?? profile

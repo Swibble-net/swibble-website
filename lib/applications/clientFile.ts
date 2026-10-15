@@ -4,6 +4,7 @@
 
 import {
   CONSENT_FILE_MAX_BYTES,
+  CREATOR_PHOTO_MAX_BYTES,
   PHOTO_MAX_BYTES,
   SETCARD_MAX_BYTES,
 } from "./config";
@@ -14,10 +15,12 @@ import {
 export const CONSENT_FILE_ACCEPT = "image/*,application/pdf,.pdf,.heic,.heif";
 
 export interface PreparedFile {
-  /** Base64 without the data: prefix */
+  /** Base64 without the data: prefix ("" when only `blob` is used) */
   data: string;
   name: string;
   size: number;
+  /** The prepared bytes, for uploads as raw binary */
+  blob?: Blob;
 }
 
 export class ConsentFileError extends Error {}
@@ -188,7 +191,8 @@ export async function prepareSetcard(
   if (isPdf(file)) {
     if (file.size <= SETCARD_MAX_BYTES) {
       return {
-        data: await toBase64(file),
+        data: "",
+        blob: file,
         name: file.name,
         size: file.size,
         kind: "pdf",
@@ -198,7 +202,8 @@ export async function prepareSetcard(
     const { shrinkPdf } = await import("./setcardPdf");
     const pdf = await shrinkPdf(file, SETCARD_MAX_BYTES);
     return {
-      data: await toBase64(pdf),
+      data: "",
+      blob: pdf,
       name: file.name,
       size: pdf.size,
       kind: "pdf",
@@ -216,7 +221,8 @@ export async function prepareSetcard(
       (!file.type && /\.(jpe?g|png)$/i.test(file.name)));
   if (keepAsIs) {
     return {
-      data: await toBase64(file),
+      data: "",
+      blob: file,
       name: file.name,
       size: file.size,
       kind: "image",
@@ -242,10 +248,41 @@ export async function prepareSetcard(
     throw new ConsentFileError("Das Bild ist zu groß. Bitte wähle ein anderes.");
   }
   return {
-    data: await toBase64(blob),
+    data: "",
+    blob,
     name: file.name,
     size: blob.size,
     kind: "image",
     compressed: true,
   };
+}
+
+/**
+ * Creator pool photo: larger than the /bewerben ones (2000 px), uploaded on
+ * its own as raw JPEG, so no base64 copy is made.
+ */
+export async function prepareCreatorPhoto(
+  file: File,
+): Promise<PreparedFile & { previewUrl: string }> {
+  if (!isImage(file)) {
+    throw new ConsentFileError("Bitte wähle ein Foto (JPG, PNG oder HEIC).");
+  }
+  let blob: Blob | null = null;
+  for (const [maxSide, quality] of [
+    [2000, 0.82],
+    [1600, 0.75],
+    [1200, 0.7],
+  ]) {
+    blob = await downscale(file, maxSide, quality);
+    if (!blob || blob.size <= CREATOR_PHOTO_MAX_BYTES) break;
+  }
+  if (!blob) {
+    throw new ConsentFileError(
+      "Dieses Foto kann dein Browser nicht verarbeiten. Tipp: Mach einen Screenshot vom Foto und lade den hoch.",
+    );
+  }
+  if (blob.size > CREATOR_PHOTO_MAX_BYTES) {
+    throw new ConsentFileError("Das Foto ist zu groß. Bitte wähle ein anderes.");
+  }
+  return { data: "", blob, name: file.name, size: blob.size, previewUrl: URL.createObjectURL(blob) };
 }
