@@ -7,6 +7,7 @@ import { isAuthenticated } from "@/lib/adminAuth";
 import { PDF_MAX_BYTES } from "@/lib/pitchdecks/config";
 import { listPitchDecks, storeProblem } from "@/lib/pitchdecks/store";
 import type { PitchDeck } from "@/lib/pitchdecks/types";
+import AdminNav from "@/components/admin/AdminNav";
 
 interface Props {
   decks: PitchDeck[];
@@ -24,8 +25,6 @@ const STALE_UPLOAD_MS = 30 * 60 * 1000;
 
 const inputClass =
   "w-full rounded-lg bg-[#F6F6F6] px-3 py-2 text-sm text-[#2A3342] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B718EC]/40";
-const navLinkClass =
-  "rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]";
 
 function formatSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
@@ -191,23 +190,7 @@ const AdminPitchDecks = ({ decks, problem }: Props) => {
       </Head>
 
       <section className="mx-auto w-full max-w-5xl">
-        <div className="mb-6 flex flex-wrap gap-2">
-          <Link href="/admin" className={navLinkClass}>
-            Blog
-          </Link>
-          <Link href="/admin/linkhub" className={navLinkClass}>
-            Linkhub
-          </Link>
-          <Link href="/admin/videos" className={navLinkClass}>
-            Videos
-          </Link>
-          <Link href="/admin/bewerbungen" className={navLinkClass}>
-            Bewerbungen
-          </Link>
-          <span className="rounded-lg bg-[#B718EC] px-3 py-1.5 text-sm font-medium text-white">
-            Pitchdecks
-          </span>
-        </div>
+        <AdminNav current="Pitchdecks" />
 
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-[#000D36]">Pitchdecks</h1>

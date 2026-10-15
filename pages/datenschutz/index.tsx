@@ -125,6 +125,9 @@ const Datenschutz = () => {
             E-Mail an uns übermittelt und gespeichert. Nach dem Absenden des
             Kontaktformulars erhalten Sie an die angegebene E-Mail-Adresse
             automatisch eine Bestätigung mit einer Zusammenfassung Ihrer Angaben.
+            Gleiches gilt für Anfragen über das Formular auf den Seiten unserer
+            Swibble Creator (Unternehmen, Name, E-Mail-Adresse, optional
+            Telefonnummer, Nachricht und der angefragte Creator).
           </p>
           <br />
           <p>

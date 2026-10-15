@@ -21,6 +21,7 @@ import {
 import { calculateAge, parseIsoDate, todayInBerlin } from "@/lib/applications/age";
 import { isTurnstileEnforced } from "@/lib/turnstile";
 import type { Application } from "@/lib/applications/types";
+import AdminNav from "@/components/admin/AdminNav";
 
 /** The list only needs a summary — full records stay on the detail page. */
 type ApplicationSummary = Pick<
@@ -65,8 +66,6 @@ const formatDateTime = (ms: number) =>
 
 const selectClass =
   "w-full rounded-lg bg-[#F6F6F6] px-3 py-2 text-sm text-[#2A3342] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B718EC]/40";
-const navLinkClass =
-  "rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]";
 
 const AdminApplications = ({
   applications,
@@ -134,23 +133,7 @@ const AdminApplications = ({
       </Head>
 
       <section className="mx-auto w-full max-w-5xl">
-        <div className="mb-6 flex flex-wrap gap-2">
-          <Link href="/admin" className={navLinkClass}>
-            Blog
-          </Link>
-          <Link href="/admin/linkhub" className={navLinkClass}>
-            Linkhub
-          </Link>
-          <Link href="/admin/videos" className={navLinkClass}>
-            Videos
-          </Link>
-          <span className="rounded-lg bg-[#B718EC] px-3 py-1.5 text-sm font-medium text-white">
-            Bewerbungen
-          </span>
-          <Link href="/admin/pitchdecks" className={navLinkClass}>
-            Pitchdecks
-          </Link>
-        </div>
+        <AdminNav current="Bewerbungen" />
 
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold text-[#000D36]">Bewerbungen</h1>

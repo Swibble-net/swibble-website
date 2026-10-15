@@ -49,7 +49,7 @@ function isPdf(file: File): boolean {
   return file.type === "application/pdf" || /\.pdf$/i.test(file.name);
 }
 
-async function downscale(
+export async function downscale(
   file: File,
   maxSide: number,
   quality: number,
@@ -80,7 +80,7 @@ async function downscale(
   );
 }
 
-function toBase64(blob: Blob): Promise<string> {
+export function toBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {

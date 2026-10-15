@@ -15,6 +15,7 @@ import { isAppVideoApiConfigured } from "@/lib/videos/appVideos";
 import AppVideoPicker from "@/components/admin/AppVideoPicker";
 import { isFirebaseConfigured } from "@/lib/firebaseAdmin";
 import type { Video } from "@/lib/videos/types";
+import AdminNav from "@/components/admin/AdminNav";
 
 interface Props {
   videos: Video[];
@@ -270,35 +271,7 @@ const AdminVideos = ({
 
       <section className="mx-auto w-full max-w-4xl">
         {/* Section nav */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          <Link
-            href="/admin"
-            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
-          >
-            Blog
-          </Link>
-          <Link
-            href="/admin/linkhub"
-            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
-          >
-            Linkhub
-          </Link>
-          <span className="rounded-lg bg-[#B718EC] px-3 py-1.5 text-sm font-medium text-white">
-            Videos
-          </span>
-          <Link
-            href="/admin/bewerbungen"
-            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
-          >
-            Bewerbungen
-          </Link>
-          <Link
-            href="/admin/pitchdecks"
-            className="rounded-lg border border-[#F0E4F5] px-3 py-1.5 text-sm font-medium text-[#556987] transition hover:border-[#b718ec] hover:text-[#b718ec]"
-          >
-            Pitchdecks
-          </Link>
-        </div>
+        <AdminNav current="Videos" />
 
         <h1 className="mb-6 text-2xl font-bold text-[#000D36]">
           Videos verwalten
