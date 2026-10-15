@@ -103,7 +103,7 @@ const CreatorWork = ({ photos, videos, name }: { photos: Photo[]; videos: Video[
                 type="button"
                 onClick={() => setOpen(item.photoIndex)}
                 aria-label={`Foto${item.caption ? ` „${item.caption}“` : ""} von ${name} vergrößern`}
-                className="group relative block w-full overflow-hidden rounded-2xl bg-[#FDF5FF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC]"
+                className="group relative isolate block w-full overflow-hidden rounded-2xl bg-[#FDF5FF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC]"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- media route of the creator page */}
                 <img

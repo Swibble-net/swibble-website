@@ -8,7 +8,7 @@ const CreatorCard = ({ creator }: { creator: PublicCreator }) => {
   return (
     <Link
       href={`/creator/${creator.slug}`}
-      className="group block overflow-hidden rounded-2xl bg-white shadow-[0_10px_40px_rgba(76,64,247,0.08)] ring-1 ring-[#F6ECFA] transition hover:-translate-y-0.5 hover:ring-[#b718ec]/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      className="group isolate block overflow-hidden rounded-2xl bg-white shadow-[0_10px_40px_rgba(76,64,247,0.08)] ring-1 ring-[#F6ECFA] transition hover:-translate-y-0.5 hover:ring-[#b718ec]/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
     >
       <div className="aspect-[4/5] overflow-hidden bg-[#FDF5FF]">
         {cover && (
