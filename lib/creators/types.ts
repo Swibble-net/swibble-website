@@ -60,6 +60,8 @@ export interface CreatorProfile {
   id: string;
   /** Application the profile was created from ("" = none / deleted) */
   applicationId: string;
+  /** Created in the CMS without an application: when the admin confirmed the creator's consent (0 = not applicable) */
+  consentConfirmedAt: number;
   /** URL: /creator/<slug> */
   slug: string;
   /** Only published profiles are public */

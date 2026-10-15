@@ -62,6 +62,7 @@ export function toCreator(id: string, data: Partial<CreatorDocument>): CreatorPr
   return {
     id,
     applicationId: data.applicationId ?? "",
+    consentConfirmedAt: data.consentConfirmedAt ?? 0,
     slug: data.slug ?? "",
     published: data.published === true,
     name: data.name ?? "",
@@ -381,6 +382,7 @@ export async function createCreatorFromApplication(
 
   const profile = await store.create({
     applicationId: application.id,
+    consentConfirmedAt: 0,
     slug: await uniqueSlug(slugBase(name)),
     published: false,
     name,
@@ -462,6 +464,37 @@ export async function createCreatorFromApplication(
       setcardType,
     }))) ?? profile
   );
+}
+
+/**
+ * Creates an empty, unpublished profile without an application – for
+ * creators Swibble already works with. The admin has confirmed their consent;
+ * texts, photos and videos are added in the CMS.
+ */
+export async function createCreatorWithoutApplication(name: string): Promise<CreatorProfile> {
+  const now = Date.now();
+  return backend().create({
+    applicationId: "",
+    consentConfirmedAt: now,
+    slug: await uniqueSlug(slugBase(name)),
+    published: false,
+    name,
+    roles: ["creator"],
+    city: "",
+    tagline: "",
+    socials: { tiktok: "", instagram: "", snapchat: "", youtube: "" },
+    publicSocials: [],
+    portfolioUrl: "",
+    showPortfolio: false,
+    setcardPath: "",
+    setcardType: "",
+    showSetcard: false,
+    photos: [],
+    videos: [],
+    references: [],
+    createdAt: now,
+    updatedAt: now,
+  });
 }
 
 export async function updateCreatorProfile(

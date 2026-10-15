@@ -146,6 +146,11 @@ function line(value: unknown, max: number): string | null {
   return text;
 }
 
+/** Name of a new profile, or null when empty / too long / not allowed. */
+export function validateCreatorName(value: unknown): string | null {
+  return line(value, NAME_MAX_LENGTH) || null;
+}
+
 export type CreatorInputResult =
   | { ok: true; value: CreatorProfileInput }
   | { ok: false; message: string };
