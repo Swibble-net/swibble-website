@@ -150,16 +150,17 @@ const CreatorPage = ({ creator, preview }: Props) => {
               />
             )}
             {creator.references.length > 0 && (
-              <ul className="mt-4 flex flex-wrap gap-2" aria-label="Weitere Referenzen">
+              <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Weitere Referenzen">
                 {creator.references.map((ref) => {
+                  // Company on top, category below – stays tidy at any width.
                   const label = (
-                    <>
-                      <span className="font-semibold text-[#000D36]">{ref.name}</span>
-                      {ref.detail && <span className="text-[#556987]"> · {ref.detail}</span>}
-                    </>
+                    <span className="min-w-0">
+                      <span className="block font-semibold text-[#000D36]">{ref.name}</span>
+                      {ref.detail && <span className="mt-0.5 block text-sm text-[#556987]">{ref.detail}</span>}
+                    </span>
                   );
-                  const pill =
-                    "inline-flex min-h-10 items-center rounded-full bg-[#FDF5FF] px-4 py-2 text-sm ring-1 ring-[#F0E6F4]";
+                  const card =
+                    "flex h-full items-start justify-between gap-3 rounded-2xl bg-[#FDF5FF] px-4 py-3 ring-1 ring-[#F0E6F4]";
                   return (
                     <li key={ref.id}>
                       {ref.url ? (
@@ -167,15 +168,15 @@ const CreatorPage = ({ creator, preview }: Props) => {
                           href={ref.url}
                           target="_blank"
                           rel="noopener noreferrer nofollow"
-                          className={`${pill} hover:ring-[#B718EC]`}
+                          className={`${card} hover:ring-[#B718EC]`}
                         >
                           {label}
-                          <span aria-hidden className="ml-1 text-[#B718EC]">
+                          <span aria-hidden className="text-[#B718EC]">
                             ↗
                           </span>
                         </a>
                       ) : (
-                        <span className={pill}>{label}</span>
+                        <div className={card}>{label}</div>
                       )}
                     </li>
                   );
