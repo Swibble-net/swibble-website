@@ -13,7 +13,7 @@ const COLUMNS: Array<[string, (a: Application) => string | number | boolean]> = 
   ["Status", (a) => statusLabel(a.status)],
   ["Bereich", (a) => poolLabel(a.pool)],
   ["Center", (a) => a.centerName || a.center],
-  ["Rollen", (a) => a.roles.map(roleLabel).join(", ")],
+  ["Rollen", (a) => a.roles.map((id) => roleLabel(id, a.pool)).join(", ")],
   ["Vorname", (a) => a.firstName],
   ["Nachname", (a) => a.lastName],
   ["Geburtsdatum", (a) => a.birthDate],

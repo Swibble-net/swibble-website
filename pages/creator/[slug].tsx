@@ -44,7 +44,7 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
 
 const CreatorPage = ({ creator, preview }: Props) => {
   const cover = creator.photos[0];
-  const roles = creator.roles.map(roleLabel).join(" · ");
+  const roles = creator.roles.map((id) => roleLabel(id, "creator")).join(" · ");
   const socials = (["instagram", "tiktok", "youtube", "snapchat"] as const).filter(
     (platform) => creator.socials[platform],
   );

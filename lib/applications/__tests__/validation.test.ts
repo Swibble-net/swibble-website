@@ -421,6 +421,11 @@ describe("validateCreatorApplication", () => {
     expect(errorsOfCreator({ ...creator, birthDate: "2008-09-19" }).birthDate).toBeUndefined();
   });
 
+  it("accepts promoters, also combined with other roles", () => {
+    const result = validateCreatorApplication({ ...creator, roles: ["promoter", "model"] }, NOW);
+    expect(result.ok && result.value.roles).toEqual(["model", "promoter"]);
+  });
+
   it("only accepts creator roles", () => {
     expect(errorsOfCreator({ ...creator, roles: [] }).roles).toBeDefined();
     expect(errorsOfCreator({ ...creator, roles: ["video"] }).roles).toBeDefined();

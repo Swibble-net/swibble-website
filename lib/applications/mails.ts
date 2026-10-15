@@ -53,7 +53,7 @@ function build(content: MailContent, logoSrc?: string): BuiltMail {
   };
 }
 
-const roles = (a: Application) => a.roles.map(roleLabel).join(", ");
+const roles = (a: Application) => a.roles.map((id) => roleLabel(id, a.pool)).join(", ");
 const center = (a: Application) => a.centerName || "kein bestimmtes Center";
 /** swibble.net/bewerben or swibble.net/bewerben/creator */
 const formUrl = (a: Application) =>

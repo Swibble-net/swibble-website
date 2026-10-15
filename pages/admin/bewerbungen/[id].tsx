@@ -248,7 +248,7 @@ const AdminApplicationDetail = ({ application: initial, creatorId }: Props) => {
           <dl>
             <Row label="Bereich">{poolLabel(application.pool)}</Row>
             <Row label="Bewirbt sich als">
-              {application.roles.map(roleLabel).join(", ")}
+              {application.roles.map((id) => roleLabel(id, application.pool)).join(", ")}
             </Row>
             {!isCreator && (
               <Row label="Center">

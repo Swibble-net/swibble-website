@@ -28,8 +28,8 @@ const CreatorOverview = ({ creators }: Props) => {
   return (
     <>
       <SEO
-        title="Swibble Creator – Models, Content Creator & Moderation"
-        description="Models, Content Creator und Moderation für Videos, Shootings und Events – direkt über Swibble anfragen."
+        title="Swibble Creator – Models, Creator, Moderation & Promotion"
+        description="Models, Content Creator, Moderation und Promoter:innen für Videos, Shootings und Events – direkt über Swibble anfragen."
         canonical="/creator"
       />
 
@@ -37,7 +37,8 @@ const CreatorOverview = ({ creators }: Props) => {
         <header className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-[#b718ec] lg:text-5xl">Swibble Creator</h1>
           <p className="mx-auto mt-3 max-w-xl text-base text-[#556987] lg:text-lg">
-            Models, Content Creator und Moderation für Videos, Shootings und Events.
+            Models, Content Creator, Moderation und Promotion für Videos,
+            Shootings und Events.
           </p>
         </header>
 

@@ -191,7 +191,7 @@ const BewerbenPage: NextPageWithLayout<Props> = ({
               )}
 
               <p className="text-center text-sm text-[#556987]">
-                Model, Content Creator oder Moderation?{" "}
+                Model, Content Creator, Moderation oder Promotion?{" "}
                 <Link
                   href="/bewerben/creator"
                   className="font-medium text-[#B718EC] underline"

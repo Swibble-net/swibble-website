@@ -24,7 +24,7 @@ const CreatorCard = ({ creator }: { creator: PublicCreator }) => {
       <div className="p-3 sm:p-4">
         <p className="font-bold text-[#000D36]">{creator.name}</p>
         <p className="mt-0.5 text-xs text-[#556987] sm:text-sm">
-          {creator.roles.map(roleLabel).join(" · ")}
+          {creator.roles.map((id) => roleLabel(id, "creator")).join(" · ")}
         </p>
         {creator.city && <p className="mt-0.5 text-xs text-[#8a7791]">{creator.city}</p>}
       </div>

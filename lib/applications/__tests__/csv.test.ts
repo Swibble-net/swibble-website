@@ -74,3 +74,13 @@ describe("toApplication", () => {
     expect(application.consent.creatorRelease).toBe("");
   });
 });
+
+describe("roleLabel", () => {
+  it("uses the wording of the form the application came from", async () => {
+    const { roleLabel } = await import("../config");
+    expect(roleLabel("promoter")).toBe("Promoter:in für Events");
+    expect(roleLabel("promoter", "creator")).toBe("Promoter:in");
+    expect(roleLabel("moderation")).toBe("Moderation");
+    expect(roleLabel("unbekannt")).toBe("unbekannt");
+  });
+});

@@ -329,8 +329,8 @@ const Datenschutz = () => {
             <Link href="/bewerben/creator" className="text-[#0000EE] underline">
               swibble.net/bewerben/creator
             </Link>{" "}
-            können sich Volljährige als Model, Content Creator oder für
-            Moderation bewerben. Zusätzlich zu den oben genannten Daten
+            können sich Volljährige als Model, Content Creator, für Moderation
+            oder als Promoter:in bewerben. Zusätzlich zu den oben genannten Daten
             verarbeiten wir dabei mindestens ein Foto, optional eine Setcard
             bzw. ein Portfolio (PDF oder Bild) und einen Link zu Website oder
             Portfolio sowie die online abgegebene Erklärung mit Ihrer

@@ -86,7 +86,7 @@ const AdminCreators = ({ creators, available }: Props) => (
                 </div>
                 <div className="p-3">
                   <p className="font-semibold text-[#000D36]">{c.name}</p>
-                  <p className="mt-0.5 text-xs text-[#556987]">{c.roles.map(roleLabel).join(" · ")}</p>
+                  <p className="mt-0.5 text-xs text-[#556987]">{c.roles.map((id) => roleLabel(id, "creator")).join(" · ")}</p>
                   <p className="mt-1 text-xs text-[#8a7791]">
                     {[c.city, `${c.photos} Fotos`, `${c.videos} Videos`].filter(Boolean).join(" · ")}
                   </p>
