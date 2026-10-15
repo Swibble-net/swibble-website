@@ -740,6 +740,7 @@ const ApplicationForm = ({
             busy={photoList.busy}
             onAdd={photoList.add}
             onRemove={photoList.remove}
+            onMove={photoList.move}
             invalidProps={errorProps("photos")}
             error={errorFor("photos")}
             hint="Wir verkleinern sie automatisch."

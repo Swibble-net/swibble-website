@@ -20,6 +20,7 @@ import {
   phoneCountry,
 } from "@/lib/applications/phone";
 import type { ApplicationErrors } from "@/lib/applications/types";
+import { SortableGrid, SortableTile, dragHandleClass, moveItem } from "@/components/SortableGrid";
 
 // Building blocks shared by the application forms (/bewerben and
 // /bewerben/creator), so both look and behave the same.
@@ -83,7 +84,9 @@ export function usePhotos(
     onError("");
   };
 
-  return { photos, busy, add, remove };
+  const move = (from: number, to: number) => setPhotos((prev) => moveItem(prev, from, to));
+
+  return { photos, busy, add, remove, move };
 }
 
 /**
@@ -345,6 +348,8 @@ export function PhotoPicker({
   busy,
   onAdd,
   onRemove,
+  onMove,
+  coverFirst = false,
   invalidProps,
   error,
   hint,
@@ -354,6 +359,10 @@ export function PhotoPicker({
   busy: boolean;
   onAdd: (e: ChangeEvent<HTMLInputElement>) => void;
   onRemove: (index: number) => void;
+  /** Drag and drop; without it the order is fixed. */
+  onMove?: (from: number, to: number) => void;
+  /** The first photo becomes the cover of a creator page. */
+  coverFirst?: boolean;
   invalidProps: ErrorProps;
   error: ReactNode;
   hint?: ReactNode;
@@ -362,24 +371,46 @@ export function PhotoPicker({
   const empty = photos.length === 0;
   return (
     <div>
-      <ul className={empty ? "grid grid-cols-1" : "grid grid-cols-3 gap-2.5"}>
+      <SortableGrid
+        ids={photos.map((photo) => photo.previewUrl)}
+        onMove={onMove ?? (() => {})}
+        className={empty ? "grid grid-cols-1" : "grid grid-cols-3 gap-2.5"}
+      >
         {photos.map((photo, index) => (
-          <li key={photo.previewUrl} className="relative">
-            {/* eslint-disable-next-line @next/next/no-img-element -- local object URL preview */}
-            <img
-              src={photo.previewUrl}
-              alt={`Ausgewähltes Foto ${index + 1}`}
-              className="aspect-[3/4] w-full rounded-xl object-cover"
-            />
-            <button
-              type="button"
-              onClick={() => onRemove(index)}
-              aria-label={`Foto ${index + 1} entfernen`}
-              className="absolute -right-1.5 -top-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-[#000D36] text-base font-bold text-white shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC]"
-            >
-              ×
-            </button>
-          </li>
+          <SortableTile key={photo.previewUrl} id={photo.previewUrl}>
+            {({ handle, dragging }) => (
+              <>
+                <div
+                  {...(onMove ? handle : {})}
+                  aria-label={`Foto ${index + 1}${onMove ? ", zum Verschieben ziehen" : ""}`}
+                  className={`block rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC] ${
+                    onMove ? dragHandleClass : ""
+                  } ${dragging ? "opacity-80 shadow-xl" : ""}`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- local object URL preview */}
+                  <img
+                    src={photo.previewUrl}
+                    alt=""
+                    draggable={false}
+                    className="pointer-events-none aspect-[3/4] w-full rounded-xl object-cover"
+                  />
+                  {coverFirst && index === 0 && photos.length > 1 && (
+                    <span className="absolute bottom-1.5 left-1.5 rounded-full bg-[#B718EC] px-2 py-0.5 text-[10px] font-semibold text-white">
+                      Titelbild
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onRemove(index)}
+                  aria-label={`Foto ${index + 1} entfernen`}
+                  className="absolute -right-1.5 -top-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-[#000D36] text-base font-bold text-white shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC]"
+                >
+                  ×
+                </button>
+              </>
+            )}
+          </SortableTile>
         ))}
         {!full && (
           <li>
@@ -414,11 +445,14 @@ export function PhotoPicker({
             </label>
           </li>
         )}
-      </ul>
+      </SortableGrid>
       <p className="mt-2 text-xs text-[#8a7791]" aria-live="polite">
         {busy
           ? "Fotos werden verkleinert …"
           : `${photos.length} von ${max} Fotos ausgewählt.`}{" "}
+        {onMove &&
+          photos.length > 1 &&
+          `Zum Sortieren gedrückt halten und ziehen${coverFirst ? " – das erste ist dein Titelbild" : ""}. `}
         {hint}
       </p>
       {error}
