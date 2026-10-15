@@ -29,6 +29,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ message: "Nicht gefunden." });
     }
 
+    // Media hidden in the CMS stay private, even if the link is known.
+    if (!admin && target.kind !== "setcard") {
+      const item =
+        target.kind === "photo" || target.kind === "thumb"
+          ? profile.photos.find((p) => p.id === target.id)
+          : profile.videos.find((v) => v.id === target.id);
+      if (!item || item.hidden) return res.status(404).json({ message: "Nicht gefunden." });
+    }
+
     const source = await readCreatorMedia(profile, target);
     if (!source) return res.status(404).json({ message: "Nicht gefunden." });
 

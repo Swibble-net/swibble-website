@@ -175,10 +175,16 @@ export function poolLabel(id: string): string {
  */
 export const CREATOR_PHOTO_MIN_COUNT = 1;
 export const CREATOR_PHOTO_MAX_COUNT = 10;
-/** Creator photos are kept larger than the /bewerben ones (≤ 2000 px). */
-export const CREATOR_PHOTO_MAX_BYTES = Math.round(1.6 * 1024 * 1024);
+/**
+ * Creator photos are compressed in the browser (≤ 2400 px JPEG) but not cut
+ * down to a fixed size; this is only the technical limit of one request.
+ */
+export const CREATOR_PHOTO_MAX_BYTES = 4 * 1024 * 1024;
 export const CREATOR_VIDEO_MAX_COUNT = 10;
+/** Per video after compression in the browser (720p MP4 where possible). */
 export const CREATOR_VIDEO_MAX_BYTES = 200 * 1024 * 1024;
+/** Originals this large are still accepted — they are compressed first. */
+export const CREATOR_VIDEO_SOURCE_MAX_BYTES = 4 * 1024 * 1024 * 1024;
 export const CREATOR_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"] as const;
 export const UPLOAD_CHUNK_BYTES = 4 * 1024 * 1024;
 /** Hours an upload token stays valid after the application was stored. */
@@ -193,7 +199,7 @@ export const RELEASE_FILE_MAX_BYTES = 800 * 1024;
 
 export const PORTFOLIO_URL_MAX_LENGTH = 300;
 
-export const CREATOR_CONSENT_VERSION = "2026-10-creator-v2";
+export const CREATOR_CONSENT_VERSION = "2026-10-creator-v3";
 
 /**
  * Release the creator signs online. Single source for the signing step, the
@@ -225,7 +231,7 @@ export const CREATOR_GUARDIAN_INTRO =
 
 export const CREATOR_GUARDIAN_CLAUSES = [
   "Creator-Freigabe: Ich stimme der Erklärung meines / unseres Kindes (Vorstellung bei Kunden, Werbung als Swibble Creator, Rechte an Fotos und Unterlagen, Aufträge, Speicherung und Kontakt, Widerruf) zu und gebe sie auch im eigenen Namen ab.",
-  "Aufträge: Konkrete Aufträge mit meinem / unserem Kind vereinbart Swibble nur mit mir / uns.",
+  "Aufträge: Swibble darf Aufträge direkt mit meinem / unserem Kind abstimmen (z. B. Termine und Inhalte). Verbindliche Vereinbarungen – etwa über Vergütung und Nutzungsrechte – brauchen meine / unsere Zustimmung.",
   "Kontakt: Swibble darf mich / uns und mein / unser Kind per E-Mail, Telefon/WhatsApp und über die angegebenen Social-Media-Profile kontaktieren.",
   "Widerruf: Diese Erklärung kann ich / können wir jederzeit mit Wirkung für die Zukunft widerrufen, z. B. per E-Mail an info@swibble.net. Die Datenschutzhinweise unter www.swibble.net/datenschutz habe ich / haben wir zur Kenntnis genommen.",
   "Bei gemeinsamem Sorgerecht versichere ich, im Einvernehmen mit dem anderen Elternteil zu handeln.",

@@ -9,7 +9,7 @@ export interface CreatorUploadFiles {
   consent: Blob | null;
   setcard: Blob | null;
   photos: Blob[];
-  videos: Array<{ file: File; cover: Blob | null }>;
+  videos: Array<{ file: Blob; cover: Blob | null }>;
 }
 
 export class UploadFailedError extends Error {}

@@ -40,6 +40,7 @@ import {
   CREATOR_ROLES,
   CREATOR_VIDEO_MAX_BYTES,
   CREATOR_VIDEO_MAX_COUNT,
+  CREATOR_VIDEO_SOURCE_MAX_BYTES,
   GUARDIAN_ONLINE_ACCEPT_TEXT,
   PORTFOLIO_URL_MAX_LENGTH,
   RELEASE_FILE_MAX_BYTES,
@@ -225,8 +226,12 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
       message ? setErrors((prev) => ({ ...prev, photos: message })) : clearError("photos"),
     prepareCreatorPhoto,
   );
-  const videoList = useVideos(CREATOR_VIDEO_MAX_COUNT, CREATOR_VIDEO_MAX_BYTES, (message) =>
-    message ? setErrors((prev) => ({ ...prev, videos: message })) : clearError("videos"),
+  const videoList = useVideos(
+    CREATOR_VIDEO_MAX_COUNT,
+    CREATOR_VIDEO_SOURCE_MAX_BYTES,
+    CREATOR_VIDEO_MAX_BYTES,
+    (message) =>
+      message ? setErrors((prev) => ({ ...prev, videos: message })) : clearError("videos"),
   );
 
   /* ── derived ──────────────────────────────────────────────────────── */
@@ -380,6 +385,8 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting || photoList.busy || videoList.busy || setcardBusy) return;
+    // Videos are still being compressed: the button says so and stays off.
+    if (flow.isLast && videoList.compressing) return;
     // Read now: the event's currentTarget is gone after the first await.
     const pageFont = getComputedStyle(e.currentTarget).fontFamily;
     setFormError("");
@@ -471,7 +478,7 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
           ...payload,
           files: {
             photos: photoList.photos.length,
-            videos: videoList.videos.map((v) => ({ size: v.file.size, contentType: v.contentType })),
+            videos: videoList.videos.map((v) => ({ size: v.output.size, contentType: v.outputType })),
             setcard: Boolean(setcard),
           },
           turnstileToken,
@@ -511,7 +518,7 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
             consent: consent?.blob ?? null,
             setcard: setcard?.blob ?? null,
             photos: photoList.photos.map((photo) => photo.blob!),
-            videos: videoList.videos.map((v) => ({ file: v.file, cover: v.cover })),
+            videos: videoList.videos.map((v) => ({ file: v.output, cover: v.cover })),
           },
           (sent, total) => setUploadProgress(total > 0 ? Math.round((sent / total) * 100) : 0),
         );
@@ -569,11 +576,18 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
               ? `Wird hochgeladen … ${uploadProgress} %`
               : submitting
                 ? "Wird gesendet …"
-                : "Bewerbung abschicken"
+                : videoList.compressing
+                  ? "Videos werden verkleinert …"
+                  : "Bewerbung abschicken"
             : "Weiter"
         }
         nextDisabled={
-          !hydrated || submitting || photoList.busy || videoList.busy || setcardBusy
+          !hydrated ||
+          submitting ||
+          photoList.busy ||
+          videoList.busy ||
+          setcardBusy ||
+          (flow.isLast && videoList.compressing)
         }
         footer={
           flow.isLast ? (
@@ -795,7 +809,7 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
                 onRemove={photoList.remove}
                 invalidProps={errorProps("photos")}
                 error={errorFor("photos")}
-                hint={`Mindestens ${CREATOR_PHOTO_MIN_COUNT}.`}
+                hint={`Mindestens ${CREATOR_PHOTO_MIN_COUNT}. Wir verkleinern sie automatisch.`}
               />
             </div>
             <div>
@@ -811,7 +825,7 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
                 onRemove={videoList.remove}
                 invalidProps={errorProps("videos")}
                 error={errorFor("videos")}
-                hint={`Max. ${CREATOR_VIDEO_MAX_BYTES / 1024 ** 2} MB pro Video.`}
+                hint="Wir verkleinern sie automatisch – du kannst schon weitermachen."
               />
             </div>
           </>

@@ -18,7 +18,9 @@ import {
   removeCreatorPhoto,
   removeCreatorVideo,
   reorderCreatorMedia,
+  setCreatorMediaHidden,
   startCreatorVideoUpload,
+  updateCreatorPhotoCaption,
   updateCreatorVideoTitle,
 } from "@/lib/creators/store";
 import { AppVideoError, publishAppVideo } from "@/lib/videos/appVideos";
@@ -46,6 +48,7 @@ function title(value: unknown): string {
  * POST {type:"photo", large, thumb} | {type:"appVideo", assetId, fileId, title}
  *      | {type:"upload", size, contentType, title, width, height}
  * PATCH {type:"order", kind, ids} | {type:"videoTitle", videoId, title}
+ *       | {type:"photoCaption", photoId, caption} | {type:"visibility", kind, id, hidden}
  * DELETE ?photo=<id> | ?video=<id>
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -116,6 +119,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       const ids = body.ids.filter((v): v is string => typeof v === "string");
       return res.status(200).json({ creator: await reorderCreatorMedia(profile, body.kind, ids) });
+    }
+
+    if (req.method === "PATCH" && body.type === "visibility") {
+      if ((body.kind !== "photo" && body.kind !== "video") || !isValidId(body.id)) {
+        return res.status(400).json({ message: "Ungültige Auswahl." });
+      }
+      const hidden = body.hidden === true;
+      if (
+        hidden &&
+        body.kind === "photo" &&
+        profile.published &&
+        profile.photos.filter((p) => !p.hidden && p.id !== body.id).length === 0
+      ) {
+        return res.status(400).json({ message: "Eine veröffentlichte Seite braucht mindestens ein sichtbares Foto." });
+      }
+      return res
+        .status(200)
+        .json({ creator: await setCreatorMediaHidden(profile, body.kind, body.id, hidden) });
+    }
+
+    if (req.method === "PATCH" && body.type === "photoCaption") {
+      if (!isValidId(body.photoId)) return res.status(400).json({ message: "Ungültiges Foto." });
+      return res
+        .status(200)
+        .json({ creator: await updateCreatorPhotoCaption(profile, body.photoId, title(body.caption)) });
     }
 
     if (req.method === "PATCH" && body.type === "videoTitle") {

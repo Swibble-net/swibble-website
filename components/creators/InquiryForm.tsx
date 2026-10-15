@@ -13,8 +13,11 @@ import { INQUIRY_MESSAGE_MAX_LENGTH, validateCreatorInquiry } from "@/lib/creato
 
 const subscribeNever = () => () => {};
 
-/** Booking inquiry for one creator; goes to Swibble by mail. */
-const InquiryForm = ({ slug, creatorName }: { slug: string; creatorName: string }) => {
+/**
+ * Booking inquiry for one creator — or, without `slug`, a general request
+ * for creators (/creator). Goes to Swibble by mail.
+ */
+const InquiryForm = ({ slug, creatorName }: { slug?: string; creatorName?: string }) => {
   const formId = useId();
   const turnstileRequired = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
   const [fields, setFields] = useState({
@@ -64,7 +67,8 @@ const InquiryForm = ({ slug, creatorName }: { slug: string; creatorName: string 
 
     setSending(true);
     try {
-      const res = await fetch(`/api/creators/${encodeURIComponent(slug)}/inquiry`, {
+      const url = slug ? `/api/creators/${encodeURIComponent(slug)}/inquiry` : "/api/creators/inquiry";
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payload, turnstileToken }),
@@ -156,7 +160,11 @@ const InquiryForm = ({ slug, creatorName }: { slug: string; creatorName: string 
           value={fields.message}
           onChange={set("message")}
           maxLength={INQUIRY_MESSAGE_MAX_LENGTH}
-          placeholder={`Projekt, Zeitraum, Ort – z. B. Shooting mit ${creatorName} im Mai in Köln`}
+          placeholder={
+            creatorName
+              ? `Projekt, Zeitraum, Ort – z. B. Shooting mit ${creatorName} im Mai in Köln`
+              : "Wen suchst du? z. B. 2 Models für ein Shooting im Mai in Köln"
+          }
           {...errorProps("message")}
         />
         {errorFor("message")}

@@ -11,6 +11,8 @@ const csp = [
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https:",
   "font-src 'self' data:",
+  // Video compression in the browser (mediabunny) runs helpers in blob: workers.
+  "worker-src 'self' blob:",
   `connect-src 'self' https:${isDev ? " ws: http://localhost:*" : ""}`,
   "frame-src https://challenges.cloudflare.com https://player.vimeo.com https://www.youtube-nocookie.com https://www.youtube.com https://www.tiktok.com",
   "frame-ancestors 'self'",

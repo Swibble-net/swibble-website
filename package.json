@@ -24,6 +24,7 @@
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
     "firebase-admin": "^14.1.0",
+    "mediabunny": "^1.61.5",
     "next": "16.2.7",
     "nodemailer": "^8.0.10",
     "pdf-lib": "^1.17.1",

@@ -74,13 +74,23 @@ export function toCreator(id: string, data: Partial<CreatorDocument>): CreatorPr
       snapchat: data.socials?.snapchat ?? "",
       youtube: data.socials?.youtube ?? "",
     },
+    // Off unless switched on in the CMS: creators are contacted through Swibble.
+    publicSocials: (data.publicSocials ?? []).filter((p) =>
+      ["instagram", "tiktok", "youtube", "snapchat"].includes(p),
+    ),
     portfolioUrl: data.portfolioUrl ?? "",
+    showPortfolio: data.showPortfolio === true,
     setcardPath: data.setcardPath ?? "",
     setcardType: data.setcardType ?? "",
     showSetcard: data.showSetcard === true,
-    photos: data.photos ?? [],
+    photos: (data.photos ?? []).map((photo) => ({
+      ...photo,
+      caption: photo.caption ?? "",
+      hidden: photo.hidden === true,
+    })),
     videos: (data.videos ?? []).map((video) => ({
       ...video,
+      hidden: video.hidden === true,
       // Never render a stored URL that is not one of our own web copies.
       videoUrl: isTrustedMediaUrl(video.videoUrl) ? video.videoUrl : "",
       coverUrl: isTrustedMediaUrl(video.coverUrl) ? video.coverUrl : "",
@@ -378,7 +388,9 @@ export async function createCreatorFromApplication(
     city: application.city,
     tagline: "",
     socials: application.socials,
+    publicSocials: [],
     portfolioUrl: application.portfolioUrl,
+    showPortfolio: false,
     setcardPath: "",
     setcardType: "",
     showSetcard: false,
@@ -406,6 +418,8 @@ export async function createCreatorFromApplication(
       width: size?.width ?? 0,
       height: size?.height ?? 0,
       origin: "application",
+      caption: "",
+      hidden: false,
     });
   }
 
@@ -498,6 +512,8 @@ export async function addCreatorPhoto(
     width: size?.width ?? 0,
     height: size?.height ?? 0,
     origin: "swibble",
+    caption: "",
+    hidden: false,
   };
   return store.mutate(profile.id, (current) => ({
     ...withoutId(current),
@@ -556,6 +572,7 @@ const emptyVideo = (id: string, source: CreatorVideo["source"], title: string): 
   size: 0,
   width: 0,
   height: 0,
+  hidden: false,
 });
 
 /** Maps the Swibble app's job state onto a creator video. */
@@ -670,6 +687,31 @@ export async function completeCreatorVideoUpload(
     videos: current.videos.map((v) => (v.id === video.id ? { ...v, status: "ready" } : v)),
   }));
   return updated ? { ok: true, profile: updated } : { ok: false, message: "Nicht gefunden." };
+}
+
+/** Shows or hides one photo / video on the page without deleting it. */
+export async function setCreatorMediaHidden(
+  profile: CreatorProfile,
+  kind: "photo" | "video",
+  id: string,
+  hidden: boolean,
+): Promise<CreatorProfile | null> {
+  return backend().mutate(profile.id, (current) =>
+    kind === "photo"
+      ? { ...withoutId(current), photos: current.photos.map((p) => (p.id === id ? { ...p, hidden } : p)) }
+      : { ...withoutId(current), videos: current.videos.map((v) => (v.id === id ? { ...v, hidden } : v)) },
+  );
+}
+
+export async function updateCreatorPhotoCaption(
+  profile: CreatorProfile,
+  photoId: string,
+  caption: string,
+): Promise<CreatorProfile | null> {
+  return backend().mutate(profile.id, (current) => ({
+    ...withoutId(current),
+    photos: current.photos.map((p) => (p.id === photoId ? { ...p, caption } : p)),
+  }));
 }
 
 export async function updateCreatorVideoTitle(

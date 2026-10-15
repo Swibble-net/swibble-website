@@ -1,4 +1,5 @@
 import type { CreatorRole } from "@/lib/applications/config";
+import type { SocialPlatform } from "@/lib/applications/handles";
 import type { ApplicationSocials } from "@/lib/applications/types";
 
 /** A photo on a creator page: a large version and a thumbnail (private bucket). */
@@ -10,6 +11,10 @@ export interface CreatorPhoto {
   height: number;
   /** "application" = sent with the application, "swibble" = added in the CMS */
   origin: "application" | "swibble";
+  /** Short caption / reference, e.g. "Aquis Plaza · TikTok-Moderation" */
+  caption: string;
+  /** Kept in the CMS but not shown on the page */
+  hidden: boolean;
 }
 
 export type CreatorVideoStatus = "uploading" | "processing" | "ready" | "failed";
@@ -35,6 +40,8 @@ export interface CreatorVideo {
   size: number;
   width: number;
   height: number;
+  /** Kept in the CMS but not shown on the page */
+  hidden: boolean;
 }
 
 /** Customer or project the creator worked on. */
@@ -62,8 +69,12 @@ export interface CreatorProfile {
   city: string;
   /** One short line under the name */
   tagline: string;
+  /** Kept for Swibble; only the platforms in publicSocials appear on the page */
   socials: ApplicationSocials;
+  publicSocials: SocialPlatform[];
   portfolioUrl: string;
+  /** Show the portfolio link on the page (off by default: contact goes via Swibble) */
+  showPortfolio: boolean;
   /** Setcard taken over from the application (private bucket path, "" = none) */
   setcardPath: string;
   setcardType: string;
@@ -86,7 +97,9 @@ export interface CreatorProfileInput {
   city: string;
   tagline: string;
   socials: ApplicationSocials;
+  publicSocials: SocialPlatform[];
   portfolioUrl: string;
+  showPortfolio: boolean;
   showSetcard: boolean;
   references: CreatorReference[];
 }
@@ -109,6 +122,7 @@ export interface PublicCreator {
     thumbUrl: string;
     width: number;
     height: number;
+    caption: string;
   }>;
   videos: Array<{
     id: string;
