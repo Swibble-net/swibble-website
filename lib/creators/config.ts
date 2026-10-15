@@ -57,13 +57,19 @@ export function videoChunkCount(size: number): number {
  * Default display name: first name plus initial ("Testina T."). The full
  * name can be set in the CMS; the default keeps the surname off the web.
  */
+/** Full name for the CMS; the public pages only ever show the first name. */
 export function defaultCreatorName(firstName: string, lastName: string): string {
-  const initial = lastName.trim().charAt(0);
-  return `${firstName.trim()}${initial ? ` ${initial.toUpperCase()}.` : ""}`.trim();
+  return `${firstName.trim()} ${lastName.trim()}`.trim();
 }
 
+/** What visitors see of a name: the first name only. */
+export function publicName(name: string): string {
+  return name.trim().split(/\s+/)[0] ?? "";
+}
+
+/** URL base of a page: the first name (a random part is added on creation). */
 export function slugBase(name: string): string {
-  return (slugify(name) || "creator").slice(0, SLUG_MAX_LENGTH).replace(/-+$/, "");
+  return (slugify(publicName(name)) || "creator").slice(0, SLUG_MAX_LENGTH - 6).replace(/-+$/, "");
 }
 
 /* ── Media URLs (served by /api/creator-media) ─────────────────────────── */
@@ -96,7 +102,7 @@ export function toPublicCreator(profile: CreatorProfile): PublicCreator {
   return {
     id: profile.id,
     slug: profile.slug,
-    name: profile.name,
+    name: publicName(profile.name),
     roles: profile.roles,
     city: profile.city,
     tagline: profile.tagline,

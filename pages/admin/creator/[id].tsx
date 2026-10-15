@@ -523,7 +523,7 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable, homeVideos }: Props) 
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className={labelClass} htmlFor="c-name">Name auf der Seite</label>
+                <label className={labelClass} htmlFor="c-name">Name (öffentlich nur der Vorname)</label>
                 <input id="c-name" className={inputClass} value={form.name} maxLength={60} onChange={(e) => set("name", e.target.value)} />
               </div>
               <div>
