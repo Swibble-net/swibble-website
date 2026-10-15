@@ -580,6 +580,26 @@ export async function removeIncomingPhoto(name: string): Promise<void> {
   ]);
 }
 
+/** A video in `incoming/`: `<name>.mp4` plus an optional `<name>-cover.jpg`. */
+export async function readIncomingVideo(
+  name: string,
+): Promise<{ video: Buffer; cover: Buffer | null } | null> {
+  const store = backend();
+  const [video, cover] = await Promise.all([
+    store.readFile(`${INCOMING_FOLDER}${name}.mp4`),
+    store.readFile(`${INCOMING_FOLDER}${name}-cover.jpg`),
+  ]);
+  return video ? { video, cover } : null;
+}
+
+export async function removeIncomingVideo(name: string): Promise<void> {
+  const store = backend();
+  await Promise.all([
+    store.deleteFile(`${INCOMING_FOLDER}${name}.mp4`),
+    store.deleteFile(`${INCOMING_FOLDER}${name}-cover.jpg`),
+  ]);
+}
+
 export async function removeCreatorPhoto(
   profile: CreatorProfile,
   photoId: string,
