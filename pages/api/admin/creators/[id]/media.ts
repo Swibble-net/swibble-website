@@ -11,9 +11,11 @@ import {
   VIDEO_TITLE_MAX_LENGTH,
   isValidId,
 } from "@/lib/creators/config";
+import { fetchHomeVideo } from "@/lib/creators/homeVideos";
 import {
   addCreatorAppVideo,
   addCreatorPhoto,
+  addCreatorVideoFile,
   getCreator,
   removeCreatorPhoto,
   removeCreatorVideo,
@@ -26,7 +28,8 @@ import {
 import { AppVideoError, publishAppVideo } from "@/lib/videos/appVideos";
 
 // Photos arrive base64 encoded: large (≤ 1.6 MB) + thumbnail in one request.
-export const config = { api: { bodyParser: { sizeLimit: "4.5mb" } } };
+// Copying a home page video downloads it on the server: allow some time.
+export const config = { api: { bodyParser: { sizeLimit: "4.5mb" } }, maxDuration: 60 };
 
 const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
 
@@ -46,6 +49,7 @@ function title(value: unknown): string {
 
 /**
  * POST {type:"photo", large, thumb} | {type:"appVideo", assetId, fileId, title}
+ *      | {type:"homeVideo", videoId, title} (copy of a home page video)
  *      | {type:"upload", size, contentType, title, width, height}
  * PATCH {type:"order", kind, ids} | {type:"videoTitle", videoId, title}
  *       | {type:"photoCaption", photoId, caption} | {type:"visibility", kind, id, hidden}
@@ -86,6 +90,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // The picker expects the added item under `video`.
       const video = creator?.videos.find((v) => v.appJobId === job.jobId) ?? null;
       return res.status(201).json({ creator, video });
+    }
+
+    if (req.method === "POST" && body.type === "homeVideo") {
+      if (profile.videos.length >= VIDEOS_MAX) {
+        return res.status(400).json({ message: `Höchstens ${VIDEOS_MAX} Videos pro Creator.` });
+      }
+      if (!isValidId(body.videoId)) return res.status(400).json({ message: "Ungültiges Video." });
+      const file = await fetchHomeVideo(body.videoId);
+      if (!file) return res.status(404).json({ message: "Das Video der Startseite konnte nicht übernommen werden." });
+      const creator = await addCreatorVideoFile(profile, {
+        ...file,
+        title: title(body.title ?? file.accountName),
+      });
+      return res.status(201).json({ creator });
     }
 
     if (req.method === "POST" && body.type === "upload") {
