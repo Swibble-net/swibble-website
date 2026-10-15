@@ -10,6 +10,7 @@ import {
   preparePhoto,
   type PreparedFile,
 } from "@/lib/applications/clientFile";
+import { inspectVideo, videoType } from "@/lib/applications/clientVideo";
 import {
   PHONE_COUNTRIES,
   PINNED_PHONE_COUNTRIES,
@@ -36,7 +37,11 @@ export type PhotoItem = PreparedFile & { previewUrl: string };
  * Selected photos, shrunk in the browser one by one. `onError` receives a
  * user-facing message (or "" to clear the previous one).
  */
-export function usePhotos(max: number, onError: (message: string) => void) {
+export function usePhotos(
+  max: number,
+  onError: (message: string) => void,
+  prepare: (file: File) => Promise<PhotoItem> = preparePhoto,
+) {
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [busy, setBusy] = useState(false);
 
@@ -54,7 +59,7 @@ export function usePhotos(max: number, onError: (message: string) => void) {
     setBusy(true);
     try {
       for (const file of chosen.slice(0, Math.max(0, free))) {
-        const prepared = await preparePhoto(file);
+        const prepared = await prepare(file);
         setPhotos((prev) => [...prev, prepared]);
       }
     } catch (err) {
@@ -413,6 +418,152 @@ export function PhotoPicker({
           ? "Fotos werden verkleinert …"
           : `${photos.length} von ${max} Fotos ausgewählt.`}{" "}
         {hint}
+      </p>
+      {error}
+    </div>
+  );
+}
+
+export interface VideoItem {
+  file: File;
+  contentType: string;
+  /** Object URL of the cover frame ("" when the browser can't read the video) */
+  previewUrl: string;
+  cover: Blob | null;
+}
+
+/** Selected videos: format and size checked, a cover frame taken right away. */
+export function useVideos(max: number, maxBytes: number, onError: (message: string) => void) {
+  const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [busy, setBusy] = useState(false);
+
+  const add = async (e: ChangeEvent<HTMLInputElement>) => {
+    const chosen = [...(e.target.files ?? [])];
+    e.target.value = "";
+    onError("");
+    if (chosen.length === 0) return;
+    const free = max - videos.length;
+    const problems: string[] = [];
+    if (chosen.length > free) problems.push(`Du kannst höchstens ${max} Videos hochladen.`);
+
+    setBusy(true);
+    try {
+      for (const file of chosen.slice(0, Math.max(0, free))) {
+        const contentType = videoType(file);
+        if (!contentType) {
+          problems.push(`${file.name}: Bitte ein MP4-, MOV- oder WebM-Video wählen.`);
+          continue;
+        }
+        if (file.size > maxBytes) {
+          problems.push(
+            `${file.name} ist größer als ${Math.round(maxBytes / 1024 ** 2)} MB – bitte kürzen oder kleiner exportieren.`,
+          );
+          continue;
+        }
+        const { cover } = await inspectVideo(file);
+        setVideos((prev) => [
+          ...prev,
+          { file, contentType, cover, previewUrl: cover ? URL.createObjectURL(cover) : "" },
+        ]);
+      }
+    } finally {
+      setBusy(false);
+      if (problems.length > 0) onError(problems.join(" "));
+    }
+  };
+
+  const remove = (index: number) => {
+    setVideos((prev) => {
+      if (prev[index].previewUrl) URL.revokeObjectURL(prev[index].previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
+    onError("");
+  };
+
+  return { videos, busy, add, remove };
+}
+
+const formatMb = (bytes: number) =>
+  `${(bytes / 1024 ** 2).toLocaleString("de-DE", { maximumFractionDigits: 1 })} MB`;
+
+/** Optional videos (from the photo library): covers, size, remove, add. */
+export function VideoPicker({
+  videos,
+  max,
+  busy,
+  onAdd,
+  onRemove,
+  invalidProps,
+  error,
+  hint,
+}: {
+  videos: VideoItem[];
+  max: number;
+  busy: boolean;
+  onAdd: (e: ChangeEvent<HTMLInputElement>) => void;
+  onRemove: (index: number) => void;
+  invalidProps: ErrorProps;
+  error: ReactNode;
+  hint?: ReactNode;
+}) {
+  const full = videos.length >= max;
+  return (
+    <div>
+      <ul className="grid grid-cols-3 gap-2.5">
+        {videos.map((video, index) => (
+          <li key={`${video.file.name}-${index}`} className="relative">
+            <div className="flex aspect-[9/16] w-full items-center justify-center overflow-hidden rounded-xl bg-[#000D36] text-3xl">
+              {video.previewUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- local object URL preview
+                <img src={video.previewUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <span aria-hidden>🎬</span>
+              )}
+            </div>
+            <span className="absolute bottom-1.5 left-1.5 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-medium text-[#000D36]">
+              {formatMb(video.file.size)}
+            </span>
+            <button
+              type="button"
+              onClick={() => onRemove(index)}
+              aria-label={`Video ${index + 1} entfernen`}
+              className="absolute -right-1.5 -top-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-[#000D36] text-base font-bold text-white shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B718EC]"
+            >
+              ×
+            </button>
+          </li>
+        ))}
+        {!full && (
+          <li className={videos.length === 0 ? "col-span-3" : undefined}>
+            <label
+              className={`flex w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed bg-white p-2 text-center text-[#B718EC] motion-safe:transition hover:bg-[#FDF5FF] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#B718EC]/40 ${
+                videos.length === 0 ? "py-5" : "aspect-[9/16]"
+              } ${invalidProps["aria-invalid"] ? "border-red-400" : "border-[#d8c7e0]"} ${
+                busy ? "cursor-wait opacity-60" : ""
+              }`}
+            >
+              <span className="text-2xl leading-none" aria-hidden>
+                {busy ? "⏳" : videos.length === 0 ? "🎬" : "+"}
+              </span>
+              <span className="text-sm font-semibold">
+                {busy ? "Wird geprüft …" : videos.length === 0 ? "Videos auswählen" : "Weitere"}
+              </span>
+              <input
+                id="f-videos"
+                type="file"
+                multiple
+                accept="video/*,.mov,.mp4,.m4v,.webm"
+                onChange={onAdd}
+                disabled={busy}
+                className="sr-only"
+                {...invalidProps}
+              />
+            </label>
+          </li>
+        )}
+      </ul>
+      <p className="mt-2 text-xs text-[#8a7791]" aria-live="polite">
+        {videos.length} von {max} Videos. {hint}
       </p>
       {error}
     </div>

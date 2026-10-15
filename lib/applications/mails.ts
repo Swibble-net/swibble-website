@@ -65,13 +65,15 @@ function buildCreatorApplicantMail(a: Application, logoSrc?: string): BuiltMail 
     {
       title: "Deine Bewerbung für den Swibble Creator Pool ist angekommen",
       heading: `Danke für deine Bewerbung, ${a.firstName}!`,
-      intro:
-        "Deine Bewerbung für den Swibble Creator Pool ist bei uns angekommen. Wir schauen uns dein Profil in Ruhe an und melden uns bei dir – per E-Mail, WhatsApp oder über deine Kanäle –, sobald es passt.",
+      intro: a.isMinor
+        ? "Deine Bewerbung für den Swibble Creator Pool ist bei uns angekommen, zusammen mit der Unterschrift deiner Eltern. Wir schauen uns dein Profil in Ruhe an und melden uns bei dir und deinen Eltern, sobald es passt."
+        : "Deine Bewerbung für den Swibble Creator Pool ist bei uns angekommen. Wir schauen uns dein Profil in Ruhe an und melden uns bei dir – per E-Mail, WhatsApp oder über deine Kanäle –, sobald es passt.",
       rowsLabel: "Deine Bewerbung",
       rows: [
         { label: "Beworben als", value: roles(a) },
         { label: "Name", value: `${a.firstName} ${a.lastName}` },
         { label: "Fotos", value: `${a.photos.length} hochgeladen` },
+        ...(a.videos.length > 0 ? [{ label: "Videos", value: `${a.videos.length} hochgeladen` }] : []),
         ...(a.setcardFile ? [{ label: "Setcard", value: "hochgeladen" }] : []),
         ...(a.portfolioUrl ? [{ label: "Portfolio", value: a.portfolioUrl }] : []),
       ],
@@ -132,19 +134,22 @@ export function buildGuardianMail(a: Application, logoSrc?: string): BuiltMail |
   if (!a.isMinor || !a.guardian?.email) return null;
 
   const signedOnline = a.guardian.method === "signature";
+  const creator = a.pool === "creator";
 
   return build(
     {
       title: `Bewerbung von ${a.firstName} bei Swibble – Ihr Einverständnis`,
       heading: `Guten Tag ${a.guardian.name},`,
-      intro: signedOnline
+      intro: creator
+        ? `${a.firstName} ${a.lastName} hat sich für den Swibble Creator Pool beworben, und Sie haben dazu online Ihr Einverständnis als erziehungsberechtigte Person gegeben. Zur Bestätigung finden Sie hier noch einmal Ihre Erklärung im Wortlaut.`
+        : signedOnline
         ? `${a.firstName} ${a.lastName} hat sich bei Swibble beworben, und Sie haben dazu online Ihr Einverständnis als erziehungsberechtigte Person gegeben. Zur Bestätigung finden Sie hier noch einmal die Erklärung im Wortlaut.`
         : `${a.firstName} ${a.lastName} hat sich bei Swibble beworben und dazu eine von Ihnen unterschriebene Einverständniserklärung hochgeladen. Sie wurden dabei als erziehungsberechtigte Person angegeben.`,
       rowsLabel: "Die Bewerbung",
       rows: [
         { label: "Kind", value: `${a.firstName} ${a.lastName}` },
         { label: "Beworben als", value: roles(a) },
-        { label: "Center", value: center(a) },
+        ...(creator ? [] : [{ label: "Center", value: center(a) }]),
         {
           label: "Einverständnis",
           value: signedOnline
@@ -158,7 +163,7 @@ export function buildGuardianMail(a: Application, logoSrc?: string): BuiltMail |
         "Wer wir sind und was wir für Einkaufszentren produzieren, sehen Sie auf unserer Website.",
       cta: { href: SITE_URL, label: "Swibble kennenlernen" },
       closing: ["Freundliche Grüße", "Ihr Swibble-Team"],
-      footerNote: `Sie erhalten diese E-Mail, weil Ihre E-Mail-Adresse bei einer Bewerbung über swibble.net/bewerben als Kontakt der erziehungsberechtigten Person angegeben wurde. Sie sind nicht einverstanden, möchten Ihr Einverständnis widerrufen oder wissen nichts davon? Schreiben Sie an ${EMAIL} – wir löschen die Bewerbung dann umgehend.`,
+      footerNote: `Sie erhalten diese E-Mail, weil Ihre E-Mail-Adresse bei einer Bewerbung über ${formUrl(a)} als Kontakt der erziehungsberechtigten Person angegeben wurde. Sie sind nicht einverstanden, möchten Ihr Einverständnis widerrufen oder wissen nichts davon? Schreiben Sie an ${EMAIL} – wir löschen die Bewerbung dann umgehend.`,
     },
     logoSrc,
   );
@@ -186,7 +191,9 @@ export function buildInternalMail(
             { label: "Name", value: `${a.firstName} ${a.lastName}` },
             { label: "Bewirbt sich als", value: roles(a) },
             { label: "Fotos", value: String(a.photos.length) },
+            { label: "Videos", value: String(a.videos.length) },
             { label: "Setcard", value: a.setcardFile ? "ja" : "nein" },
+            { label: "Minderjährig", value: a.isMinor ? "ja" : "nein" },
           ]
         : [
             { label: "Name", value: `${a.firstName} ${a.lastName}` },

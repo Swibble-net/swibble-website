@@ -1,26 +1,30 @@
+import crypto from "crypto";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
 import {
   CONSENT_VERSION,
   CONTACT_CONSENT_TEXT,
   CREATOR_CONSENT_VERSION,
+  CREATOR_PHOTO_MAX_COUNT,
   CREATOR_PHOTO_MIN_COUNT,
   CREATOR_RELEASE_CLAUSES,
+  CREATOR_VIDEO_MAX_BYTES,
+  CREATOR_VIDEO_MAX_COUNT,
+  CREATOR_VIDEO_TYPES,
   GUARDIAN_CONFIRM_TEXT,
   GUARDIAN_ONLINE_ACCEPT_TEXT,
   MEDIA_CONSENT_TEXT,
   PHOTO_MAX_COUNT,
   PRIVACY_ACK_TEXT,
+  UPLOAD_CHUNK_BYTES,
+  UPLOAD_TOKEN_HOURS,
+  creatorGuardianText,
   creatorReleaseText,
   guardianDeclarationText,
 } from "@/lib/applications/config";
 import { applicationsToCsv } from "@/lib/applications/csv";
-import {
-  parseConsentFile,
-  parsePhoto,
-  parseReleaseDocument,
-  parseSetcard,
-} from "@/lib/applications/fileType";
+import { parseConsentFile, parsePhoto } from "@/lib/applications/fileType";
+import { hashUploadToken } from "@/lib/applications/uploadToken";
 import { sendApplicationMails } from "@/lib/applications/notify";
 import { createRateLimiter } from "@/lib/applications/rateLimit";
 import { getApplicationSettings } from "@/lib/applications/settings";
@@ -200,6 +204,9 @@ async function handleVideos(body: Body, res: NextApiResponse) {
       releaseFile: null,
       setcardFile: null,
       photos: [],
+      videos: [],
+      incomplete: false,
+      pendingUpload: null,
       status: "neu",
       note: "",
       createdAt: now,
@@ -221,51 +228,74 @@ async function handleVideos(body: Body, res: NextApiResponse) {
 }
 
 /**
- * /bewerben/creator: Swibble Creator Pool. Adults only; photos and the release
- * signed online are mandatory, setcard and portfolio link optional.
+ * /bewerben/creator: Swibble Creator Pool. Only the form data comes with this
+ * request: the application is stored as incomplete together with the files
+ * the browser announces, and the browser gets a one-time upload token. The
+ * files follow via /api/applications/<id>/upload, which completes it.
  */
 async function handleCreator(body: Body, res: NextApiResponse) {
   const result = validateCreatorApplication(body, new Date());
   if (!result.ok) throw new FieldErrors(result.errors);
 
-  const photos = parsePhotos(body);
-  if (photos.length < CREATOR_PHOTO_MIN_COUNT) {
-    throw new FieldErrors({ photos: "Bitte lade mindestens ein Foto von dir hoch." });
+  const files =
+    body.files && typeof body.files === "object" ? (body.files as Body) : {};
+  const photoCount = Number(files.photos);
+  if (
+    !Number.isInteger(photoCount) ||
+    photoCount < CREATOR_PHOTO_MIN_COUNT ||
+    photoCount > CREATOR_PHOTO_MAX_COUNT
+  ) {
+    throw new FieldErrors({
+      photos: `Bitte lade ${CREATOR_PHOTO_MIN_COUNT} bis ${CREATOR_PHOTO_MAX_COUNT} Fotos von dir hoch.`,
+    });
   }
-
-  const release = parseReleaseDocument(fileData(body.releaseFile));
-  if (!release.ok) throw new FieldErrors({ signature: release.error });
-
-  let setcard: ConsentUpload | null = null;
-  if (body.setcardFile !== undefined && body.setcardFile !== null) {
-    const file = parseSetcard(fileData(body.setcardFile));
-    if (!file.ok) throw new FieldErrors({ setcard: file.error });
-    setcard = { buffer: file.buffer, type: file.type };
+  const rawVideos = Array.isArray(files.videos) ? files.videos : [];
+  if (rawVideos.length > CREATOR_VIDEO_MAX_COUNT) {
+    throw new FieldErrors({ videos: `Höchstens ${CREATOR_VIDEO_MAX_COUNT} Videos.` });
   }
+  const videos = rawVideos.map((raw) => {
+    const video = (raw ?? {}) as Body;
+    const size = Number(video.size);
+    const contentType = String(video.contentType ?? "");
+    if (
+      !Number.isInteger(size) ||
+      size <= 0 ||
+      size > CREATOR_VIDEO_MAX_BYTES ||
+      !(CREATOR_VIDEO_TYPES as readonly string[]).includes(contentType)
+    ) {
+      throw new FieldErrors({
+        videos: `Videos bitte als MP4, MOV oder WebM mit höchstens ${CREATOR_VIDEO_MAX_BYTES / 1024 ** 2} MB.`,
+      });
+    }
+    return { size, contentType };
+  });
 
   if (!isApplicationStoreAvailable() || !isConsentUploadAvailable()) {
     // Photos and the signed release are the point of this application.
     return res.status(503).json({ message: UNAVAILABLE_MESSAGE });
   }
 
+  const token = crypto.randomBytes(24).toString("base64url");
   const now = Date.now();
   const { firstName, lastName, roles } = result.value;
+  const childName = `${firstName} ${lastName}`;
   const application = await createApplication(
     {
       ...result.value,
       pool: "creator",
       centerName: "",
-      isMinor: false,
+      isMinor: result.isMinor,
       ageAtSubmission: result.age,
       consent: {
         // The storage/contact clause of the signed release.
         contactText: CREATOR_RELEASE_CLAUSES[4],
         privacyText: PRIVACY_ACK_TEXT,
         mediaText: "",
-        guardianText: "",
-        guardianDeclaration: "",
+        guardianText: result.isMinor ? GUARDIAN_ONLINE_ACCEPT_TEXT : "",
+        // Exact wording the parents signed (minors).
+        guardianDeclaration: result.isMinor ? creatorGuardianText(childName, roles) : "",
         // Exact wording that was signed, with name and roles filled in.
-        creatorRelease: creatorReleaseText(`${firstName} ${lastName}`, roles),
+        creatorRelease: creatorReleaseText(childName, roles),
         version: CREATOR_CONSENT_VERSION,
         givenAt: now,
       },
@@ -273,22 +303,28 @@ async function handleCreator(body: Body, res: NextApiResponse) {
       releaseFile: null,
       setcardFile: null,
       photos: [],
+      videos: [],
+      incomplete: true,
+      pendingUpload: {
+        tokenHash: hashUploadToken(token),
+        expiresAt: now + UPLOAD_TOKEN_HOURS * 60 * 60 * 1000,
+        photos: photoCount,
+        videos,
+        setcard: files.setcard === true,
+        consent: result.isMinor,
+      },
       status: "neu",
       note: "",
       createdAt: now,
       updatedAt: now,
     },
-    {
-      consent: null,
-      release: { buffer: release.buffer, type: release.type },
-      setcard,
-      photos,
-    },
+    { consent: null, release: null, setcard: null, photos: [] },
   );
 
-  await sendApplicationMails(application);
-
-  return res.status(201).json({ success: true });
+  // Mails follow once the files are complete.
+  return res
+    .status(201)
+    .json({ id: application.id, token, chunkBytes: UPLOAD_CHUNK_BYTES });
 }
 
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {

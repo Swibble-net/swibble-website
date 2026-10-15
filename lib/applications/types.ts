@@ -35,6 +35,30 @@ export interface ApplicationConsentFile {
   size: number;
 }
 
+/** A video sent with a creator pool application (private bucket). */
+export interface ApplicationVideo {
+  path: string;
+  contentType: string;
+  size: number;
+  /** Frame taken from the video in the browser ("" = none) */
+  coverPath: string;
+}
+
+/**
+ * Files a creator pool application announced when it was stored; they are
+ * uploaded one by one with the token afterwards.
+ */
+export interface PendingUpload {
+  /** sha256 of the upload token (the token itself only goes to the browser) */
+  tokenHash: string;
+  expiresAt: number;
+  photos: number;
+  videos: Array<{ size: number; contentType: string }>;
+  setcard: boolean;
+  /** Parental consent document (minors) */
+  consent: boolean;
+}
+
 export interface ApplicationConsent {
   contactText: string;
   privacyText: string;
@@ -89,6 +113,12 @@ export interface Application extends ApplicationData {
   releaseFile: ApplicationConsentFile | null;
   /** Creator pool: optional setcard / portfolio (PDF or image) */
   setcardFile: ApplicationConsentFile | null;
+  /** Creator pool: optional videos */
+  videos: ApplicationVideo[];
+  /** Stored, but the files never arrived completely (upload aborted) */
+  incomplete: boolean;
+  /** Only while the files are being uploaded */
+  pendingUpload: PendingUpload | null;
   status: ApplicationStatus;
   /** Internal admin note */
   note: string;

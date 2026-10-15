@@ -81,7 +81,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 /** Parental consent of a minor, signed online on /bewerben. */
 export function renderDeclarationDocument(
   input: DeclarationDocumentInput,
-): Promise<{ data: string; size: number }> {
+): Promise<{ data: string; size: number; blob: Blob }> {
   return renderSignedDocument({
     tag: "Bewerbung · Einverständnis der Eltern",
     title: "Einverständniserklärung der Erziehungsberechtigten",
@@ -112,7 +112,7 @@ export function renderDeclarationDocument(
 /** Returns the document as base64 JPEG (without the data: prefix). */
 export async function renderSignedDocument(
   input: SignedDocumentInput,
-): Promise<{ data: string; size: number }> {
+): Promise<{ data: string; size: number; blob: Blob }> {
   const signature = await loadImage(input.signatureDataUrl);
   const logo = await loadImage(Wordmark.src).catch(() => null);
 
@@ -269,5 +269,5 @@ export async function renderSignedDocument(
     reader.readAsDataURL(blob);
   });
 
-  return { data: dataUrl.slice(dataUrl.indexOf(",") + 1), size: blob.size };
+  return { data: dataUrl.slice(dataUrl.indexOf(",") + 1), size: blob.size, blob };
 }

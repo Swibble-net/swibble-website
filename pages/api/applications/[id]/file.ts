@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
 import {
+  applicationVideoSource,
   getApplication,
   readApplicationFile,
   type ApplicationFileTarget,
@@ -32,7 +33,27 @@ export default async function handler(
     let target: ApplicationFileTarget = { kind: "consent" };
     const photoParam = req.query.photo;
     const fileParam = req.query.file;
-    if (photoParam !== undefined) {
+    const videoParam = req.query.video ?? req.query.videoCover;
+
+    // ?video=<index>: too large for a function response, a signed link instead.
+    if (videoParam !== undefined) {
+      const index = typeof videoParam === "string" ? Number(videoParam) : NaN;
+      if (!Number.isInteger(index) || index < 0 || index > 20) {
+        return res.status(400).json({ message: "Ungültiges Video." });
+      }
+      const application = await getApplication(id);
+      if (!application) return res.status(404).json({ message: "Nicht gefunden." });
+      if (req.query.videoCover !== undefined) {
+        target = { kind: "videoCover", index };
+      } else {
+        const source = await applicationVideoSource(application, index);
+        if (!source) return res.status(404).json({ message: "Kein Video vorhanden." });
+        res.setHeader("Cache-Control", "private, no-store");
+        if (source.kind === "redirect") return res.redirect(302, source.url);
+        res.setHeader("Content-Type", source.contentType);
+        return res.status(200).send(source.buffer);
+      }
+    } else if (photoParam !== undefined) {
       const index = typeof photoParam === "string" ? Number(photoParam) : NaN;
       if (!Number.isInteger(index) || index < 0 || index > 20) {
         return res.status(400).json({ message: "Ungültiges Foto." });
@@ -56,6 +77,8 @@ export default async function handler(
     const filename =
       target.kind === "photo"
         ? `foto-${short}-${target.index + 1}.${file.extension}`
+        : target.kind === "videoCover"
+          ? `video-cover-${short}-${target.index + 1}.jpg`
         : target.kind === "release"
           ? `creator-freigabe-${short}.${file.extension}`
           : target.kind === "setcard"

@@ -1,5 +1,5 @@
 import Script from "next/script";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 type TurnstileWidgetProps = {
   /** Receives the token, to be verified server-side (see lib/turnstile.ts). */
@@ -28,6 +28,15 @@ declare global {
   }
 }
 
+const subscribeNever = () => () => {};
+
+/**
+ * Cloudflare only accepts the site key on swibble.net; on Vercel preview
+ * deployments the widget would show "Verbinden zur Website nicht möglich"
+ * (error 110200). Previews get a plain note instead.
+ */
+const isPreviewHost = () => window.location.hostname.endsWith(".vercel.app");
+
 const TurnstileWidget = ({
   onVerify,
   onExpire,
@@ -41,6 +50,7 @@ const TurnstileWidget = ({
   const [scriptReady, setScriptReady] = useState(false);
   const [scriptFailed, setScriptFailed] = useState(false);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const preview = useSyncExternalStore(subscribeNever, isPreviewHost, () => false);
 
   // Keep the latest callbacks without re-rendering the widget.
   useEffect(() => {
@@ -51,6 +61,7 @@ const TurnstileWidget = ({
 
   const renderWidget = useCallback(() => {
     if (
+      isPreviewHost() ||
       !containerRef.current ||
       !window.turnstile ||
       !siteKey ||
@@ -82,6 +93,15 @@ const TurnstileWidget = ({
   }, []);
 
   if (!siteKey) return null;
+
+  if (preview) {
+    return (
+      <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
+        Vorschau: Der Spam-Schutz von Cloudflare läuft nur auf swibble.net – hier
+        lässt sich nicht absenden.
+      </p>
+    );
+  }
 
   return (
     <>

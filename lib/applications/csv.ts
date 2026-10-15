@@ -39,6 +39,8 @@ const COLUMNS: Array<[string, (a: Application) => string | number | boolean]> = 
   ],
   ["Muttizettel vorhanden", (a) => (a.consentFile ? "ja" : "nein")],
   ["Fotos", (a) => a.photos.length],
+  ["Videos", (a) => a.videos.length],
+  ["Upload unvollständig", (a) => (a.incomplete ? "ja" : "nein")],
   ["Setcard vorhanden", (a) => (a.setcardFile ? "ja" : "nein")],
   ["Creator-Freigabe unterschrieben", (a) => (a.releaseFile ? "ja" : "nein")],
   ["Einwilligung Veröffentlichung", (a) => (a.consent.mediaText ? "ja" : "nein")],
