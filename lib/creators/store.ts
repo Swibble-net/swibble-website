@@ -554,6 +554,32 @@ export async function addCreatorPhoto(
   }));
 }
 
+/**
+ * Photos placed in the bucket's `incoming/` folder by an admin (e.g. with
+ * gsutil, for files that only exist on a computer): `<name>-large.jpg` and
+ * `<name>-thumb.jpg`. Read once and removed after the import.
+ */
+export const INCOMING_FOLDER = "incoming/";
+
+export async function readIncomingPhoto(
+  name: string,
+): Promise<{ large: Buffer; thumb: Buffer } | null> {
+  const store = backend();
+  const [large, thumb] = await Promise.all([
+    store.readFile(`${INCOMING_FOLDER}${name}-large.jpg`),
+    store.readFile(`${INCOMING_FOLDER}${name}-thumb.jpg`),
+  ]);
+  return large && thumb ? { large, thumb } : null;
+}
+
+export async function removeIncomingPhoto(name: string): Promise<void> {
+  const store = backend();
+  await Promise.all([
+    store.deleteFile(`${INCOMING_FOLDER}${name}-large.jpg`),
+    store.deleteFile(`${INCOMING_FOLDER}${name}-thumb.jpg`),
+  ]);
+}
+
 export async function removeCreatorPhoto(
   profile: CreatorProfile,
   photoId: string,

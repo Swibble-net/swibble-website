@@ -17,7 +17,9 @@ import {
   addCreatorPhoto,
   addCreatorVideoFile,
   getCreator,
+  readIncomingPhoto,
   removeCreatorPhoto,
+  removeIncomingPhoto,
   removeCreatorVideo,
   reorderCreatorMedia,
   setCreatorMediaHidden,
@@ -33,12 +35,14 @@ export const config = { api: { bodyParser: { sizeLimit: "4.5mb" } }, maxDuration
 
 const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
 
+const isJpegWithin = (buffer: Buffer, maxBytes: number) =>
+  buffer.length > 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff && buffer.length <= maxBytes;
+
 function jpeg(value: unknown, maxBytes: number): Buffer | null {
   if (typeof value !== "string" || !BASE64.test(value)) return null;
   if (value.length > Math.ceil(maxBytes / 3) * 4 + 4) return null;
   const buffer = Buffer.from(value, "base64");
-  const isJpeg = buffer.length > 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
-  return isJpeg && buffer.length <= maxBytes ? buffer : null;
+  return isJpegWithin(buffer, maxBytes) ? buffer : null;
 }
 
 function title(value: unknown): string {
@@ -50,6 +54,7 @@ function title(value: unknown): string {
 /**
  * POST {type:"photo", large, thumb} | {type:"appVideo", assetId, fileId, title}
  *      | {type:"homeVideo", videoId, title} (copy of a home page video)
+ *      | {type:"importPhoto", name} (from the bucket's incoming/ folder)
  *      | {type:"upload", size, contentType, title, width, height}
  * PATCH {type:"order", kind, ids} | {type:"videoTitle", videoId, title}
  *       | {type:"photoCaption", photoId, caption} | {type:"visibility", kind, id, hidden}
@@ -75,6 +80,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const thumb = jpeg(body.thumb, PHOTO_THUMB_MAX_BYTES);
       if (!large || !thumb) return res.status(400).json({ message: "Das Foto konnte nicht gelesen werden." });
       return res.status(201).json({ creator: await addCreatorPhoto(profile, large, thumb) });
+    }
+
+    if (req.method === "POST" && body.type === "importPhoto") {
+      if (profile.photos.length >= PHOTOS_MAX) {
+        return res.status(400).json({ message: `Höchstens ${PHOTOS_MAX} Fotos pro Creator.` });
+      }
+      const name = typeof body.name === "string" && /^[a-z0-9-]{1,64}$/.test(body.name) ? body.name : "";
+      const files = name ? await readIncomingPhoto(name) : null;
+      if (
+        !files ||
+        !isJpegWithin(files.large, PHOTO_LARGE_MAX_BYTES) ||
+        !isJpegWithin(files.thumb, PHOTO_THUMB_MAX_BYTES)
+      ) {
+        return res.status(404).json({ message: "Kein passendes Foto im Upload-Ordner." });
+      }
+      const creator = await addCreatorPhoto(profile, files.large, files.thumb);
+      await removeIncomingPhoto(name);
+      return res.status(201).json({ creator });
     }
 
     if (req.method === "POST" && body.type === "appVideo") {
