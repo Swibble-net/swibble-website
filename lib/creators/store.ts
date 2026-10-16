@@ -69,6 +69,7 @@ export function toCreator(id: string, data: Partial<CreatorDocument>): CreatorPr
     consentConfirmedAt: data.consentConfirmedAt ?? 0,
     slug: data.slug ?? "",
     published: data.published === true,
+    position: typeof data.position === "number" ? data.position : -1,
     name: data.name ?? "",
     roles,
     city: data.city ?? "",
@@ -329,9 +330,24 @@ export function isCreatorStoreAvailable(): boolean {
   return backend().available();
 }
 
+/** Order of the CMS and /creator: the sorted position, unsorted (new) ones first, newest first. */
+export function sortCreators(creators: CreatorProfile[]): CreatorProfile[] {
+  return [...creators].sort((a, b) => a.position - b.position || b.createdAt - a.createdAt);
+}
+
 export async function listCreators(): Promise<CreatorProfile[]> {
   if (!isCreatorStoreAvailable()) return [];
-  return backend().list();
+  return sortCreators(await backend().list());
+}
+
+/** Saves the order from the CMS; creators missing in `ids` keep their place after them. */
+export async function reorderCreators(ids: string[]): Promise<void> {
+  const store = backend();
+  await Promise.all(
+    ids.map((id, position) =>
+      store.mutate(id, (current) => ({ ...withoutId(current), position })),
+    ),
+  );
 }
 
 export async function getCreator(id: string): Promise<CreatorProfile | null> {
@@ -387,6 +403,7 @@ export async function createCreatorFromApplication(
   const profile = await store.create({
     applicationId: application.id,
     consentConfirmedAt: 0,
+    position: -1,
     slug: await uniqueSlug(`${slugBase(name)}-${slugSuffix()}`),
     published: false,
     name,
@@ -480,6 +497,7 @@ export async function createCreatorWithoutApplication(name: string): Promise<Cre
   return backend().create({
     applicationId: "",
     consentConfirmedAt: now,
+    position: -1,
     slug: await uniqueSlug(`${slugBase(name)}-${slugSuffix()}`),
     published: false,
     name,

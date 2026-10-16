@@ -1,18 +1,20 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { requireAdmin } from "@/lib/adminAuth";
 import { getApplication } from "@/lib/applications/store";
-import { validateCreatorName } from "@/lib/creators/config";
+import { isValidId, validateCreatorName } from "@/lib/creators/config";
 import {
   createCreatorFromApplication,
   createCreatorWithoutApplication,
   getCreatorForApplication,
   isCreatorStoreAvailable,
   listCreators,
+  reorderCreators,
 } from "@/lib/creators/store";
 
 /**
  * GET: all creator pages · POST {applicationId}: page from an application
  * · POST {name, consent: true}: empty page without an application
+ * · PATCH {order: ids}: order of /creator
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!requireAdmin(req, res)) return;
@@ -52,7 +54,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(201).json({ creator });
     }
 
-    res.setHeader("Allow", "GET, POST");
+    if (req.method === "PATCH") {
+      const order = (req.body ?? {}).order;
+      if (!Array.isArray(order) || order.length > 500 || !order.every(isValidId)) {
+        return res.status(400).json({ message: "Ungültige Reihenfolge." });
+      }
+      await reorderCreators(order);
+      return res.status(200).json({ creators: await listCreators() });
+    }
+
+    res.setHeader("Allow", "GET, POST, PATCH");
     return res.status(405).json({ message: "Method not allowed" });
   } catch (error) {
     console.error("[/api/admin/creators]", error instanceof Error ? error.name : "UnknownError");

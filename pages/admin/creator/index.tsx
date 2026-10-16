@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import type { GetServerSideProps } from "next";
 import AdminNav from "@/components/admin/AdminNav";
 import CreatorRoleToggles from "@/components/admin/CreatorRoleToggles";
+import { SortableGrid, SortableTile, dragHandleClass, moveItem } from "@/components/SortableGrid";
 import { isAuthenticated } from "@/lib/adminAuth";
 import { roleLabel, type CreatorRole } from "@/lib/applications/config";
 import { calculateAge, parseIsoDate, todayInBerlin } from "@/lib/applications/age";
@@ -46,6 +47,20 @@ const formatDate = (ms: number) =>
 const AdminCreators = ({ creators: initialCreators, open, available }: Props) => {
   const router = useRouter();
   const [creators, setCreators] = useState(initialCreators);
+
+  /** Drag and drop: show the new order at once, then save it for /creator. */
+  const moveCreator = async (from: number, to: number) => {
+    const next = moveItem(creators, from, to);
+    setCreators(next);
+    setError("");
+    const res = await fetch("/api/admin/creators", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order: next.map((c) => c.id) }),
+    }).catch(() => null);
+    if (res?.status === 401) return router.push("/admin/login");
+    if (!res?.ok) setError("Die Reihenfolge konnte nicht gespeichert werden.");
+  };
   const [creating, setCreating] = useState("");
   const [error, setError] = useState("");
   const [manualName, setManualName] = useState("");
@@ -202,12 +217,34 @@ const AdminCreators = ({ creators: initialCreators, open, available }: Props) =>
           Noch keine Creator-Seiten.
         </p>
       ) : (
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {creators.map((c) => (
-            <li
+        <>
+        <p className="mb-2 text-xs text-[#8a7791]">
+          Reihenfolge wie auf /creator – zum Sortieren am Griff ⠿ ziehen (am Handy gedrückt halten).
+        </p>
+        <SortableGrid
+          ids={creators.map((c) => c.id)}
+          onMove={moveCreator}
+          label="Creator"
+          className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+        >
+          {creators.map((c, index) => (
+            <SortableTile
               key={c.id}
+              id={c.id}
               className="overflow-hidden rounded-xl border border-[#F0E4F5] bg-white transition hover:border-[#b718ec]/50 hover:shadow-sm"
             >
+              {({ handle, dragging }) => (
+              <>
+              <button
+                type="button"
+                {...handle}
+                aria-label={`${c.name} verschieben (Platz ${index + 1})`}
+                className={`absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-lg text-[#556987] shadow ${dragHandleClass} ${
+                  dragging ? "ring-2 ring-[#B718EC]" : ""
+                }`}
+              >
+                <span aria-hidden>⠿</span>
+              </button>
               <Link href={`/admin/creator/${c.id}`} className="block">
                 <div className="relative aspect-[4/5] bg-[#FDF5FF]">
                   {c.cover && (
@@ -243,9 +280,12 @@ const AdminCreators = ({ creators: initialCreators, open, available }: Props) =>
                   }
                 />
               </div>
-            </li>
+              </>
+              )}
+            </SortableTile>
           ))}
-        </ul>
+        </SortableGrid>
+        </>
       )}
     </section>
   </>
