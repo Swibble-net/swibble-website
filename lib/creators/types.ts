@@ -66,6 +66,8 @@ export interface CreatorProfile {
   slug: string;
   /** Only published profiles are public */
   published: boolean;
+  /** Place on /creator, set by drag and drop in the CMS (-1 = not sorted yet: newest first, before the rest) */
+  position: number;
   name: string;
   roles: CreatorRole[];
   city: string;

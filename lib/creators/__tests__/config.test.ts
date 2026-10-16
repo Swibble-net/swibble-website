@@ -11,7 +11,7 @@ import {
   videoChunkCount,
 } from "../config";
 import { imageSize } from "../imageSize";
-import { reorderById, toCreator } from "../store";
+import { reorderById, sortCreators, toCreator } from "../store";
 
 let counter = 0;
 const newId = () => `gen${++counter}`;
@@ -201,5 +201,17 @@ describe("imageSize", () => {
     ]);
     expect(imageSize(jpeg)).toEqual({ width: 200, height: 300 });
     expect(imageSize(Buffer.from("not an image"))).toBeNull();
+  });
+});
+
+describe("sortCreators", () => {
+  it("follows the CMS order, new (unsorted) creators first and newest first", () => {
+    const creators = [
+      toCreator("a", { position: 1, createdAt: 1 }),
+      toCreator("b", { position: 0, createdAt: 2 }),
+      toCreator("new-old", { createdAt: 3 }),
+      toCreator("new", { createdAt: 4 }),
+    ];
+    expect(sortCreators(creators).map((c) => c.id)).toEqual(["new", "new-old", "b", "a"]);
   });
 });
