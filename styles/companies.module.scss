@@ -28,6 +28,39 @@
     }
 }
 
+// Small strip: no band, little spacing, smaller logos (e.g. /creator).
+.mini {
+    margin: 1.5rem 0 2rem;
+    padding: 0;
+
+    @media screen and (min-width: 640px) {
+        margin: 2rem 0 2.5rem;
+        padding: 0;
+    }
+
+    .description {
+        margin-bottom: 0.75rem;
+    }
+
+    .slide {
+        --logo-width: 5.5rem;
+        --logo-height: 2.25rem;
+
+        @media screen and (min-width: 640px) {
+            --logo-width: 7rem;
+            --logo-height: 2.5rem;
+        }
+    }
+
+    .track {
+        --carousel-gap: 1.25rem;
+
+        @media screen and (min-width: 640px) {
+            --carousel-gap: 2rem;
+        }
+    }
+}
+
 .background {
     width: 100vw;
     position: absolute;

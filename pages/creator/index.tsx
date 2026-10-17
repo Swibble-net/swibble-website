@@ -4,6 +4,7 @@ import type { GetServerSideProps } from "next";
 import SEO from "@/components/SEO";
 import CreatorCard from "@/components/creators/CreatorCard";
 import InquiryForm from "@/components/creators/InquiryForm";
+import ListOfCompanies from "@/components/ListOfCompanies";
 import { CREATOR_ROLES, type CreatorRole } from "@/lib/applications/config";
 import { toPublicCreator } from "@/lib/creators/config";
 import { getPublishedCreators } from "@/lib/creators/store";
@@ -52,6 +53,8 @@ const CreatorOverview = ({ creators }: Props) => {
             </span>
           </Link>
         </header>
+
+        <ListOfCompanies mini />
 
         {roles.length > 1 && (
           <div className="mb-6 flex flex-wrap justify-center gap-2" role="group" aria-label="Nach Rolle filtern">

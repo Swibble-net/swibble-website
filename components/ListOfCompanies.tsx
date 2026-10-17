@@ -25,11 +25,14 @@ const CompanyLogoSlide = ({
 interface Props {
   /** Tighter vertical spacing for pages where the carousel sits between other sections. */
   compact?: boolean;
+  /** Small strip without waves and background band, e.g. on /creator. */
+  mini?: boolean;
 }
 
-const ListOfCompanies = ({ compact = false }: Props) => {
+const ListOfCompanies = ({ compact = false, mini = false }: Props) => {
   return (
-    <div className={`${styles.container} ${compact ? styles.compact : ""}`}>
+    <div className={`${styles.container} ${compact ? styles.compact : ""} ${mini ? styles.mini : ""}`}>
+      {!mini && (
       <div className={styles.wave_top} aria-hidden>
         <svg
           data-name="Layer 1"
@@ -43,9 +46,14 @@ const ListOfCompanies = ({ compact = false }: Props) => {
           ></path>
         </svg>
       </div>
-      <div className={styles.background} aria-hidden></div>
+      )}
+      {!mini && <div className={styles.background} aria-hidden></div>}
       <div className={styles.description}>
-        <p className="text-center text-base lg:text-lg font-normal text-[#707070]">Diese Unternehmen vertrauen Swibble bereits</p>
+        <p
+          className={`text-center font-normal text-[#707070] ${mini ? "text-xs sm:text-sm" : "text-base lg:text-lg"}`}
+        >
+          Diese Unternehmen vertrauen Swibble bereits
+        </p>
       </div>
 
       <div className={styles.carousel} aria-label="Partner-Unternehmen">
@@ -59,6 +67,7 @@ const ListOfCompanies = ({ compact = false }: Props) => {
         </div>
       </div>
 
+      {!mini && (
       <div className={styles.wave_bottom} aria-hidden>
         <svg
           data-name="Layer 1"
@@ -72,6 +81,7 @@ const ListOfCompanies = ({ compact = false }: Props) => {
           ></path>
         </svg>
       </div>
+      )}
     </div>
   );
 };
