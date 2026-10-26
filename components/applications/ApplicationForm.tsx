@@ -239,7 +239,7 @@ const ApplicationForm = ({
       );
     }, 0);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [enabledRoles]);
 
   const monthRef = useRef<HTMLInputElement>(null);
   const yearRef = useRef<HTMLInputElement>(null);

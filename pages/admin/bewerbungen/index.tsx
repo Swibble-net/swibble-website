@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 import type { GetServerSideProps } from "next";
 import { isAuthenticated } from "@/lib/adminAuth";
@@ -75,6 +76,7 @@ const AdminApplications = ({
   uploadsAvailable,
   turnstileEnforced,
 }: Props) => {
+  const router = useRouter();
   const [enabledRoles, setEnabledRoles] = useState(initialEnabledRoles);
   const [savingRoles, setSavingRoles] = useState(false);
 
@@ -90,7 +92,7 @@ const AdminApplications = ({
         body: JSON.stringify({ enabledRoles: next }),
       });
       if (res.status === 401) {
-        window.location.href = "/admin/login";
+        router.push("/admin/login");
         return;
       }
       const data = await res.json().catch(() => null);
