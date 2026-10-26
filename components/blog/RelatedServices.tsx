@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { CTA_LABEL, CTA_URL } from "@/lib/cta";
+import CtaLink from "@/components/CtaLink";
+import { CTA_LABEL } from "@/lib/cta";
 import { SERVICE_LINKS } from "@/lib/navLinks";
 import type { RelatedService } from "@/lib/landing/related";
 
@@ -70,12 +71,9 @@ const RelatedServices = ({ services }: Props) => {
 
       <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 text-sm text-[#556987]">
         <span>Du willst wissen, was davon zu dir passt?</span>
-        <a
-          href={CTA_URL}
-          className="inline-block rounded-2xl bg-[#B718EC] px-5 py-3 text-center font-medium text-[#F0FDF4] transition duration-200 hover:scale-95 motion-reduce:transform-none motion-reduce:transition-none"
-        >
+        <CtaLink className="inline-block rounded-2xl bg-[#B718EC] px-5 py-3 text-center font-medium text-[#F0FDF4] transition duration-200 hover:scale-95 motion-reduce:transform-none motion-reduce:transition-none">
           {CTA_LABEL}
-        </a>
+        </CtaLink>
       </p>
     </aside>
   );
