@@ -284,7 +284,7 @@ const AdminOfferEditor = ({ initial, creators }: Props) => {
 
         <Card
           title={`Creator & Preise (${form.items.length})`}
-          hint="Reihenfolge wie auf der Seite. Der Preis ist freier Text, z. B. „450 € netto / Drehtag“ – leer bleibt „Preis auf Anfrage“."
+          hint="Reihenfolge wie auf der Seite. Preise netto – die Seite zeigt „Preis (netto)“ und „zzgl. MwSt.“. Freier Text, z. B. „450 € / Drehtag“; leer bleibt „Preis auf Anfrage“."
         >
           {form.items.length === 0 ? (
             <p className="rounded-lg bg-[#FDF5FF] p-4 text-sm text-[#556987]">Unten Creator hinzufügen.</p>
@@ -347,7 +347,7 @@ const AdminOfferEditor = ({ initial, creators }: Props) => {
                           value={item.price}
                           onChange={(e) => updateItem(index, { price: e.target.value })}
                           maxLength={PRICE_MAX_LENGTH}
-                          placeholder="Preis, z. B. 450 € netto / Drehtag"
+                          placeholder="Preis netto, z. B. 450 € / Drehtag"
                           aria-label={`Preis für ${creator?.name ?? "Creator"}`}
                           className={inputClass}
                         />
