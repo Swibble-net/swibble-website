@@ -1,5 +1,6 @@
 import type { CreatorRole } from "@/lib/applications/config";
 import type { SocialPlatform } from "@/lib/applications/handles";
+import type { ProfileFacts } from "@/lib/applications/profileFacts";
 import type { ApplicationSocials } from "@/lib/applications/types";
 
 /** A photo on a creator page: a large version and a thumbnail (private bucket). */
@@ -55,7 +56,8 @@ export interface CreatorReference {
   url: string;
 }
 
-export interface CreatorProfile {
+/** Gender, height, nationality and languages (ProfileFacts) are shown on the page when set. */
+export interface CreatorProfile extends ProfileFacts {
   /** Firestore document id */
   id: string;
   /** Application the profile was created from ("" = none / deleted) */
@@ -93,7 +95,7 @@ export interface CreatorProfile {
 }
 
 /** Profile fields editable in the CMS (media have their own endpoints). */
-export interface CreatorProfileInput {
+export interface CreatorProfileInput extends ProfileFacts {
   slug: string;
   published: boolean;
   name: string;
@@ -109,7 +111,7 @@ export interface CreatorProfileInput {
 }
 
 /** What a public page may show — no application link, no storage paths. */
-export interface PublicCreator {
+export interface PublicCreator extends ProfileFacts {
   id: string;
   slug: string;
   name: string;

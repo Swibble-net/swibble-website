@@ -5,9 +5,11 @@ import { useCallback, useEffect, useState, type ChangeEvent, type ReactNode } fr
 import type { GetServerSideProps } from "next";
 import AppVideoPicker from "@/components/admin/AppVideoPicker";
 import CreatorRoleToggles from "@/components/admin/CreatorRoleToggles";
+import { CountrySelect, LanguagePicker } from "@/components/applications/formParts";
 import { SortableGrid, SortableTile, dragHandleClass, moveItem } from "@/components/SortableGrid";
 import { isAuthenticated } from "@/lib/adminAuth";
 import type { CreatorRole } from "@/lib/applications/config";
+import { GENDERS, LANGUAGES_MAX, type Gender } from "@/lib/applications/profileFacts";
 import {
   PHOTOS_MAX,
   REFERENCES_MAX,
@@ -58,6 +60,11 @@ type FormState = {
   roles: CreatorRole[];
   city: string;
   tagline: string;
+  gender: Gender | "";
+  /** Digits as typed; "" = not given */
+  heightCm: string;
+  nationalities: string[];
+  languages: string[];
   socials: CreatorProfile["socials"];
   publicSocials: CreatorProfile["publicSocials"];
   portfolioUrl: string;
@@ -73,6 +80,10 @@ const formOf = (c: CreatorProfile): FormState => ({
   roles: c.roles,
   city: c.city,
   tagline: c.tagline,
+  gender: c.gender,
+  heightCm: c.heightCm ? String(c.heightCm) : "",
+  nationalities: c.nationalities,
+  languages: c.languages,
   socials: c.socials,
   publicSocials: c.publicSocials,
   portfolioUrl: c.portfolioUrl,
@@ -562,6 +573,68 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable, homeVideos }: Props) 
                 <input id="c-city" className={inputClass} value={form.city} maxLength={80} onChange={(e) => set("city", e.target.value)} />
               </div>
             </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className={labelClass} htmlFor="c-gender">Geschlecht</label>
+                <select
+                  id="c-gender"
+                  className={inputClass}
+                  value={form.gender}
+                  onChange={(e) => set("gender", e.target.value as Gender | "")}
+                >
+                  <option value="">– nicht angegeben –</option>
+                  {GENDERS.map((g) => (
+                    <option key={g.id} value={g.id}>{g.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="c-height">Größe in cm</label>
+                <input
+                  id="c-height"
+                  className={inputClass}
+                  value={form.heightCm}
+                  inputMode="numeric"
+                  placeholder="z. B. 172"
+                  onChange={(e) => set("heightCm", e.target.value.replace(/\D/g, "").slice(0, 3))}
+                />
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="c-nationality">Nationalität</label>
+                <CountrySelect
+                  id="c-nationality"
+                  className={inputClass}
+                  value={form.nationalities[0] ?? ""}
+                  emptyLabel="– nicht angegeben –"
+                  onChange={(code) =>
+                    set(
+                      "nationalities",
+                      [code, form.nationalities[1] ?? ""].filter((c, i, list) => c && list.indexOf(c) === i),
+                    )
+                  }
+                />
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="c-nationality2">Zweite Nationalität</label>
+                <CountrySelect
+                  id="c-nationality2"
+                  className={inputClass}
+                  value={form.nationalities[1] ?? ""}
+                  emptyLabel="Keine"
+                  exclude={form.nationalities.slice(0, 1)}
+                  onChange={(code) => set("nationalities", [form.nationalities[0] ?? "", code].filter(Boolean))}
+                />
+              </div>
+            </div>
+            <fieldset>
+              <legend className={labelClass}>Sprachen</legend>
+              <LanguagePicker value={form.languages} onChange={(next) => set("languages", next)} max={LANGUAGES_MAX} />
+            </fieldset>
+            <p className="-mt-2 text-xs text-[#8a7791]">
+              Geschlecht, Größe, Nationalität und Sprachen stehen als Steckbrief auf der Seite – leere Felder
+              werden nicht angezeigt.
+            </p>
 
             <div>
               <label className={labelClass} htmlFor="c-slug">Adresse</label>

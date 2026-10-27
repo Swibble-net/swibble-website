@@ -1,4 +1,9 @@
 import { poolLabel, roleLabel, statusLabel } from "./config";
+import {
+  formatLanguages,
+  formatNationalities,
+  genderLabel,
+} from "./profileFacts";
 import type { Application } from "./types";
 
 /** Escapes one CSV cell; neutralises spreadsheet formulas (=, +, -, @). */
@@ -20,6 +25,10 @@ const COLUMNS: Array<[string, (a: Application) => string | number | boolean]> = 
   ["Minderjährig (bei Bewerbung)", (a) => (a.isMinor ? "ja" : "nein")],
   ["PLZ", (a) => a.postalCode],
   ["Ort", (a) => a.city],
+  ["Geschlecht", (a) => genderLabel(a.gender)],
+  ["Größe (cm)", (a) => a.heightCm || ""],
+  ["Nationalität", (a) => formatNationalities(a.nationalities)],
+  ["Sprachen", (a) => formatLanguages(a.languages)],
   ["E-Mail", (a) => a.email],
   ["Handy", (a) => a.phone],
   ["TikTok", (a) => a.socials.tiktok],

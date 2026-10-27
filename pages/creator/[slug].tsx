@@ -15,6 +15,12 @@ import InquiryForm from "@/components/creators/InquiryForm";
 import { isAuthenticated } from "@/lib/adminAuth";
 import { roleLabel } from "@/lib/applications/config";
 import { SOCIAL_PLATFORMS, profileUrl, type SocialPlatform } from "@/lib/applications/handles";
+import {
+  formatHeight,
+  formatLanguages,
+  formatNationalities,
+  genderLabel,
+} from "@/lib/applications/profileFacts";
 import { toPublicCreator } from "@/lib/creators/config";
 import { refreshCreatorAppVideos } from "@/lib/creators/appVideos";
 import { getCreatorBySlug } from "@/lib/creators/store";
@@ -48,6 +54,19 @@ const CreatorPage = ({ creator, preview }: Props) => {
   const socials = (["instagram", "tiktok", "youtube", "snapchat"] as const).filter(
     (platform) => creator.socials[platform],
   );
+  // Steckbrief: only what is set (older profiles may have gaps).
+  const facts = [
+    { label: "Geschlecht", value: genderLabel(creator.gender) },
+    { label: "Größe", value: formatHeight(creator.heightCm) },
+    {
+      label: creator.nationalities.length > 1 ? "Nationalitäten" : "Nationalität",
+      value: formatNationalities(creator.nationalities),
+    },
+    {
+      label: creator.languages.length > 1 ? "Sprachen" : "Sprache",
+      value: formatLanguages(creator.languages),
+    },
+  ].filter((fact) => fact.value);
 
   return (
     <>
@@ -86,6 +105,17 @@ const CreatorPage = ({ creator, preview }: Props) => {
               {creator.city && ` · ${creator.city}`}
             </p>
             {creator.tagline && <p className="mt-3 text-base text-[#2A3342]">{creator.tagline}</p>}
+
+            {facts.length > 0 && (
+              <dl className="mt-5 grid grid-cols-2 gap-2 sm:max-w-lg">
+                {facts.map((fact) => (
+                  <div key={fact.label} className="rounded-2xl bg-[#FDF5FF] px-4 py-2.5 ring-1 ring-[#F0E6F4]">
+                    <dt className="text-xs font-medium uppercase tracking-wide text-[#8a7791]">{fact.label}</dt>
+                    <dd className="mt-0.5 font-semibold text-[#000D36]">{fact.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
 
             {socials.length > 0 && (
               <ul className="mt-5 flex flex-wrap gap-2">

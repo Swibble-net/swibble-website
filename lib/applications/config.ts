@@ -199,7 +199,7 @@ export const RELEASE_FILE_MAX_BYTES = 800 * 1024;
 
 export const PORTFOLIO_URL_MAX_LENGTH = 300;
 
-export const CREATOR_CONSENT_VERSION = "2026-10-creator-v3";
+export const CREATOR_CONSENT_VERSION = "2026-10-creator-v4";
 
 /**
  * Release the creator signs online. Single source for the signing step, the
@@ -210,8 +210,8 @@ export const CREATOR_RELEASE_INTRO =
   "Ich, {name}, möchte in den Swibble Creator Pool der Swibble UG (haftungsbeschränkt), Königstraße 30, 52064 Aachen, aufgenommen werden – als: {roles}. Dazu erkläre ich:";
 
 export const CREATOR_RELEASE_CLAUSES = [
-  "Vorstellung bei Kunden: Swibble darf mich als „Swibble Creator“ bestehenden und möglichen Kunden vorstellen und mich für Aufträge vorschlagen. Dafür darf Swibble meinen Namen, mein Alter, meinen Wohnort (Stadt), meine Fotos, meine Social-Media-Profile samt Reichweite sowie meine Setcard bzw. mein Portfolio an diese Kunden weitergeben, z. B. in Angeboten, Präsentationen und Creator-Übersichten. Meine Telefonnummer und E-Mail-Adresse gibt Swibble nur nach Rücksprache mit mir weiter.",
-  "Werbung mit mir als Swibble Creator: Swibble darf mich als Teil des Swibble-Creator-Netzwerks zeigen und dafür meinen Namen, meine Fotos und meine Social-Media-Profile auf der eigenen Website, in den eigenen Social-Media-Kanälen, in Pitch-Decks und in sonstigem Werbematerial verwenden und verlinken.",
+  "Vorstellung bei Kunden: Swibble darf mich als „Swibble Creator“ bestehenden und möglichen Kunden vorstellen und mich für Aufträge vorschlagen. Dafür darf Swibble meinen Namen, mein Alter, meinen Wohnort (Stadt), meinen Steckbrief (Geschlecht, Größe, Nationalität, Sprachen), meine Fotos, meine Social-Media-Profile samt Reichweite sowie meine Setcard bzw. mein Portfolio an diese Kunden weitergeben, z. B. in Angeboten, Präsentationen und Creator-Übersichten. Meine Telefonnummer und E-Mail-Adresse gibt Swibble nur nach Rücksprache mit mir weiter.",
+  "Werbung mit mir als Swibble Creator: Swibble darf mich als Teil des Swibble-Creator-Netzwerks zeigen und dafür meinen Namen, meinen Wohnort (Stadt), meinen Steckbrief (Geschlecht, Größe, Nationalität, Sprachen), meine Fotos und meine Social-Media-Profile auf der eigenen Website, in den eigenen Social-Media-Kanälen, in Pitch-Decks und in sonstigem Werbematerial verwenden und verlinken.",
   "Rechte an Fotos und Unterlagen: Ich versichere, dass die hochgeladenen Fotos mich zeigen und dass ich sie sowie meine Setcard bzw. mein Portfolio für diese Zwecke nutzen und weitergeben darf (z. B. mit Zustimmung der Fotografin bzw. des Fotografen).",
   "Aufträge: Die Aufnahme in den Creator Pool verpflichtet weder mich noch Swibble zu einer Zusammenarbeit. Für jeden konkreten Auftrag – einschließlich Vergütung und Nutzungsrechten an den dabei entstehenden Inhalten – treffen wir eine eigene Vereinbarung.",
   "Speicherung und Kontakt: Swibble speichert meine Angaben, Fotos, Unterlagen und diese Erklärung im Creator Pool bis zu meinem Widerruf und darf mich per E-Mail, Telefon/WhatsApp und über meine Social-Media-Profile kontaktieren.",

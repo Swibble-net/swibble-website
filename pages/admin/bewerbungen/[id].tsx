@@ -18,6 +18,12 @@ import {
   profileUrl,
   type SocialPlatform,
 } from "@/lib/applications/handles";
+import {
+  formatHeight,
+  formatLanguages,
+  formatNationalities,
+  genderLabel,
+} from "@/lib/applications/profileFacts";
 import { getApplication } from "@/lib/applications/store";
 import { getCreatorForApplication } from "@/lib/creators/store";
 import type { Application } from "@/lib/applications/types";
@@ -386,6 +392,14 @@ const AdminApplicationDetail = ({ application: initial, creatorId }: Props) => {
             <Row label="Wohnort">
               {application.postalCode} {application.city}
             </Row>
+            {application.gender && <Row label="Geschlecht">{genderLabel(application.gender)}</Row>}
+            {application.heightCm > 0 && <Row label="Größe">{formatHeight(application.heightCm)}</Row>}
+            {application.nationalities.length > 0 && (
+              <Row label="Nationalität">{formatNationalities(application.nationalities)}</Row>
+            )}
+            {application.languages.length > 0 && (
+              <Row label="Sprachen">{formatLanguages(application.languages)}</Row>
+            )}
             <Row label="E-Mail">
               <a href={`mailto:${application.email}`} className={linkClass}>
                 {application.email}
