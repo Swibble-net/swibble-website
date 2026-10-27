@@ -17,7 +17,16 @@ const subscribeNever = () => () => {};
  * Booking inquiry for one creator — or, without `slug`, a general request
  * for creators (/creator). Goes to Swibble by mail.
  */
-const InquiryForm = ({ slug, creatorName }: { slug?: string; creatorName?: string }) => {
+const InquiryForm = ({
+  slug,
+  creatorName,
+  previewToken = "",
+}: {
+  slug?: string;
+  creatorName?: string;
+  /** Unpublished page opened with its preview link: sent along so the inquiry gets through */
+  previewToken?: string;
+}) => {
   const formId = useId();
   const turnstileRequired = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
   const [fields, setFields] = useState({
@@ -71,7 +80,7 @@ const InquiryForm = ({ slug, creatorName }: { slug?: string; creatorName?: strin
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload, turnstileToken }),
+        body: JSON.stringify({ ...payload, turnstileToken, ...(previewToken ? { previewToken } : {}) }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {

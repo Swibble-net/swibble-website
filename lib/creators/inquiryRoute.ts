@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createRateLimiter } from "@/lib/applications/rateLimit";
+import { isAuthenticated } from "@/lib/adminAuth";
 import { verifyTurnstileToken } from "@/lib/turnstile";
+import { opensPreview } from "./config";
 import { validateCreatorInquiry } from "./inquiry";
 import { isMailConfigured, sendCreatorInquiry } from "./notify";
 import { getCreatorBySlug } from "./store";
@@ -18,7 +20,8 @@ const UNAVAILABLE =
 
 /**
  * POST handler for creator inquiries: for one published creator (slug) or a
- * general request from /creator (slug null).
+ * general request from /creator (slug null). Unpublished pages take
+ * inquiries through their preview link ({previewToken}) and from the admin.
  */
 export async function handleCreatorInquiry(
   req: NextApiRequest,
@@ -52,7 +55,9 @@ export async function handleCreatorInquiry(
     }
 
     const creator = slug === null ? null : await getCreatorBySlug(slug);
-    if (slug !== null && (!creator || !creator.published)) {
+    const reachable =
+      creator && (creator.published || opensPreview(creator, body.previewToken) || isAuthenticated(req));
+    if (slug !== null && !reachable) {
       return res.status(404).json({ message: "Diesen Creator gibt es nicht (mehr)." });
     }
 

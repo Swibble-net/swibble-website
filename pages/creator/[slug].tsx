@@ -30,6 +30,8 @@ interface Props {
   creator: PublicCreator;
   /** Unpublished page: for the signed-in admin or via the preview link from the CMS */
   preview: boolean;
+  /** Token of the preview link the page was opened with ("" otherwise), for inquiries */
+  previewToken: string;
 }
 
 const SITE_URL = "https://www.swibble.net";
@@ -48,7 +50,7 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
   </section>
 );
 
-const CreatorPage = ({ creator, preview }: Props) => {
+const CreatorPage = ({ creator, preview, previewToken }: Props) => {
   const cover = creator.photos[0];
   const roles = creator.roles.map((id) => roleLabel(id, "creator")).join(" · ");
   const socials = (["instagram", "tiktok", "youtube", "snapchat"] as const).filter(
@@ -224,14 +226,11 @@ const CreatorPage = ({ creator, preview }: Props) => {
             {creator.name.split(" ")[0]} für dein Projekt anfragen
           </h2>
           <div className="mt-5">
-            {preview ? (
-              // Inquiries only reach published creators.
-              <p className="rounded-xl bg-[#FDF5FF] p-4 text-sm text-[#556987]">
-                Anfragen sind möglich, sobald die Seite veröffentlicht ist.
-              </p>
-            ) : (
-              <InquiryForm slug={creator.slug} creatorName={creator.name.split(" ")[0]} />
-            )}
+            <InquiryForm
+              slug={creator.slug}
+              creatorName={creator.name.split(" ")[0]}
+              previewToken={previewToken}
+            />
           </div>
         </section>
       </article>
@@ -258,6 +257,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params, qu
     props: {
       creator: shared ? withPreviewToken(creator, profile.previewToken) : creator,
       preview: !profile.published,
+      previewToken: shared ? profile.previewToken : "",
     },
   };
 };
