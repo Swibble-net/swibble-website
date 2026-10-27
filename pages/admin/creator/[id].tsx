@@ -19,6 +19,7 @@ import {
   TAGLINE_MAX_LENGTH,
   VIDEOS_MAX,
   VIDEO_TITLE_MAX_LENGTH,
+  previewPath,
   thumbUrl,
   videoCoverUrl,
 } from "@/lib/creators/config";
@@ -34,6 +35,8 @@ interface Props {
   /** Finished videos of the home page carousel that can be copied */
   homeVideos: HomeVideoOption[];
 }
+
+const SITE_URL = "https://www.swibble.net";
 
 const inputClass =
   "w-full rounded-lg bg-[#F6F6F6] px-3 py-2 text-sm text-[#2A3342] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B718EC]/40";
@@ -120,6 +123,8 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable, homeVideos }: Props) 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [homeOpen, setHomeOpen] = useState(false);
   const [copying, setCopying] = useState("");
+  const [linkBusy, setLinkBusy] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const dirty = JSON.stringify(form) !== JSON.stringify(saved);
   const base = `/api/admin/creators/${creator.id}`;
@@ -188,6 +193,24 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable, homeVideos }: Props) 
   const togglePublished = () => {
     if (dirty && !confirm("Ungespeicherte Änderungen werden mitgespeichert. Fortfahren?")) return;
     save({ ...form, published: !saved.published });
+  };
+
+  const previewLink = creator.previewToken ? `${SITE_URL}${previewPath(saved.slug, creator.previewToken)}` : "";
+
+  const togglePreviewLink = async () => {
+    setLinkBusy(true);
+    setLinkCopied(false);
+    await call(base, { method: "PATCH", body: JSON.stringify({ previewLink: !creator.previewToken }) });
+    setLinkBusy(false);
+  };
+
+  const copyPreviewLink = async () => {
+    try {
+      await navigator.clipboard.writeText(previewLink);
+      setLinkCopied(true);
+    } catch {
+      setError("Kopieren ging nicht – bitte den Link im Feld markieren und kopieren.");
+    }
   };
 
   const updateReference = (index: number, patch: Partial<CreatorReference>) =>
@@ -329,6 +352,58 @@ const AdminCreatorEditor = ({ initial, appVideosAvailable, homeVideos }: Props) 
               timeZone: "Europe/Berlin",
             })}
           </p>
+        )}
+
+        {/* Draft pages can be shared before publishing; switched on or off at once. */}
+        {(!saved.published || creator.previewToken) && (
+          <section className="rounded-xl border border-[#F0E4F5] bg-white p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-sm font-semibold text-[#000D36]">Vorschau-Link</h2>
+                <p className="mt-0.5 text-xs text-[#8a7791]">
+                  {creator.previewToken
+                    ? "Jeder mit diesem Link sieht die Seite, auch ohne Anmeldung. Ausschalten macht den Link sofort ungültig – beim nächsten Einschalten gibt es einen neuen."
+                    : "Einschalten, um die Seite schon vor dem Veröffentlichen zu verschicken – auch an Personen ohne Anmeldung. Suchmaschinen sehen sie nicht."}
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={Boolean(creator.previewToken)}
+                aria-label="Vorschau-Link ein- oder ausschalten"
+                onClick={togglePreviewLink}
+                disabled={linkBusy}
+                className={`relative h-7 w-12 shrink-0 rounded-full transition-colors duration-200 disabled:opacity-50 ${
+                  creator.previewToken ? "bg-[#B718EC]" : "bg-[#d8c7e0]"
+                }`}
+              >
+                <span
+                  className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
+                    creator.previewToken ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+            {previewLink && (
+              <div className="mt-3 flex flex-wrap gap-2 sm:flex-nowrap">
+                <input
+                  readOnly
+                  value={previewLink}
+                  aria-label="Vorschau-Link"
+                  onFocus={(e) => e.target.select()}
+                  className={`${inputClass} min-w-0 flex-1`}
+                />
+                <button type="button" onClick={copyPreviewLink} className={outlineButton}>
+                  {linkCopied ? "Kopiert ✓" : "Link kopieren"}
+                </button>
+              </div>
+            )}
+            {saved.published && creator.previewToken && (
+              <p className="mt-2 text-xs text-[#556987]">
+                Die Seite ist veröffentlicht – der normale Link funktioniert ohnehin für alle.
+              </p>
+            )}
+          </section>
         )}
 
         <section className="rounded-xl border border-[#F0E4F5] bg-white p-4">

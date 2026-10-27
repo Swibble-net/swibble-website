@@ -68,6 +68,8 @@ export interface CreatorProfile extends ProfileFacts {
   slug: string;
   /** Only published profiles are public */
   published: boolean;
+  /** Secret of the preview link that opens the unpublished page without a login ("" = link off) */
+  previewToken: string;
   /** Place on /creator, set by drag and drop in the CMS (-1 = not sorted yet: newest first, before the rest) */
   position: number;
   name: string;

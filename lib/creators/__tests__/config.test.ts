@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   defaultCreatorName,
+  opensPreview,
   parseMediaFile,
+  previewPath,
   publicName,
   slugBase,
   toPublicCreator,
@@ -9,6 +11,7 @@ import {
   validateCreatorName,
   validateCreatorRoles,
   videoChunkCount,
+  withPreviewToken,
 } from "../config";
 import { imageSize } from "../imageSize";
 import { reorderById, sortCreators, toCreator } from "../store";
@@ -203,6 +206,60 @@ describe("toPublicCreator", () => {
     expect(toPublicCreator({ ...profile, showSetcard: true }).setcardUrl).toBe(
       "/api/creator-media/cr1/setcard",
     );
+  });
+});
+
+describe("preview link", () => {
+  const token = "Ab3_-Ab3_-Ab3_-Ab3_-Ab3_";
+  const APP_VIDEO = "https://firebasestorage.googleapis.com/v0/b/x/o/website-videos%2Fv.mp4?alt=media&token=t";
+  const draft = toCreator("cr2", {
+    slug: "vanessa-x",
+    published: false,
+    previewToken: token,
+    name: "Vanessa Test",
+    roles: ["model"],
+    setcardPath: "creators/cr2/setcard.pdf",
+    showSetcard: true,
+    photos: [
+      { id: "p1", path: "x", thumbPath: "y", width: 4, height: 5, origin: "swibble", caption: "", hidden: false },
+    ],
+    videos: [
+      { id: "v1", source: "upload", title: "", status: "ready", appJobId: "", videoUrl: "", coverUrl: "", path: "x", coverPath: "y", contentType: "video/mp4", size: 1, width: 9, height: 16, hidden: false },
+      { id: "v2", source: "app", title: "", status: "ready", appJobId: "j", videoUrl: APP_VIDEO, coverUrl: "", path: "", coverPath: "", contentType: "", size: 0, width: 0, height: 0, hidden: false },
+    ],
+  });
+
+  it("opens the draft only with the exact token while the link is on", () => {
+    expect(opensPreview(draft, token)).toBe(true);
+    expect(opensPreview(draft, token.toLowerCase())).toBe(false);
+    expect(opensPreview(draft, `${token}x`)).toBe(false);
+    expect(opensPreview(draft, [token])).toBe(false);
+    expect(opensPreview(draft, undefined)).toBe(false);
+    expect(opensPreview({ previewToken: "" }, "")).toBe(false);
+  });
+
+  it("drops stored tokens that don't look like one", () => {
+    expect(toCreator("cr3", { previewToken: "short" }).previewToken).toBe("");
+    expect(toCreator("cr3", {}).previewToken).toBe("");
+  });
+
+  it("never puts the token on the public page data by itself", () => {
+    expect(JSON.stringify(toPublicCreator(draft))).not.toContain(token);
+  });
+
+  it("adds the token to own media routes only", () => {
+    const shared = withPreviewToken(toPublicCreator(draft), token);
+    expect(shared.photos[0].url).toBe(`/api/creator-media/cr2/photo-p1?vorschau=${token}`);
+    expect(shared.photos[0].thumbUrl).toBe(`/api/creator-media/cr2/thumb-p1?vorschau=${token}`);
+    expect(shared.setcardUrl).toBe(`/api/creator-media/cr2/setcard?vorschau=${token}`);
+    expect(shared.videos[0].videoUrl).toBe(`/api/creator-media/cr2/video-v1?vorschau=${token}`);
+    expect(shared.videos[0].coverUrl).toBe(`/api/creator-media/cr2/cover-v1?vorschau=${token}`);
+    expect(shared.videos[1].videoUrl).toBe(APP_VIDEO);
+    expect(shared.videos[1].coverUrl).toBe("");
+  });
+
+  it("builds the link to send", () => {
+    expect(previewPath("vanessa-x", token)).toBe(`/creator/vanessa-x?vorschau=${token}`);
   });
 });
 
