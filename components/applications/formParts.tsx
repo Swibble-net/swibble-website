@@ -19,6 +19,13 @@ import {
   flagEmoji,
   phoneCountry,
 } from "@/lib/applications/phone";
+import {
+  LANGUAGES,
+  PINNED_NATIONALITIES,
+  POPULAR_LANGUAGES,
+  countryName,
+  languageLabel,
+} from "@/lib/applications/profileFacts";
 import type { ApplicationErrors } from "@/lib/applications/types";
 import { SortableGrid, SortableTile, dragHandleClass, moveItem } from "@/components/SortableGrid";
 
@@ -273,6 +280,117 @@ export function PhoneField({
         {...invalidProps}
       />
     </div>
+  );
+}
+
+/** Nationality picker: Germany on top, then all countries A–Z. */
+export function CountrySelect({
+  id,
+  value,
+  onChange,
+  emptyLabel,
+  exclude = [],
+  className = inputClass,
+  invalidProps,
+}: {
+  id: string;
+  value: string;
+  onChange: (code: string) => void;
+  /** Text of the empty choice */
+  emptyLabel: string;
+  /** Codes that can't be picked here, e.g. the first nationality */
+  exclude?: readonly string[];
+  className?: string;
+  invalidProps?: ErrorProps;
+}) {
+  const pinned = PINNED_NATIONALITIES.filter((code) => !exclude.includes(code));
+  return (
+    <select
+      id={id}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={className}
+      {...invalidProps}
+    >
+      <option value="">{emptyLabel}</option>
+      {pinned.map((code) => (
+        <option key={`pinned-${code}`} value={code}>
+          {flagEmoji(code)} {countryName(code)}
+        </option>
+      ))}
+      {pinned.length > 0 && (
+        <option disabled value="-">
+          ──────────
+        </option>
+      )}
+      {PHONE_COUNTRIES.filter((c) => !exclude.includes(c.code)).map((c) => (
+        <option key={c.code} value={c.code}>
+          {flagEmoji(c.code)} {c.name}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+/**
+ * Languages as toggle buttons: the common ones plus every one already
+ * chosen; the rest can be added from a "Weitere Sprache" list.
+ */
+export function LanguagePicker({
+  value,
+  onChange,
+  max,
+}: {
+  value: readonly string[];
+  onChange: (ids: string[]) => void;
+  max: number;
+}) {
+  const popular: readonly string[] = POPULAR_LANGUAGES;
+  const shown = [...popular, ...value.filter((id) => !popular.includes(id))];
+  const more = LANGUAGES.filter((l) => !shown.includes(l.id));
+  const full = value.length >= max;
+
+  return (
+    <>
+      <div className="flex flex-wrap gap-2">
+        {shown.map((id) => {
+          const checked = value.includes(id);
+          return (
+            <label
+              key={id}
+              className="inline-flex min-h-10 cursor-pointer items-center gap-1 rounded-full border-2 border-[#F0E6F4] bg-white px-4 text-sm font-medium text-[#000D36] motion-safe:transition hover:border-[#D9A5EE] has-[:checked]:border-[#B718EC] has-[:checked]:bg-[#FDF5FF] has-[:checked]:text-[#B718EC] has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#B718EC]/40"
+            >
+              <input
+                type="checkbox"
+                className="sr-only"
+                checked={checked}
+                disabled={!checked && full}
+                onChange={() =>
+                  onChange(checked ? value.filter((v) => v !== id) : [...value, id])
+                }
+              />
+              {checked && <span aria-hidden>✓</span>}
+              {languageLabel(id)}
+            </label>
+          );
+        })}
+      </div>
+      {more.length > 0 && !full && (
+        <select
+          aria-label="Weitere Sprache hinzufügen"
+          value=""
+          onChange={(e) => e.target.value && onChange([...value, e.target.value])}
+          className="mt-2.5 min-h-10 rounded-full border-2 border-dashed border-[#E4D3EC] bg-white px-4 text-sm font-medium text-[#556987] hover:border-[#D9A5EE] focus:border-[#B718EC] focus:outline-none focus:ring-2 focus:ring-[#B718EC]/30"
+        >
+          <option value="">+ Weitere Sprache …</option>
+          {more.map((l) => (
+            <option key={l.id} value={l.id}>
+              {l.label}
+            </option>
+          ))}
+        </select>
+      )}
+    </>
   );
 }
 

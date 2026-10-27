@@ -2,6 +2,7 @@
 
 import { CREATOR_ROLES, type CreatorRole } from "@/lib/applications/config";
 import { isValidHandle, normalizeHandle, type SocialPlatform } from "@/lib/applications/handles";
+import { validateProfileFacts } from "@/lib/applications/profileFacts";
 import { normalizePortfolioUrl } from "@/lib/applications/validation";
 import { slugify } from "@/lib/blog/slug";
 import type {
@@ -106,6 +107,10 @@ export function toPublicCreator(profile: CreatorProfile): PublicCreator {
     roles: profile.roles,
     city: profile.city,
     tagline: profile.tagline,
+    gender: profile.gender,
+    heightCm: profile.heightCm,
+    nationalities: profile.nationalities,
+    languages: profile.languages,
     // Only what was released for the page; the rest stays with Swibble.
     socials: {
       tiktok: profile.publicSocials.includes("tiktok") ? profile.socials.tiktok : "",
@@ -191,6 +196,13 @@ export function validateCreatorInput(input: unknown, newId: () => string): Creat
   const tagline = line(raw.tagline, TAGLINE_MAX_LENGTH);
   if (tagline === null) return fail(`Die Kurzbeschreibung darf höchstens ${TAGLINE_MAX_LENGTH} Zeichen haben.`);
 
+  // Optional here: older profiles and creators without an application.
+  const facts = validateProfileFacts(raw, false);
+  if (facts.errors.gender) return fail("Bitte prüfe das Geschlecht.");
+  if (facts.errors.heightCm) return fail("Bitte gib die Größe in Zentimetern an, z. B. 172.");
+  if (facts.errors.nationalities) return fail("Bitte prüfe die Nationalität.");
+  if (facts.errors.languages) return fail("Bitte prüfe die Sprachen (höchstens 8).");
+
   const rawSocials =
     raw.socials && typeof raw.socials === "object" ? (raw.socials as Record<string, unknown>) : {};
   const socials = { tiktok: "", instagram: "", snapchat: "", youtube: "" };
@@ -236,6 +248,7 @@ export function validateCreatorInput(input: unknown, newId: () => string): Creat
       roles,
       city,
       tagline,
+      ...facts.value,
       socials,
       publicSocials,
       portfolioUrl,

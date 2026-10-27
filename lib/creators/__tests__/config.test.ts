@@ -67,6 +67,26 @@ describe("validateCreatorInput", () => {
     expect(validateCreatorInput({ ...valid, tagline: "<script>" }, newId).ok).toBe(false);
     expect(validateCreatorInput({ ...valid, portfolioUrl: "javascript:alert(1)" }, newId).ok).toBe(false);
   });
+
+  it("keeps the Steckbrief optional but checks what is given", () => {
+    const empty = validateCreatorInput(valid, newId);
+    expect(empty.ok && empty.value).toMatchObject({ gender: "", heightCm: 0, nationalities: [], languages: [] });
+
+    const filled = validateCreatorInput(
+      { ...valid, gender: "male", heightCm: "180", nationalities: ["DE"], languages: ["de", "en"] },
+      newId,
+    );
+    expect(filled.ok && filled.value).toMatchObject({
+      gender: "male",
+      heightCm: 180,
+      nationalities: ["DE"],
+      languages: ["de", "en"],
+    });
+
+    expect(validateCreatorInput({ ...valid, heightCm: "1,80" }, newId).ok).toBe(false);
+    expect(validateCreatorInput({ ...valid, nationalities: ["Deutsch"] }, newId).ok).toBe(false);
+    expect(validateCreatorInput({ ...valid, languages: ["<b>"] }, newId).ok).toBe(false);
+  });
 });
 
 describe("helpers", () => {

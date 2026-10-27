@@ -381,6 +381,10 @@ describe("validateCreatorApplication", () => {
     birthDate: "1998-03-03",
     postalCode: "52064",
     city: "Aachen",
+    gender: "female",
+    heightCm: "172",
+    nationalities: ["DE", "ru"],
+    languages: ["de", "ru", "en"],
     email: "carla@example.com",
     phone: "0152 0000003",
     tiktok: "",
@@ -410,7 +414,42 @@ describe("validateCreatorApplication", () => {
       portfolioUrl: "https://carla.example/portfolio",
       center: "",
       guardian: null,
+      gender: "female",
+      heightCm: 172,
+      nationalities: ["DE", "RU"],
+      languages: ["de", "ru", "en"],
     });
+  });
+
+  it("asks for gender, height, nationality and languages", () => {
+    const missing = errorsOfCreator({
+      ...creator,
+      gender: "",
+      heightCm: "",
+      nationalities: [],
+      languages: [],
+    });
+    expect(missing.gender).toBeDefined();
+    expect(missing.heightCm).toMatch(/Zentimetern/);
+    expect(missing.nationalities).toBeDefined();
+    expect(missing.languages).toMatch(/Sprache/);
+
+    expect(errorsOfCreator({ ...creator, gender: "robot" }).gender).toBeDefined();
+    expect(errorsOfCreator({ ...creator, heightCm: "1.72" }).heightCm).toBeDefined();
+    expect(errorsOfCreator({ ...creator, heightCm: "17" }).heightCm).toBeDefined();
+    expect(errorsOfCreator({ ...creator, heightCm: "999" }).heightCm).toBeDefined();
+    expect(errorsOfCreator({ ...creator, nationalities: ["XX"] }).nationalities).toBeDefined();
+    expect(errorsOfCreator({ ...creator, nationalities: ["DE", "RU", "TR"] }).nationalities).toBeDefined();
+    expect(errorsOfCreator({ ...creator, languages: ["klingon"] }).languages).toBeDefined();
+  });
+
+  it("accepts the height as a number and drops duplicate nationalities", () => {
+    const result = validateCreatorApplication(
+      { ...creator, heightCm: 180, nationalities: ["DE", "de"] },
+      NOW,
+    );
+    expect(result.ok && result.value.heightCm).toBe(180);
+    expect(result.ok && result.value.nationalities).toEqual(["DE"]);
   });
 
   it("lets minors apply with a guardian who signs online", () => {

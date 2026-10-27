@@ -5,6 +5,7 @@ import type {
   GuardianMethod,
 } from "./config";
 import type { ConsentFileType } from "./fileType";
+import type { ProfileFacts } from "./profileFacts";
 
 export interface ApplicationSocials {
   /** Handles are stored without the leading @ */
@@ -75,8 +76,11 @@ export interface ApplicationConsent {
   givenAt: number;
 }
 
-/** Validated, normalised applicant data (output of validateApplication). */
-export interface ApplicationData {
+/**
+ * Validated, normalised applicant data (output of validateApplication).
+ * Gender, height, nationality and languages: creator pool only, empty otherwise.
+ */
+export interface ApplicationData extends ProfileFacts {
   roles: AnyApplicationRole[];
   firstName: string;
   lastName: string;

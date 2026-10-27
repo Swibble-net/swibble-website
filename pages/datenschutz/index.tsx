@@ -331,7 +331,8 @@ const Datenschutz = () => {
             </Link>{" "}
             können Sie sich als Model, Content Creator, für Moderation oder
             als Promoter:in bewerben. Zusätzlich zu den oben genannten Daten
-            verarbeiten wir dabei mindestens ein Foto, optional Videos, eine
+            verarbeiten wir dabei Ihren Steckbrief (Geschlecht, Größe,
+            Nationalität und Sprachen), mindestens ein Foto, optional Videos, eine
             Setcard bzw. ein Portfolio (PDF oder Bild) und einen Link zu
             Website oder Portfolio sowie die online abgegebene Erklärung mit
             Ihrer Unterschrift (Erklärungstext, Unterschriftsbild, Zeitpunkt).
@@ -340,9 +341,10 @@ const Datenschutz = () => {
             Telefonnummer oder E-Mail-Adresse und optional die Anschrift. Mit
             dieser Erklärung willigen Sie ein, dass wir Sie bestehenden und
             möglichen Kunden als „Swibble Creator“ vorstellen und dafür Name,
-            Alter, Wohnort (Stadt), Fotos, Social-Media-Profile sowie Setcard
-            bzw. Portfolio an diese Kunden weitergeben, und dass wir Sie mit
-            Name, Fotos und Profilen auf unserer Website, in unseren
+            Alter, Wohnort (Stadt), Steckbrief, Fotos, Social-Media-Profile
+            sowie Setcard bzw. Portfolio an diese Kunden weitergeben, und dass
+            wir Sie mit Name, Wohnort (Stadt), Steckbrief, Fotos und Profilen
+            auf unserer Website, in unseren
             Social-Media-Kanälen und in Werbematerial zeigen. Telefonnummer und
             E-Mail-Adresse geben wir nur nach Rücksprache mit Ihnen weiter.
             Rechtsgrundlage ist Ihre Einwilligung (Art. 6 Abs. 1 lit. a DSGVO,

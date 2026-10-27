@@ -7,6 +7,7 @@ import {
   isStorageConfigured,
 } from "@/lib/firebaseAdmin";
 import { CREATOR_ROLES, type CreatorRole } from "@/lib/applications/config";
+import { emptyProfileFacts, profileFactsOf } from "@/lib/applications/profileFacts";
 import { readApplicationFile, readApplicationObject } from "@/lib/applications/store";
 import type { Application } from "@/lib/applications/types";
 import { isTrustedMediaUrl } from "@/lib/videos/appVideos";
@@ -74,6 +75,7 @@ export function toCreator(id: string, data: Partial<CreatorDocument>): CreatorPr
     roles,
     city: data.city ?? "",
     tagline: data.tagline ?? "",
+    ...profileFactsOf(data),
     socials: {
       tiktok: data.socials?.tiktok ?? "",
       instagram: data.socials?.instagram ?? "",
@@ -387,8 +389,9 @@ export async function isSlugTaken(slug: string, exceptId: string): Promise<boole
 
 /**
  * Creates an unpublished profile from a creator pool application: name,
- * roles, city, channels and portfolio link are taken over, photos and the
- * setcard are copied (the profile must not depend on the application files).
+ * roles, city, gender, height, nationality, languages, channels and
+ * portfolio link are taken over, photos and the setcard are copied (the
+ * profile must not depend on the application files).
  */
 export async function createCreatorFromApplication(
   application: Application,
@@ -410,6 +413,10 @@ export async function createCreatorFromApplication(
     roles: roles.length > 0 ? roles : ["model"],
     city: application.city,
     tagline: "",
+    gender: application.gender,
+    heightCm: application.heightCm,
+    nationalities: application.nationalities,
+    languages: application.languages,
     socials: application.socials,
     publicSocials: [],
     portfolioUrl: application.portfolioUrl,
@@ -504,6 +511,7 @@ export async function createCreatorWithoutApplication(name: string): Promise<Cre
     roles: ["creator"],
     city: "",
     tagline: "",
+    ...emptyProfileFacts(),
     socials: { tiktok: "", instagram: "", snapchat: "", youtube: "" },
     publicSocials: [],
     portfolioUrl: "",

@@ -15,7 +15,9 @@ import { StepCard, useStepFlow } from "@/components/applications/StepFlow";
 import {
   BirthDateFields,
   CheckboxField,
+  CountrySelect,
   HandleField,
+  LanguagePicker,
   PhoneField,
   PhotoPicker,
   VideoPicker,
@@ -60,6 +62,15 @@ import {
 import { abortCreatorUpload, uploadCreatorFiles } from "@/lib/applications/clientUpload";
 import { renderSignedDocument } from "@/lib/applications/declarationImage";
 import { DEFAULT_PHONE_COUNTRY, combinePhone } from "@/lib/applications/phone";
+import {
+  GENDERS,
+  LANGUAGES_MAX,
+  formatHeight,
+  formatLanguages,
+  formatNationalities,
+  genderLabel,
+  type Gender,
+} from "@/lib/applications/profileFacts";
 import { errorsForStep, firstStepWithErrors, type StepDefinition } from "@/lib/applications/steps";
 import { validateCreatorApplication } from "@/lib/applications/validation";
 import type { ApplicationErrors } from "@/lib/applications/types";
@@ -71,6 +82,7 @@ interface Props {
 type StepId =
   | "roles"
   | "person"
+  | "facts"
   | "contact"
   | "channels"
   | "photos"
@@ -95,6 +107,12 @@ const BASE_STEPS: Step[] = [
     title: "Über dich",
     hint: "Damit wir wissen, wer du bist und wo du wohnst.",
     fields: ["firstName", "lastName", "birthDate", "postalCode", "city"],
+  },
+  {
+    id: "facts",
+    title: "Dein Steckbrief",
+    hint: "Steht später auf deiner Creator-Seite – so sehen Kunden gleich, ob du zu ihrem Projekt passt.",
+    fields: ["gender", "heightCm", "nationalities", "languages"],
   },
   {
     id: "contact",
@@ -161,6 +179,8 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
   const turnstileRequired = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
   const [roles, setRoles] = useState<CreatorRole[]>([]);
+  const [gender, setGender] = useState<Gender | "">("");
+  const [languages, setLanguages] = useState<string[]>([]);
   const [fields, setFields] = useState({
     firstName: "",
     lastName: "",
@@ -169,6 +189,9 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
     birthYear: "",
     postalCode: "",
     city: "",
+    heightCm: "",
+    nationality: "",
+    nationality2: "",
     phone: "",
     email: "",
     instagram: "",
@@ -271,6 +294,10 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
     birthDate,
     postalCode: fields.postalCode,
     city: fields.city,
+    gender,
+    heightCm: fields.heightCm,
+    nationalities: [fields.nationality, fields.nationality2].filter(Boolean),
+    languages,
     email: fields.email,
     phone: combinePhone(phoneCode, fields.phone),
     instagram: fields.instagram,
@@ -311,6 +338,13 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
       if (value.length === 2 && name === "birthDay") monthRef.current?.focus();
       if (value.length === 2 && name === "birthMonth") yearRef.current?.focus();
     };
+
+  // Digits only, so "1,72" becomes 172 (no maxLength: the comma would count).
+  const setHeight = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "").slice(0, 3);
+    setFields((prev) => ({ ...prev, heightCm: value }));
+    clearError("heightCm");
+  };
 
   const toggleRole = (id: CreatorRole) => {
     setRoles((prev) =>
@@ -423,6 +457,12 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
             lines: [
               `${fullName}, geboren am ${pad(fields.birthDay)}.${pad(fields.birthMonth)}.${fields.birthYear}`,
               `${fields.postalCode.trim()} ${fields.city.trim()}`,
+              [
+                genderLabel(gender),
+                formatHeight(Number(fields.heightCm)),
+                `Nationalität: ${formatNationalities(payload.nationalities)}`,
+                `Sprachen: ${formatLanguages(languages)}`,
+              ].join(" · "),
               [fields.email.trim(), payload.phone].join(" · "),
             ],
           },
@@ -718,6 +758,113 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
           </>
         )}
 
+        {step.id === "facts" && (
+          <>
+            <fieldset id="f-gender" tabIndex={-1} className="focus:outline-none" {...errorProps("gender")}>
+              <legend className={labelClass}>Geschlecht*</legend>
+              <div className="grid grid-cols-3 gap-2">
+                {GENDERS.map((option) => (
+                  <label
+                    key={option.id}
+                    className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-[#F0E6F4] bg-white px-2 text-sm font-semibold text-[#000D36] motion-safe:transition hover:border-[#D9A5EE] has-[:checked]:border-[#B718EC] has-[:checked]:bg-[#FDF5FF] has-[:checked]:text-[#B718EC] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#B718EC]/40"
+                  >
+                    <input
+                      type="radio"
+                      name="gender"
+                      className="sr-only"
+                      checked={gender === option.id}
+                      onChange={() => {
+                        setGender(option.id);
+                        clearError("gender");
+                      }}
+                    />
+                    {option.label}
+                  </label>
+                ))}
+              </div>
+              {errorFor("gender")}
+            </fieldset>
+
+            <div>
+              <label className={labelClass} htmlFor="f-heightCm">
+                Größe<span className="sr-only"> in Zentimetern</span>*
+              </label>
+              <div className="relative max-w-44">
+                <input
+                  id="f-heightCm"
+                  className={`${inputClass} pr-12`}
+                  value={fields.heightCm}
+                  onChange={setHeight}
+                  inputMode="numeric"
+                  autoComplete="off"
+                  placeholder="z. B. 172"
+                  required
+                  {...errorProps("heightCm")}
+                />
+                <span
+                  className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-base text-[#8a7791]"
+                  aria-hidden
+                >
+                  cm
+                </span>
+              </div>
+              {errorFor("heightCm")}
+            </div>
+
+            <div>
+              <label className={labelClass} htmlFor="f-nationalities">
+                Nationalität*
+              </label>
+              <CountrySelect
+                id="f-nationalities"
+                value={fields.nationality}
+                onChange={(code) => {
+                  setFields((prev) => ({
+                    ...prev,
+                    nationality: code,
+                    nationality2: prev.nationality2 === code ? "" : prev.nationality2,
+                  }));
+                  clearError("nationalities");
+                }}
+                emptyLabel="Bitte wählen"
+                invalidProps={errorProps("nationalities")}
+              />
+              {errorFor("nationalities")}
+            </div>
+            {fields.nationality && (
+              <div>
+                <label className={labelClass} htmlFor="f-nationality2">
+                  Zweite Nationalität
+                  {optionalMark}
+                </label>
+                <CountrySelect
+                  id="f-nationality2"
+                  value={fields.nationality2}
+                  onChange={(code) => {
+                    setFields((prev) => ({ ...prev, nationality2: code }));
+                    clearError("nationalities");
+                  }}
+                  emptyLabel="Keine"
+                  exclude={[fields.nationality]}
+                />
+              </div>
+            )}
+
+            <fieldset id="f-languages" tabIndex={-1} className="focus:outline-none" {...errorProps("languages")}>
+              <legend className={labelClass}>Welche Sprachen sprichst du?*</legend>
+              <LanguagePicker
+                value={languages}
+                onChange={(next) => {
+                  setLanguages(next);
+                  clearError("languages");
+                }}
+                max={LANGUAGES_MAX}
+              />
+              {errorFor("languages")}
+            </fieldset>
+          </>
+        )}
+
         {step.id === "contact" && (
           <>
             <div>
@@ -911,7 +1058,7 @@ const CreatorApplicationForm = ({ onSuccess }: Props) => {
                 value={fields.about}
                 onChange={setField("about")}
                 maxLength={ABOUT_MAX_LENGTH}
-                placeholder="z. B. Erfahrung, Sprachen, Größe, bisherige Kunden"
+                placeholder="z. B. Erfahrung, bisherige Kunden, was dir Spaß macht"
                 aria-describedby={`${formId}-about-count ${errors.about ? `${formId}-about-error` : ""}`.trim()}
                 aria-invalid={errors.about ? true : undefined}
               />

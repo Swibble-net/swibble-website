@@ -14,6 +14,7 @@ import {
   type ApplicationStatus,
 } from "./config";
 import type { ConsentFileType } from "./fileType";
+import { profileFactsOf } from "./profileFacts";
 import type {
   Application,
   ApplicationConsentFile,
@@ -137,6 +138,7 @@ export function toApplication(
     center: data.center ?? "",
     centerName: data.centerName ?? "",
     portfolioUrl: data.portfolioUrl ?? "",
+    ...profileFactsOf(data),
     guardian: data.guardian
       ? {
           name: data.guardian.name ?? "",
