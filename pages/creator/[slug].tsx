@@ -81,11 +81,17 @@ const CreatorPage = ({ creator, preview, previewToken }: Props) => {
       />
 
       <article className="mx-auto w-full max-w-5xl">
-        {preview && (
-          <p className="mb-4 rounded-xl bg-amber-50 p-3 text-center text-sm text-amber-800">
-            Vorschau – diese Seite ist noch nicht veröffentlicht.
-          </p>
-        )}
+        {/* Visitors of a shared link see it as private; the admin sees the draft state. */}
+        {preview &&
+          (previewToken ? (
+            <p className="mb-4 rounded-xl bg-[#FDF5FF] p-3 text-center text-sm text-[#556987] ring-1 ring-[#F0E6F4]">
+              Privater Link – diese Seite ist nur über diesen Link erreichbar.
+            </p>
+          ) : (
+            <p className="mb-4 rounded-xl bg-amber-50 p-3 text-center text-sm text-amber-800">
+              Vorschau – diese Seite ist noch nicht veröffentlicht.
+            </p>
+          ))}
 
         <Link href="/creator" className="text-sm font-medium text-[#556987] hover:text-[#b718ec]">
           ← Alle Creator
