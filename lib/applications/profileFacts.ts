@@ -123,6 +123,22 @@ export const formatNationalities = (codes: readonly string[]): string =>
 export const formatLanguages = (ids: readonly string[]): string =>
   ids.map(languageLabel).filter(Boolean).join(", ");
 
+/** The Steckbrief as label + value, only what is set (older profiles may have gaps). */
+export function factList(facts: ProfileFacts): Array<{ label: string; value: string }> {
+  return [
+    { label: "Geschlecht", value: genderLabel(facts.gender) },
+    { label: "Größe", value: formatHeight(facts.heightCm) },
+    {
+      label: facts.nationalities.length > 1 ? "Nationalitäten" : "Nationalität",
+      value: formatNationalities(facts.nationalities),
+    },
+    {
+      label: facts.languages.length > 1 ? "Sprachen" : "Sprache",
+      value: formatLanguages(facts.languages),
+    },
+  ].filter((fact) => fact.value);
+}
+
 /** Fills defaults for stored documents; drops values that are no longer valid. */
 export function profileFactsOf(data: Partial<Record<keyof ProfileFacts, unknown>>): ProfileFacts {
   const height = data.heightCm;

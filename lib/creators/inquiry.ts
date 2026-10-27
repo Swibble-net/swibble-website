@@ -29,6 +29,7 @@ function line(value: unknown, max: number): string | null {
 
 export function validateCreatorInquiry(
   input: unknown,
+  { messageRequired = true }: { messageRequired?: boolean } = {},
 ): { ok: true; value: CreatorInquiry } | { ok: false; errors: InquiryErrors } {
   const raw = input && typeof input === "object" ? (input as Record<string, unknown>) : {};
   const errors: InquiryErrors = {};
@@ -47,7 +48,7 @@ export function validateCreatorInquiry(
 
   const message =
     typeof raw.message === "string" ? raw.message.trim().replace(/\r\n/g, "\n") : "";
-  if (!message) errors.message = "Worum geht es? Ein, zwei Sätze reichen.";
+  if (!message && messageRequired) errors.message = "Worum geht es? Ein, zwei Sätze reichen.";
   else if (message.length > INQUIRY_MESSAGE_MAX_LENGTH) {
     errors.message = `Bitte kürze deine Nachricht auf ${INQUIRY_MESSAGE_MAX_LENGTH} Zeichen.`;
   }
@@ -89,7 +90,8 @@ function renderText(content: MailContent): string {
   ].join("\n");
 }
 
-function build(content: MailContent, logoSrc?: string): BuiltMail {
+/** Subject, plain text and HTML of one mail in the Swibble layout. */
+export function buildMail(content: MailContent, logoSrc?: string): BuiltMail {
   return { subject: content.title, text: renderText(content), html: renderMailHtml(content, logoSrc) };
 }
 
@@ -111,7 +113,7 @@ export function buildInquiryNotification(
   creator: { name: string; pageUrl: string; adminUrl: string },
   logoSrc?: string,
 ): BuiltMail {
-  return build(
+  return buildMail(
     {
       title: `Creator-Anfrage: ${creator.name} – ${inquiry.company}`,
       heading:
@@ -139,7 +141,7 @@ export function buildInquiryConfirmation(
   logoSrc?: string,
 ): BuiltMail {
   const firstName = inquiry.name.split(" ")[0] ?? "";
-  return build(
+  return buildMail(
     {
       title:
         creator.name === GENERAL_INQUIRY_NAME

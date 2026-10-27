@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { isAuthenticated } from "@/lib/adminAuth";
 import { PREVIEW_PARAM, isValidId, opensPreview, parseMediaFile } from "@/lib/creators/config";
 import { getCreator, readCreatorMedia } from "@/lib/creators/store";
+import { OFFER_PARAM } from "@/lib/offers/config";
+import { offerShowsCreator } from "@/lib/offers/store";
 
 // Photos, covers and the setcard are streamed from the private bucket; uploaded
 // videos are too large for a function response and get a signed link instead.
@@ -9,8 +11,9 @@ export const config = { api: { responseLimit: "5mb" } };
 
 /**
  * Media of a creator page. Public once the page is published; before that
- * only for the signed-in admin (editor previews) and with the page's preview
- * link (?vorschau=<token>). The path inside the bucket always comes from the
+ * only for the signed-in admin (editor previews), with the page's preview
+ * link (?vorschau=<token>) and on a live web offer that shows the creator
+ * (?angebot=<token>). The path inside the bucket always comes from the
  * profile, never from the URL.
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -26,7 +29,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const profile = await getCreator(id);
     const admin = isAuthenticated(req);
-    const shared = Boolean(profile && !profile.published && opensPreview(profile, req.query[PREVIEW_PARAM]));
+    const draft = profile && !profile.published && !admin ? profile : null;
+    const shared = draft
+      ? opensPreview(draft, req.query[PREVIEW_PARAM]) ||
+        (await offerShowsCreator(req.query[OFFER_PARAM], draft.id))
+      : false;
     if (!profile || (!profile.published && !admin && !shared)) {
       return res.status(404).json({ message: "Nicht gefunden." });
     }

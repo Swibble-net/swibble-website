@@ -170,10 +170,13 @@ export function opensPreview(profile: Pick<CreatorProfile, "previewToken">, give
   return diff === 0;
 }
 
-/** Media of a shared preview carry the token too, so they load without a login. */
-export function withPreviewToken(creator: PublicCreator, token: string): PublicCreator {
+/**
+ * Media of a shared page carry its key (preview link or web offer) as query
+ * parameter, so they load without a login.
+ */
+export function withMediaKey(creator: PublicCreator, param: string, key: string): PublicCreator {
   const sign = (url: string) =>
-    url.startsWith(MEDIA_PREFIX) ? `${url}?${PREVIEW_PARAM}=${encodeURIComponent(token)}` : url;
+    url.startsWith(MEDIA_PREFIX) ? `${url}?${param}=${encodeURIComponent(key)}` : url;
   return {
     ...creator,
     setcardUrl: sign(creator.setcardUrl),
@@ -185,6 +188,9 @@ export function withPreviewToken(creator: PublicCreator, token: string): PublicC
     })),
   };
 }
+
+export const withPreviewToken = (creator: PublicCreator, token: string) =>
+  withMediaKey(creator, PREVIEW_PARAM, token);
 
 /* ── Validation of the CMS form ────────────────────────────────────────── */
 

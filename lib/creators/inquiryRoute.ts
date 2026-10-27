@@ -9,7 +9,7 @@ import { getCreatorBySlug } from "./store";
 
 const limiter = createRateLimiter(5, 10 * 60 * 1000);
 
-function clientIp(req: NextApiRequest): string {
+export function clientIp(req: NextApiRequest): string {
   const forwarded = req.headers["x-forwarded-for"];
   const first = (Array.isArray(forwarded) ? forwarded[0] : forwarded)?.split(",")[0]?.trim();
   return first || req.socket.remoteAddress || "unknown";

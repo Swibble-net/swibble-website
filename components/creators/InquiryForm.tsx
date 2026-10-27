@@ -15,17 +15,26 @@ const subscribeNever = () => () => {};
 
 /**
  * Booking inquiry for one creator — or, without `slug`, a general request
- * for creators (/creator). Goes to Swibble by mail.
+ * for creators (/creator), or a choice from a web offer (`endpoint`). Goes to
+ * Swibble by mail.
  */
 const InquiryForm = ({
   slug,
   creatorName,
-  previewToken = "",
+  endpoint,
+  extra,
+  check,
+  messageOptional = false,
 }: {
   slug?: string;
   creatorName?: string;
-  /** Unpublished page opened with its preview link: sent along so the inquiry gets through */
-  previewToken?: string;
+  /** Other API route than the creator inquiry */
+  endpoint?: string;
+  /** Sent along with the fields, e.g. the preview token or the chosen creators */
+  extra?: Record<string, unknown>;
+  /** Last check before sending: an error message stops it */
+  check?: () => string;
+  messageOptional?: boolean;
 }) => {
   const formId = useId();
   const turnstileRequired = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
@@ -62,7 +71,12 @@ const InquiryForm = ({
     setFormError("");
 
     const payload = { ...fields, phone: combinePhone(phoneCode, fields.phone) };
-    const result = validateCreatorInquiry(payload);
+    const blocked = check?.() ?? "";
+    if (blocked) {
+      setFormError(blocked);
+      return;
+    }
+    const result = validateCreatorInquiry(payload, { messageRequired: !messageOptional });
     const found: Record<string, string> = result.ok ? {} : { ...result.errors };
     if (turnstileRequired && !turnstileToken) {
       found.turnstile = "Bitte warte kurz, bis die Spam-Prüfung abgeschlossen ist.";
@@ -76,11 +90,12 @@ const InquiryForm = ({
 
     setSending(true);
     try {
-      const url = slug ? `/api/creators/${encodeURIComponent(slug)}/inquiry` : "/api/creators/inquiry";
+      const url =
+        endpoint ?? (slug ? `/api/creators/${encodeURIComponent(slug)}/inquiry` : "/api/creators/inquiry");
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload, turnstileToken, ...(previewToken ? { previewToken } : {}) }),
+        body: JSON.stringify({ ...payload, turnstileToken, ...extra }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
@@ -161,7 +176,14 @@ const InquiryForm = ({
       </div>
       <div>
         <label className={labelClass} htmlFor="i-message">
-          Worum geht es?*
+          {messageOptional ? (
+            <>
+              Nachricht
+              {optionalMark}
+            </>
+          ) : (
+            "Worum geht es?*"
+          )}
         </label>
         <textarea
           id="i-message"
@@ -170,9 +192,11 @@ const InquiryForm = ({
           onChange={set("message")}
           maxLength={INQUIRY_MESSAGE_MAX_LENGTH}
           placeholder={
-            creatorName
-              ? `Projekt, Zeitraum, Ort – z. B. Shooting mit ${creatorName} im Mai in Köln`
-              : "Wen suchst du? z. B. 2 Models für ein Shooting im Mai in Köln"
+            messageOptional
+              ? "Zeitraum, Ort, Wünsche – z. B. Dreh im Mai in Köln"
+              : creatorName
+                ? `Projekt, Zeitraum, Ort – z. B. Shooting mit ${creatorName} im Mai in Köln`
+                : "Wen suchst du? z. B. 2 Models für ein Shooting im Mai in Köln"
           }
           {...errorProps("message")}
         />

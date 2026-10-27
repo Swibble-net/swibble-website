@@ -126,8 +126,9 @@ const Datenschutz = () => {
             Kontaktformulars erhalten Sie an die angegebene E-Mail-Adresse
             automatisch eine Bestätigung mit einer Zusammenfassung Ihrer Angaben.
             Gleiches gilt für Anfragen über das Formular auf den Seiten unserer
-            Swibble Creator (Unternehmen, Name, E-Mail-Adresse, optional
-            Telefonnummer, Nachricht und der angefragte Creator).
+            Swibble Creator und in unseren Web-Angeboten für Kunden
+            (Unternehmen, Name, E-Mail-Adresse, optional Telefonnummer,
+            Nachricht und die angefragten Creator).
           </p>
           <br />
           <p>

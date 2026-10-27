@@ -15,12 +15,7 @@ import InquiryForm from "@/components/creators/InquiryForm";
 import { isAuthenticated } from "@/lib/adminAuth";
 import { roleLabel } from "@/lib/applications/config";
 import { SOCIAL_PLATFORMS, profileUrl, type SocialPlatform } from "@/lib/applications/handles";
-import {
-  formatHeight,
-  formatLanguages,
-  formatNationalities,
-  genderLabel,
-} from "@/lib/applications/profileFacts";
+import { factList } from "@/lib/applications/profileFacts";
 import { PREVIEW_PARAM, opensPreview, toPublicCreator, withPreviewToken } from "@/lib/creators/config";
 import { refreshCreatorAppVideos } from "@/lib/creators/appVideos";
 import { getCreatorBySlug } from "@/lib/creators/store";
@@ -56,19 +51,7 @@ const CreatorPage = ({ creator, preview, previewToken }: Props) => {
   const socials = (["instagram", "tiktok", "youtube", "snapchat"] as const).filter(
     (platform) => creator.socials[platform],
   );
-  // Steckbrief: only what is set (older profiles may have gaps).
-  const facts = [
-    { label: "Geschlecht", value: genderLabel(creator.gender) },
-    { label: "Größe", value: formatHeight(creator.heightCm) },
-    {
-      label: creator.nationalities.length > 1 ? "Nationalitäten" : "Nationalität",
-      value: formatNationalities(creator.nationalities),
-    },
-    {
-      label: creator.languages.length > 1 ? "Sprachen" : "Sprache",
-      value: formatLanguages(creator.languages),
-    },
-  ].filter((fact) => fact.value);
+  const facts = factList(creator);
 
   return (
     <>
@@ -235,7 +218,7 @@ const CreatorPage = ({ creator, preview, previewToken }: Props) => {
             <InquiryForm
               slug={creator.slug}
               creatorName={creator.name.split(" ")[0]}
-              previewToken={previewToken}
+              extra={previewToken ? { previewToken } : undefined}
             />
           </div>
         </section>
