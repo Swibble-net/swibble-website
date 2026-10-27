@@ -16,6 +16,9 @@ export const OFFER_REQUESTS_MAX = 50;
 /** Shown when no price is entered. */
 export const PRICE_ON_REQUEST = "Preis auf Anfrage";
 
+/** Offer prices are always net; said on the page and in the customer's confirmation. */
+export const NET_PRICES_NOTE = "Alle Preise netto zzgl. gesetzlicher MwSt.";
+
 /** Query parameter that lets creator media load on an offer page. */
 export const OFFER_PARAM = "angebot";
 

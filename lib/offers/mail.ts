@@ -3,7 +3,7 @@
 
 import { EMAIL } from "@/lib/cta";
 import { buildMail, type BuiltMail, type CreatorInquiry } from "@/lib/creators/inquiry";
-import { PRICE_ON_REQUEST } from "./config";
+import { NET_PRICES_NOTE, PRICE_ON_REQUEST } from "./config";
 
 /** A picked creator as it appears in the mails. */
 export interface ChosenCreator {
@@ -35,7 +35,7 @@ export function buildOfferNotification(
       heading: `Auswahl aus dem Angebot für ${offer.customer}`,
       intro: `${inquiry.name} hat über das Web-Angebot „${offer.headline}“ ${
         offer.chosen.length === 1 ? "einen Creator" : `${offer.chosen.length} Creator`
-      } angefragt. Antworten geht direkt an ${inquiry.name}.`,
+      } angefragt (Preise netto). Antworten geht direkt an ${inquiry.name}.`,
       rowsLabel: "Ausgewählt",
       rows: [...creatorRows(offer.chosen), ...contactRows(inquiry)],
       messageLabel: "Nachricht",
@@ -60,7 +60,7 @@ export function buildOfferConfirmation(
     {
       title: "Deine Creator-Auswahl ist angekommen",
       heading: firstName ? `Danke, ${firstName}!` : "Danke für deine Anfrage!",
-      intro: "Deine Auswahl ist bei uns angekommen. Wir melden uns schnellstmöglich bei dir.",
+      intro: `Deine Auswahl ist bei uns angekommen. Wir melden uns schnellstmöglich bei dir. ${NET_PRICES_NOTE}`,
       rowsLabel: "Deine Auswahl",
       rows: [...creatorRows(offer.chosen), ...contactRows(inquiry)],
       messageLabel: "Deine Nachricht",

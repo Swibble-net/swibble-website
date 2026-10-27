@@ -35,6 +35,7 @@ describe("offer mails", () => {
     expect(mail.subject).toBe("Deine Creator-Auswahl ist angekommen");
     expect(mail.text).toContain("Danke, Max!");
     expect(mail.text).toContain("Vanessa: 450 € / Tag");
+    expect(mail.text).toContain("Alle Preise netto zzgl. gesetzlicher MwSt.");
     expect(mail.text).toContain("Zum Angebot: https://www.swibble.net/angebot/Ab3_-Ab3_-Ab3_-Ab3_-Ab3_");
   });
 });

@@ -10,7 +10,7 @@ import { factList } from "@/lib/applications/profileFacts";
 import { toPublicCreator, withMediaKey } from "@/lib/creators/config";
 import { getCreator } from "@/lib/creators/store";
 import type { PublicCreator } from "@/lib/creators/types";
-import { OFFER_PARAM, PRICE_ON_REQUEST, offerHeadline } from "@/lib/offers/config";
+import { NET_PRICES_NOTE, OFFER_PARAM, PRICE_ON_REQUEST, offerHeadline } from "@/lib/offers/config";
 import { countOfferView, getOfferByToken } from "@/lib/offers/store";
 import { isPreviewAgent } from "@/lib/pitchdecks/config";
 
@@ -86,7 +86,7 @@ const OfferCreator = ({
           )}
 
           <div className="mt-5 rounded-2xl bg-[#000D36] px-5 py-4 text-white">
-            <p className="text-xs font-medium uppercase tracking-wide text-white/60">Preis</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-white/60">Preis (netto)</p>
             <p className="mt-0.5 text-2xl font-bold">{entry.price || PRICE_ON_REQUEST}</p>
             {entry.note && <p className="mt-1 text-sm text-white/80">{entry.note}</p>}
           </div>
@@ -175,7 +175,8 @@ const OfferPage = ({ token, customer, headline, message, active, entries }: Prop
           <h1 className="mt-2 text-4xl font-bold text-[#000D36] lg:text-5xl">{headline}</h1>
           {message && <p className="mt-4 max-w-3xl whitespace-pre-line text-lg text-[#556987]">{message}</p>}
           <p className="mt-4 text-sm text-[#8a7791]">
-            Wähle einen oder mehrere Creator aus und schick uns unten deine Anfrage – unverbindlich.
+            Wähle einen oder mehrere Creator aus und schick uns unten deine Anfrage – unverbindlich.{" "}
+            {NET_PRICES_NOTE}
           </p>
         </header>
 
