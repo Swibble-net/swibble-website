@@ -59,7 +59,8 @@ export async function sendCreatorInquiry(
     String(SMTP_USER),
     buildInquiryNotification(inquiry, {
       name,
-      pageUrl,
+      // Drafts are reached through their preview link.
+      pageUrl: creator && !creator.published ? `${pageUrl} (Vorschau, noch nicht veröffentlicht)` : pageUrl,
       adminUrl: `${base}/admin/creator${creator ? `/${creator.id}` : ""}`,
     }),
     inquiry.email,
