@@ -15,12 +15,23 @@ export function isMailConfigured(): boolean {
   return Boolean(SMTP_HOST && SMTP_USER && SMTP_PASSWORD);
 }
 
-function siteUrl(): string {
+export function siteUrl(): string {
   // Preview deployments link to themselves, everything else to production.
   if (process.env.VERCEL_ENV === "preview" && process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }
   return SITE_URL;
+}
+
+/** SMTP connection and sender address (form@swibble.net). */
+export function mailTransport() {
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD } = process.env;
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT),
+    auth: { user: SMTP_USER, pass: SMTP_PASSWORD },
+  });
+  return { transporter, SMTP_USER };
 }
 
 /**
@@ -32,12 +43,7 @@ export async function sendCreatorInquiry(
   inquiry: CreatorInquiry,
   creator: CreatorProfile | null,
 ): Promise<{ confirmationSent: boolean }> {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD } = process.env;
-  const transporter = nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: Number(SMTP_PORT),
-    auth: { user: SMTP_USER, pass: SMTP_PASSWORD },
-  });
+  const { transporter, SMTP_USER } = mailTransport();
 
   const base = siteUrl();
   const pageUrl = `${base.replace(/^https:\/\//, "")}/creator${creator ? `/${creator.slug}` : ""}`;

@@ -6,6 +6,7 @@ const SECTIONS = [
   { href: "/admin/videos", label: "Videos" },
   { href: "/admin/bewerbungen", label: "Bewerbungen" },
   { href: "/admin/creator", label: "Creator" },
+  { href: "/admin/angebote", label: "Angebote" },
   { href: "/admin/pitchdecks", label: "Pitchdecks" },
 ] as const;
 
