@@ -18,6 +18,8 @@ interface CreatorSummary {
   name: string;
   slug: string;
   published: boolean;
+  /** Draft with a preview link switched on */
+  previewLink: boolean;
   roles: CreatorRole[];
   city: string;
   cover: string;
@@ -256,7 +258,7 @@ const AdminCreators = ({ creators: initialCreators, open, available }: Props) =>
                       c.published ? "bg-green-100 text-green-700" : "bg-neutral-200 text-neutral-600"
                     }`}
                   >
-                    {c.published ? "Online" : "Entwurf"}
+                    {c.published ? "Online" : c.previewLink ? "Entwurf · Vorschau-Link an" : "Entwurf"}
                   </span>
                 </div>
                 <div className="px-3 pt-3">
@@ -301,6 +303,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     name: c.name,
     slug: c.slug,
     published: c.published,
+    previewLink: !c.published && Boolean(c.previewToken),
     roles: c.roles,
     city: c.city,
     cover: (() => {

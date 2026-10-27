@@ -7,13 +7,15 @@ import {
   getCreator,
   isSlugTaken,
   newMediaId,
+  setCreatorPreviewLink,
   updateCreatorProfile,
   updateCreatorRoles,
 } from "@/lib/creators/store";
 
 /**
  * GET (refreshes processing app videos) · PUT profile fields
- * · PATCH {roles} services only · DELETE page with files
+ * · PATCH {roles} services only · PATCH {previewLink} preview link on/off
+ * · DELETE page with files
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!requireAdmin(req, res)) return;
@@ -46,6 +48,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === "PATCH") {
+      const previewLink = (req.body ?? {}).previewLink;
+      if (typeof previewLink === "boolean") {
+        return res.status(200).json({ creator: await setCreatorPreviewLink(profile.id, previewLink) });
+      }
       const roles = validateCreatorRoles((req.body ?? {}).roles);
       if (!roles) return res.status(400).json({ message: "Mindestens eine Leistung muss aktiv bleiben." });
       return res.status(200).json({ creator: await updateCreatorRoles(profile.id, roles) });

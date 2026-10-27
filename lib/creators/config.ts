@@ -75,7 +75,8 @@ export function slugBase(name: string): string {
 
 /* ── Media URLs (served by /api/creator-media) ─────────────────────────── */
 
-const mediaBase = (creatorId: string) => `/api/creator-media/${encodeURIComponent(creatorId)}`;
+const MEDIA_PREFIX = "/api/creator-media/";
+const mediaBase = (creatorId: string) => `${MEDIA_PREFIX}${encodeURIComponent(creatorId)}`;
 export const photoUrl = (creatorId: string, photoId: string) => `${mediaBase(creatorId)}/photo-${photoId}`;
 export const thumbUrl = (creatorId: string, photoId: string) => `${mediaBase(creatorId)}/thumb-${photoId}`;
 export const videoFileUrl = (creatorId: string, videoId: string) => `${mediaBase(creatorId)}/video-${videoId}`;
@@ -143,6 +144,45 @@ export function toPublicCreator(profile: CreatorProfile): PublicCreator {
       height: video.height,
     })),
     references: profile.references,
+  };
+}
+
+/* ── Preview link of an unpublished page ───────────────────────────────── */
+
+/** Query parameter of a preview link: /creator/<slug>?vorschau=<token> */
+export const PREVIEW_PARAM = "vorschau";
+
+const PREVIEW_TOKEN = /^[A-Za-z0-9_-]{24}$/;
+
+export const isPreviewToken = (value: unknown): value is string =>
+  typeof value === "string" && PREVIEW_TOKEN.test(value);
+
+export const previewPath = (slug: string, token: string) =>
+  `/creator/${slug}?${PREVIEW_PARAM}=${encodeURIComponent(token)}`;
+
+/** True when `given` matches the page's preview link (and the link is switched on). */
+export function opensPreview(profile: Pick<CreatorProfile, "previewToken">, given: unknown): boolean {
+  const token = profile.previewToken;
+  if (!isPreviewToken(token) || typeof given !== "string" || given.length !== token.length) return false;
+  // Compare every character, so the time taken says nothing about the token.
+  let diff = 0;
+  for (let i = 0; i < token.length; i += 1) diff |= token.charCodeAt(i) ^ given.charCodeAt(i);
+  return diff === 0;
+}
+
+/** Media of a shared preview carry the token too, so they load without a login. */
+export function withPreviewToken(creator: PublicCreator, token: string): PublicCreator {
+  const sign = (url: string) =>
+    url.startsWith(MEDIA_PREFIX) ? `${url}?${PREVIEW_PARAM}=${encodeURIComponent(token)}` : url;
+  return {
+    ...creator,
+    setcardUrl: sign(creator.setcardUrl),
+    photos: creator.photos.map((photo) => ({ ...photo, url: sign(photo.url), thumbUrl: sign(photo.thumbUrl) })),
+    videos: creator.videos.map((video) => ({
+      ...video,
+      videoUrl: sign(video.videoUrl),
+      coverUrl: sign(video.coverUrl),
+    })),
   };
 }
 

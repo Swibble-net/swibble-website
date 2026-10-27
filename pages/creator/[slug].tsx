@@ -21,14 +21,14 @@ import {
   formatNationalities,
   genderLabel,
 } from "@/lib/applications/profileFacts";
-import { toPublicCreator } from "@/lib/creators/config";
+import { PREVIEW_PARAM, opensPreview, toPublicCreator, withPreviewToken } from "@/lib/creators/config";
 import { refreshCreatorAppVideos } from "@/lib/creators/appVideos";
 import { getCreatorBySlug } from "@/lib/creators/store";
 import type { PublicCreator } from "@/lib/creators/types";
 
 interface Props {
   creator: PublicCreator;
-  /** Unpublished page, shown to the signed-in admin only */
+  /** Unpublished page: for the signed-in admin or via the preview link from the CMS */
   preview: boolean;
 }
 
@@ -224,7 +224,14 @@ const CreatorPage = ({ creator, preview }: Props) => {
             {creator.name.split(" ")[0]} für dein Projekt anfragen
           </h2>
           <div className="mt-5">
-            <InquiryForm slug={creator.slug} creatorName={creator.name.split(" ")[0]} />
+            {preview ? (
+              // Inquiries only reach published creators.
+              <p className="rounded-xl bg-[#FDF5FF] p-4 text-sm text-[#556987]">
+                Anfragen sind möglich, sobald die Seite veröffentlicht ist.
+              </p>
+            ) : (
+              <InquiryForm slug={creator.slug} creatorName={creator.name.split(" ")[0]} />
+            )}
           </div>
         </section>
       </article>
@@ -232,19 +239,27 @@ const CreatorPage = ({ creator, preview }: Props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ params, req, res }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ params, query, req, res }) => {
   const slug = typeof params?.slug === "string" ? params.slug : "";
   const found = await getCreatorBySlug(slug).catch(() => null);
   // Web copies from the Swibble app that finished since the editor was closed.
   const profile = found ? await refreshCreatorAppVideos(found) : null;
   const admin = profile && !profile.published ? isAuthenticated(req) : false;
-  if (!profile || (!profile.published && !admin)) return { notFound: true };
+  // Preview link switched on in the CMS: the draft opens without a login.
+  const shared = profile && !profile.published && !admin ? opensPreview(profile, query[PREVIEW_PARAM]) : false;
+  if (!profile || (!profile.published && !admin && !shared)) return { notFound: true };
 
   res.setHeader(
     "Cache-Control",
     profile.published ? "public, s-maxage=60, stale-while-revalidate=60" : "private, no-store",
   );
-  return { props: { creator: toPublicCreator(profile), preview: !profile.published } };
+  const creator = toPublicCreator(profile);
+  return {
+    props: {
+      creator: shared ? withPreviewToken(creator, profile.previewToken) : creator,
+      preview: !profile.published,
+    },
+  };
 };
 
 export default CreatorPage;

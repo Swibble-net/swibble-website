@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { isAuthenticated } from "@/lib/adminAuth";
-import { isValidId, parseMediaFile } from "@/lib/creators/config";
+import { PREVIEW_PARAM, isValidId, opensPreview, parseMediaFile } from "@/lib/creators/config";
 import { getCreator, readCreatorMedia } from "@/lib/creators/store";
 
 // Photos, covers and the setcard are streamed from the private bucket; uploaded
@@ -9,8 +9,9 @@ export const config = { api: { responseLimit: "5mb" } };
 
 /**
  * Media of a creator page. Public once the page is published; before that
- * only for the signed-in admin (editor previews). The path inside the bucket
- * always comes from the profile, never from the URL.
+ * only for the signed-in admin (editor previews) and with the page's preview
+ * link (?vorschau=<token>). The path inside the bucket always comes from the
+ * profile, never from the URL.
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET" && req.method !== "HEAD") {
@@ -25,7 +26,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const profile = await getCreator(id);
     const admin = isAuthenticated(req);
-    if (!profile || (!profile.published && !admin)) {
+    const shared = Boolean(profile && !profile.published && opensPreview(profile, req.query[PREVIEW_PARAM]));
+    if (!profile || (!profile.published && !admin && !shared)) {
       return res.status(404).json({ message: "Nicht gefunden." });
     }
 

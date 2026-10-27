@@ -14,6 +14,7 @@ import { isTrustedMediaUrl } from "@/lib/videos/appVideos";
 import type { AppVideoJob } from "@/lib/videos/types";
 import {
   defaultCreatorName,
+  isPreviewToken,
   isValidSlug,
   slugBase,
   videoChunkCount,
@@ -70,6 +71,7 @@ export function toCreator(id: string, data: Partial<CreatorDocument>): CreatorPr
     consentConfirmedAt: data.consentConfirmedAt ?? 0,
     slug: data.slug ?? "",
     published: data.published === true,
+    previewToken: isPreviewToken(data.previewToken) ? data.previewToken : "",
     position: typeof data.position === "number" ? data.position : -1,
     name: data.name ?? "",
     roles,
@@ -409,6 +411,7 @@ export async function createCreatorFromApplication(
     position: -1,
     slug: await uniqueSlug(`${slugBase(name)}-${slugSuffix()}`),
     published: false,
+    previewToken: "",
     name,
     roles: roles.length > 0 ? roles : ["model"],
     city: application.city,
@@ -507,6 +510,7 @@ export async function createCreatorWithoutApplication(name: string): Promise<Cre
     position: -1,
     slug: await uniqueSlug(`${slugBase(name)}-${slugSuffix()}`),
     published: false,
+    previewToken: "",
     name,
     roles: ["creator"],
     city: "",
@@ -536,6 +540,17 @@ export async function updateCreatorProfile(
     ...input,
     // A setcard can only be offered when one was taken over.
     showSetcard: input.showSetcard && Boolean(current.setcardPath),
+  }));
+}
+
+/**
+ * Switches the preview link of a page on (new random token) or off. A link
+ * that was switched off stays invalid; switching on again gives a new one.
+ */
+export async function setCreatorPreviewLink(id: string, on: boolean): Promise<CreatorProfile | null> {
+  return backend().mutate(id, (current) => ({
+    ...withoutId(current),
+    previewToken: on ? current.previewToken || crypto.randomBytes(18).toString("base64url") : "",
   }));
 }
 
