@@ -7,11 +7,12 @@ import { getDb, isFirebaseConfigured } from "@/lib/firebaseAdmin";
  * `start` is the follower count when Swibble took over the channel.
  */
 export const FOLLOWER_ACCOUNTS = {
-  aquis: { handle: "aquisplaza.aachen", fallback: 107_200, start: 0 },
-  billstedt: { handle: "billstedtcenter", fallback: 55_800, start: 0 },
-  olympia: { handle: "olympia.einkaufszentrum", fallback: 55_200, start: 0 },
-  rushfood: { handle: "rushfood", fallback: 23_300, start: 0 },
-  myzeil: { handle: "myzeil.frankfurt", fallback: 8_426, start: 5_293 },
+  aquis: { handle: "aquisplaza.aachen", fallback: 106_300, start: 0 },
+  billstedt: { handle: "billstedtcenter", fallback: 57_300, start: 0 },
+  olympia: { handle: "olympia.einkaufszentrum", fallback: 55_900, start: 0 },
+  rushfood: { handle: "rushfood", fallback: 23_000, start: 0 },
+  myzeil: { handle: "myzeil.frankfurt", fallback: 17_000, start: 5_293 },
+  pep: { handle: "pep_neuperlach", fallback: 17_700, start: 16_839 },
 } as const;
 
 export type FollowerAccount = keyof typeof FOLLOWER_ACCOUNTS;
@@ -24,7 +25,7 @@ export interface FollowerSnapshot {
 }
 
 /** Day the fallback values above were read from TikTok. */
-const FALLBACK_FETCHED_AT = Date.UTC(2026, 8, 19);
+const FALLBACK_FETCHED_AT = Date.UTC(2026, 10, 10);
 const REFRESH_AFTER_MS = 24 * 60 * 60 * 1000;
 const TIMEOUT_MS = 10_000;
 const SETTINGS_COLLECTION = "settings";

@@ -226,6 +226,11 @@ describe("follower counts", () => {
     expect(facts[1].value).toBe("60.000");
     expect(facts[0].start).toBe("0");
     expect(resolveFacts([{ account: "myzeil", label: "M" }], snapshot)[0].start).toBe("5.293");
+    expect(resolveFacts([{ account: "pep", label: "P" }], snapshot)[0]).toEqual({
+      value: "17.700",
+      label: "P",
+      start: "16.839",
+    });
     expect(resolveFacts(undefined, snapshot)).toEqual([]);
   });
 

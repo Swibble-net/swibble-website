@@ -5,7 +5,7 @@ export const shoppingCenterMarketing: LandingPageContent = {
   seo: {
     title: "Shopping-Center-Marketing auf Social Media",
     description:
-      "Social Media und Event-Content für Einkaufszentren: So arbeiten Aquis Plaza, Olympia-Einkaufszentrum, Billstedt-Center und MyZeil mit Swibble.",
+      "Social Media und Event-Content für Einkaufszentren: So arbeiten Aquis Plaza, Olympia-Einkaufszentrum, Billstedt-Center, MyZeil und pep mit Swibble.",
   },
   og: {
     kicker: "Für Einkaufszentren",
@@ -21,24 +21,26 @@ export const shoppingCenterMarketing: LandingPageContent = {
     kicker: "Für Einkaufszentren & Center-Management",
     title:
       "Shopping-Center-Marketing: Dein Center ist voller Leben – nur online sieht es niemand?",
-    text: "Neue Stores, Aktionen, Events: In deinem Center passiert jede Woche etwas. Swibble macht daraus TikToks und Reels, die Menschen aus der Region erreichen und ihnen einen Grund geben, vorbeizukommen – in Aachen, München, Hamburg und Frankfurt bereits im Einsatz.",
+    text: "Neue Stores, Aktionen, Events: In deinem Center passiert jede Woche etwas. Swibble macht daraus TikToks und Reels, die Menschen aus der Region erreichen und ihnen einen Grund geben, vorbeizukommen – in fünf Centern in Aachen, München, Hamburg und Frankfurt bereits im Einsatz.",
     visual: "map",
     visualAlt:
-      "Deutschlandkarte mit vier Centern, die Swibble betreut: Billstedt-Center in Hamburg, Aquis Plaza in Aachen, MyZeil in Frankfurt und Olympia-Einkaufszentrum in München",
+      "Deutschlandkarte mit fünf Centern, die Swibble betreut: Billstedt-Center in Hamburg, Aquis Plaza in Aachen, MyZeil in Frankfurt sowie Olympia-Einkaufszentrum und pep Einkaufscenter in München",
   },
   proof: {
-    title: "Vier Center, die auf Swibble setzen",
-    text: "Vier ausführliche Case Studies zeigen, wie wir für Einkaufszentren arbeiten – von der Store-Vorstellung bis zur TikTok-Challenge mit Gutscheinen.",
+    title: "Fünf Center, die auf Swibble setzen",
+    text: "Fünf ausführliche Case Studies zeigen, wie wir für Einkaufszentren arbeiten – von der Store-Vorstellung bis zur TikTok-Challenge mit Gutscheinen.",
     caseStudies: [
       "case-study-aquis-plaza-aachen",
       "case-study-billstedt-center-hamburg",
       "case-study-olympia-einkaufszentrum-munchen",
+      "case-study-pep-muenchen",
       "case-study-myzeil-frankfurt",
     ],
     facts: [
       { account: "aquis", label: "TikTok-Follower – Aquis Plaza Aachen" },
       { account: "billstedt", label: "TikTok-Follower – Billstedt-Center Hamburg" },
       { account: "olympia", label: "TikTok-Follower – Olympia-Einkaufszentrum München" },
+      { account: "pep", label: "TikTok-Follower – pep München" },
       { account: "myzeil", label: "TikTok-Follower – MyZeil Frankfurt" },
     ],
     quote: {
@@ -47,7 +49,13 @@ export const shoppingCenterMarketing: LandingPageContent = {
       role: "ehemaliger Center Manager, Aquis Plaza Aachen",
       href: "/blog/case-study-aquis-plaza-aachen",
     },
-    logos: ["Aquis Plaza", "Billstedt Center", "Olympia Einkaufszentrum", "MyZeil"],
+    logos: [
+      "Aquis Plaza",
+      "Billstedt Center",
+      "Olympia Einkaufszentrum",
+      "pep Einkaufscenter",
+      "MyZeil",
+    ],
   },
   services: {
     title: "Was wir für dein Center tun",
@@ -117,7 +125,7 @@ export const shoppingCenterMarketing: LandingPageContent = {
     {
       question: "Habt ihr Erfahrung mit Centern großer Betreiber?",
       answer:
-        "Ja. Mit dem Aquis Plaza Aachen, dem Billstedt-Center Hamburg und dem Olympia-Einkaufszentrum München betreuen wir mehrere ECE-Center. Abstimmungen und Freigaben im Center-Umfeld gehören für uns zum Alltag.",
+        "Ja. Mit dem Aquis Plaza Aachen, dem Billstedt-Center Hamburg sowie dem Olympia-Einkaufszentrum und dem pep in München betreuen wir mehrere ECE-Center. Abstimmungen und Freigaben im Center-Umfeld gehören für uns zum Alltag.",
     },
     {
       question: "Könnt ihr auch Center-Events umsetzen?",
@@ -127,7 +135,7 @@ export const shoppingCenterMarketing: LandingPageContent = {
     {
       question: "Unser Center liegt nicht in Aachen. Ist das ein Problem?",
       answer:
-        "Nein. Wir arbeiten bundesweit und sind für Center in Hamburg, Frankfurt und München im Einsatz.",
+        "Nein. Wir arbeiten bundesweit und sind für Center in Hamburg, Frankfurt und München im Einsatz – in München gleich für zwei.",
     },
     {
       question: "Was kostet Social Media für ein Shopping-Center?",

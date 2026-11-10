@@ -37,6 +37,12 @@ const LOCATIONS: Location[] = [
     color: "#111111",
     href: "/blog/case-study-myzeil-frankfurt",
   },
+  {
+    city: "München",
+    client: "pep Einkaufscenter",
+    color: "#000000",
+    href: "/blog/case-study-pep-muenchen",
+  },
 ];
 
 const cardClass =
@@ -93,8 +99,17 @@ const Nationwide = () => {
           Deutschland.
         </p>
         <ul className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {LOCATIONS.map((location) => (
-            <li key={location.city}>
+          {LOCATIONS.map((location, index) => (
+            // Two clients share a city, so the client is the key. With an odd number of
+            // cards the last one spans both columns instead of leaving a gap.
+            <li
+              key={location.client}
+              className={
+                LOCATIONS.length % 2 === 1 && index === LOCATIONS.length - 1
+                  ? "sm:col-span-2"
+                  : undefined
+              }
+            >
               <LocationCard {...location} />
             </li>
           ))}
@@ -115,7 +130,7 @@ const Nationwide = () => {
         />
         <Image
           src={GermanyMap}
-          alt="Deutschlandkarte mit Swibble-Kunden: Billstedt Center in Hamburg, Aquis Plaza in Aachen, MyZeil in Frankfurt und Olympia Einkaufszentrum in München"
+          alt="Deutschlandkarte mit Swibble-Kunden: Billstedt Center in Hamburg, Aquis Plaza in Aachen, MyZeil in Frankfurt sowie Olympia Einkaufszentrum und pep Einkaufscenter in München"
           width={1600}
           height={932}
           loading="lazy"
