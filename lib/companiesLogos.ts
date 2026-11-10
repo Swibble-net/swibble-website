@@ -7,6 +7,7 @@ import KellerLogo from "@/public/companies_logos/keller.png";
 import MyZeilLogo from "@/public/companies_logos/myzeil_logo.png";
 import MontisMedicalLogo from "@/public/companies_logos/montis_medical_logo.png";
 import OlympiaLogo from "@/public/companies_logos/olympia_einkaufszentrum_logo.png";
+import PepLogo from "@/public/companies_logos/pep_logo.svg";
 import RushfoodLogo from "@/public/companies_logos/rushfood_logo.png";
 import RydeLogo from "@/public/companies_logos/ryde.png";
 import SmashupLogo from "@/public/companies_logos/smashup_am_dom_logo.webp";
@@ -28,6 +29,7 @@ export const companyLogos: CompanyLogo[] = [
   { src: MontisMedicalLogo, alt: "Montis Medical" },
   { src: MyZeilLogo, alt: "MyZeil" },
   { src: OlympiaLogo, alt: "Olympia Einkaufszentrum" },
+  { src: PepLogo, alt: "pep Einkaufscenter" },
   { src: RushfoodLogo, alt: "Rushfood" },
   { src: RydeLogo, alt: "RydeUp" },
   { src: SmashupLogo, alt: "SmashUp am Dom" },

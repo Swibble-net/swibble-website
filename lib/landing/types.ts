@@ -6,6 +6,7 @@ export type LandingImageKey =
   | "olympia"
   | "billstedt"
   | "myzeil"
+  | "pep"
   | "rushfood"
   | "littleWorld"
   | "aachenApp"

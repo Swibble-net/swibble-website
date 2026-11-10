@@ -38,11 +38,21 @@ export const CASE_STUDY_FALLBACKS: Record<string, LandingCaseStudy> = {
     slug: "case-study-myzeil-frankfurt",
     title: "Case Study: MyZeil Frankfurt",
     excerpt:
-      "Account-Übernahme: Ein bestehender TikTok-Kanal, neu gestartet – 5.292 → 11.200 Follower in 25 Tagen.",
+      "Account-Übernahme: Ein bestehender TikTok-Kanal, neu gestartet – 5.292 → 17.000 Follower in zehn Wochen.",
     coverImage: null,
     coverImageAlt:
-      "Titelbild „MyZeil Frankfurt: Follower verdoppelt“ mit zwei TikTok-Videos aus dem MyZeil und dem Wert +112 % Follower",
+      "Titelbild „MyZeil Frankfurt: Follower verdreifacht“ mit zwei TikTok-Videos aus dem MyZeil und dem Wert +221 % Follower",
     fallbackImage: "myzeil",
+  },
+  "case-study-pep-muenchen": {
+    slug: "case-study-pep-muenchen",
+    title: "Case Study: pep München",
+    excerpt:
+      "Account-Übernahme zum 1. November 2026: Swibble startet auf dem bestehenden TikTok-Kanal mit 16.839 Followern – mit Challenges und Straßenumfragen direkt im Center.",
+    coverImage: null,
+    coverImageAlt:
+      "Smartphone mit einem TikTok-Video aus dem pep Einkaufscenter in München: Moderator spricht mit einer Besucherin",
+    fallbackImage: "pep",
   },
   "case-study-rushfood-aachen": {
     slug: "case-study-rushfood-aachen",

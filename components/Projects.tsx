@@ -8,6 +8,7 @@ import AquisImage from "@/public/projects_photo/Aquis_Image.webp";
 import OlympiaImage from "@/public/projects_photo/Olympia_Image.webp";
 import BillstedtImage from "@/public/projects_photo/Billstedt_Image.webp";
 import MyZeilImage from "@/public/projects_photo/Myzeil_Image.webp";
+import PepImage from "@/public/projects_photo/Pep_Image.webp";
 import RushfoodImage from "@/public/projects_photo/Rushfood_Image.webp";
 import LittleWorldImage from "@/public/projects_photo/LittleWorld_Image.webp";
 import AachenAppImage from "@/public/projects_photo/AachenApp_Image.webp";
@@ -29,6 +30,8 @@ interface Tile {
 
 // Each column stacks two tiles; tall/short alternate so the grid keeps its staggered look.
 // A column with a single tile spans the full height.
+// With an odd number of photo tiles one of them stands alone: the Aachen App photo is the
+// tallest one and keeps its phone in view at full height.
 const COLUMNS: Tile[][] = [
   [
     { kicker: "Dein Projekt", title: "Starte mit Swibble!", image: SwibbleImage, href: "/#kontakt", cta: "Jetzt starten" },
@@ -44,11 +47,14 @@ const COLUMNS: Tile[][] = [
   ],
   [
     { kicker: "Social Media", title: "Rushfood", image: RushfoodImage, mockup: true, href: "/blog/case-study-rushfood-aachen", cta: "Case Study lesen" },
+    { kicker: "Social Media", title: "pep Einkaufscenter", image: PepImage, mockup: true, href: "/blog/case-study-pep-muenchen", cta: "Case Study lesen" },
+  ],
+  [
     { kicker: "Web App", title: "Little World", image: LittleWorldImage },
+    { kicker: "App", title: "RydeUp", image: RydeUpImage },
   ],
   [
     { kicker: "App & Website", title: "Aachen App", image: AachenAppImage },
-    { kicker: "App", title: "RydeUp", image: RydeUpImage },
   ],
   [
     { kicker: "Qualitätssicherung", title: "Square", image: SquareImage },

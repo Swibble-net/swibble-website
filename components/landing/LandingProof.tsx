@@ -189,12 +189,22 @@ const LandingProof = ({ proof, caseStudies, facts }: Props) => {
   const logos = (proof.logos ?? []).flatMap((alt) =>
     companyLogos.filter((logo) => logo.alt === alt),
   );
-  const factCols = facts?.items.length === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3";
+  // Five facts fill one row on desktop; on tablets the last one spans the second column.
+  const factCols =
+    facts?.items.length === 4
+      ? "sm:grid-cols-2 lg:grid-cols-4"
+      : facts?.items.length === 5
+        ? "sm:grid-cols-2 sm:[&>div:last-child]:col-span-2 lg:grid-cols-5 lg:[&>div:last-child]:col-span-1"
+        : "sm:grid-cols-3";
 
+  // Five cards wrap as 3 + 2 on desktop with the second row centred; on tablets (two
+  // columns) the last card is centred as well, so no row ends with a gap.
   const gridClass = mixed
     ? total === 4
       ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4"
-      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+      : total === 5
+        ? "grid-cols-1 sm:grid-cols-2 sm:max-lg:[&>li:last-child]:col-span-2 sm:max-lg:[&>li:last-child]:mx-auto sm:max-lg:[&>li:last-child]:w-[calc(50%-0.5rem)] lg:grid-cols-6 lg:[&>li]:col-span-2 lg:[&>li:nth-child(4)]:col-start-2"
+        : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
     : "grid-cols-2 lg:grid-cols-4";
 
   // A reference-only list with more than one row of tiles scrolls sideways instead of wrapping.

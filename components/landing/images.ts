@@ -3,6 +3,7 @@ import AquisImage from "@/public/projects_photo/Aquis_Image.webp";
 import OlympiaImage from "@/public/projects_photo/Olympia_Image.webp";
 import BillstedtImage from "@/public/projects_photo/Billstedt_Image.webp";
 import MyZeilImage from "@/public/projects_photo/Myzeil_Image.webp";
+import PepImage from "@/public/projects_photo/Pep_Image.webp";
 import RushfoodImage from "@/public/projects_photo/Rushfood_Image.webp";
 import LittleWorldImage from "@/public/projects_photo/LittleWorld_Image.webp";
 import AachenAppImage from "@/public/projects_photo/AachenApp_Image.webp";
@@ -19,6 +20,7 @@ export const LANDING_IMAGES: Record<LandingImageKey, StaticImageData> = {
   olympia: OlympiaImage,
   billstedt: BillstedtImage,
   myzeil: MyZeilImage,
+  pep: PepImage,
   rushfood: RushfoodImage,
   littleWorld: LittleWorldImage,
   aachenApp: AachenAppImage,

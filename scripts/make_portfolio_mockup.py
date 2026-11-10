@@ -1,7 +1,7 @@
 """Usage: python3 scripts/make_portfolio_mockup.py <frame.jpg> public/projects_photo/<Name>_Image.webp [tilt] [focus_x]
 Needs Pillow. <frame.jpg> is a full-height (9:16) frame of the video at the moment its TikTok cover shows.
 tilt: degrees, positive = counter-clockwise. focus_x: 0..1, shifts the crop window to centre an off-centre title.
-In use: Aquis 7 0.371, Olympia -5, Billstedt 3, MyZeil -7, Rushfood 9.
+In use: Aquis 7 0.371, Olympia -5, Billstedt 3, MyZeil -7, Rushfood 9, pep 5.
 
 Builds an 800x1000 portfolio mockup: a tilted phone with real iPhone proportions on a blurred,
 purple-tinted backdrop. The picture must be a full-height (9:16) video frame; it fills the whole display.
