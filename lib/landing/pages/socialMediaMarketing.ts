@@ -34,12 +34,16 @@ export const socialMediaMarketing: LandingPageContent = {
       "case-study-billstedt-center-hamburg",
       "case-study-olympia-einkaufszentrum-munchen",
       "case-study-rushfood-aachen",
+      "case-study-pep-muenchen",
+      "case-study-myzeil-frankfurt",
     ],
     facts: [
       { account: "aquis", label: "TikTok-Follower – Aquis Plaza Aachen" },
       { account: "billstedt", label: "TikTok-Follower – Billstedt-Center Hamburg" },
       { account: "olympia", label: "TikTok-Follower – Olympia-Einkaufszentrum" },
       { account: "rushfood", label: "TikTok-Follower – RushFood Aachen" },
+      { account: "pep", label: "TikTok-Follower – pep München" },
+      { account: "myzeil", label: "TikTok-Follower – MyZeil Frankfurt" },
     ],
   },
   services: {
