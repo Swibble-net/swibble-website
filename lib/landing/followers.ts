@@ -11,7 +11,7 @@ export const FOLLOWER_ACCOUNTS = {
   billstedt: { handle: "billstedtcenter", fallback: 57_300, start: 0 },
   olympia: { handle: "olympia.einkaufszentrum", fallback: 55_900, start: 0 },
   rushfood: { handle: "rushfood", fallback: 23_000, start: 0 },
-  myzeil: { handle: "myzeil.frankfurt", fallback: 17_000, start: 5_293 },
+  myzeil: { handle: "myzeil.frankfurt", fallback: 17_000, start: 5_292 },
   pep: { handle: "pep_neuperlach", fallback: 17_700, start: 16_839 },
 } as const;
 
