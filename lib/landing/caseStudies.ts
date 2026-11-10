@@ -13,6 +13,7 @@ export const CASE_STUDY_FALLBACKS: Record<string, LandingCaseStudy> = {
     coverImageAlt:
       "Smartphone mit einem TikTok-Video aus dem Aquis Plaza Aachen: Moderator interviewt zwei Besucherinnen",
     fallbackImage: "aquis",
+    account: "aquis",
   },
   "case-study-olympia-einkaufszentrum-munchen": {
     slug: "case-study-olympia-einkaufszentrum-munchen",
@@ -23,6 +24,7 @@ export const CASE_STUDY_FALLBACKS: Record<string, LandingCaseStudy> = {
     coverImageAlt:
       "Smartphone mit einem Social-Media-Video für das Olympia-Einkaufszentrum München",
     fallbackImage: "olympia",
+    account: "olympia",
   },
   "case-study-billstedt-center-hamburg": {
     slug: "case-study-billstedt-center-hamburg",
@@ -33,6 +35,7 @@ export const CASE_STUDY_FALLBACKS: Record<string, LandingCaseStudy> = {
     coverImageAlt:
       "Smartphone mit einem TikTok-Video für das Billstedt-Center Hamburg",
     fallbackImage: "billstedt",
+    account: "billstedt",
   },
   "case-study-myzeil-frankfurt": {
     slug: "case-study-myzeil-frankfurt",
@@ -43,6 +46,7 @@ export const CASE_STUDY_FALLBACKS: Record<string, LandingCaseStudy> = {
     coverImageAlt:
       "Titelbild „MyZeil Frankfurt: Follower verdreifacht“ mit zwei TikTok-Videos aus dem MyZeil und dem Wert +221 % Follower",
     fallbackImage: "myzeil",
+    account: "myzeil",
   },
   "case-study-pep-muenchen": {
     slug: "case-study-pep-muenchen",
@@ -53,6 +57,7 @@ export const CASE_STUDY_FALLBACKS: Record<string, LandingCaseStudy> = {
     coverImageAlt:
       "Smartphone mit einem TikTok-Video aus dem pep Einkaufscenter in München: Moderator spricht mit einer Besucherin",
     fallbackImage: "pep",
+    account: "pep",
   },
   "case-study-rushfood-aachen": {
     slug: "case-study-rushfood-aachen",
@@ -63,6 +68,7 @@ export const CASE_STUDY_FALLBACKS: Record<string, LandingCaseStudy> = {
     coverImageAlt:
       "Smartphone mit einem TikTok-Video für RushFood Aachen: Gruppe vor dem Restaurant",
     fallbackImage: "rushfood",
+    account: "rushfood",
   },
   "live-event-10-jahriger-geburtstag-von-aquis-plaza": {
     slug: "live-event-10-jahriger-geburtstag-von-aquis-plaza",

@@ -117,14 +117,14 @@ const ReferenceCard = ({
   );
 };
 
-/** Horizontal track for more tiles than fit in one row — mobile ~2 columns, desktop 4. */
-const ReferenceTrack = ({ children }: { children: ReactNode }) => {
-  const trackRef = useRef<HTMLUListElement>(null);
+/** Scroll state of a horizontal track and a function that moves it by one tile. */
+const useTrack = <T extends HTMLElement>() => {
+  const ref = useRef<T>(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
 
   useEffect(() => {
-    const track = trackRef.current;
+    const track = ref.current;
     if (!track) return;
     const sync = () => {
       const max = track.scrollWidth - track.clientWidth;
@@ -142,38 +142,82 @@ const ReferenceTrack = ({ children }: { children: ReactNode }) => {
 
   /** Scrolls by one tile. */
   const step = useCallback((direction: -1 | 1) => {
-    const track = trackRef.current;
+    const track = ref.current;
     const tile = track?.querySelector<HTMLElement>("li");
-    if (!track || !tile) return;
-    const gap = Number.parseFloat(getComputedStyle(track).columnGap) || 0;
+    const list = tile?.parentElement;
+    if (!track || !tile || !list) return;
+    const gap = Number.parseFloat(getComputedStyle(list).columnGap) || 0;
     track.scrollBy({ left: direction * (tile.offsetWidth + gap), behavior: "smooth" });
   }, []);
+
+  return { ref, atStart, atEnd, step };
+};
+
+const TrackArrows = ({
+  atStart,
+  atEnd,
+  step,
+  labels,
+  className,
+}: {
+  atStart: boolean;
+  atEnd: boolean;
+  step: (direction: -1 | 1) => void;
+  labels: [string, string];
+  className: string;
+}) => (
+  <div className={`hidden gap-3 lg:flex ${className}`}>
+    {([-1, 1] as const).map((direction) => (
+      <button
+        key={direction}
+        type="button"
+        onClick={() => step(direction)}
+        disabled={direction === -1 ? atStart : atEnd}
+        aria-label={direction === -1 ? labels[0] : labels[1]}
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-[#F0E4F5] bg-white text-[#b718ec] shadow-sm transition duration-200 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-30"
+      >
+        {direction === -1 ? "←" : "→"}
+      </button>
+    ))}
+  </div>
+);
+
+/** Horizontal track for more tiles than fit in one row — mobile ~2 columns, desktop 4. */
+const ReferenceTrack = ({ children }: { children: ReactNode }) => {
+  const { ref, ...arrows } = useTrack<HTMLUListElement>();
 
   return (
     <>
       <ul
-        ref={trackRef}
+        ref={ref}
         className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 [scroll-padding-inline:1rem] [scroll-snap-type:x_mandatory] [scrollbar-width:none] lg:mx-0 lg:gap-6 lg:px-0 lg:[scroll-padding-inline:0] [&::-webkit-scrollbar]:hidden [&>li]:w-[46%] [&>li]:flex-none [&>li]:[scroll-snap-align:start] sm:[&>li]:w-[31%] lg:[&>li]:w-[calc(25%-1.125rem)]"
       >
         {children}
       </ul>
-      <div className="mt-4 hidden justify-end gap-3 lg:flex">
-        {([-1, 1] as const).map((direction) => (
-          <button
-            key={direction}
-            type="button"
-            onClick={() => step(direction)}
-            disabled={direction === -1 ? atStart : atEnd}
-            aria-label={direction === -1 ? "Vorherige Projekte" : "Weitere Projekte"}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#F0E4F5] bg-white text-[#b718ec] shadow-sm transition duration-200 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-30"
-          >
-            {direction === -1 ? "←" : "→"}
-          </button>
-        ))}
-      </div>
+      <TrackArrows
+        {...arrows}
+        labels={["Vorherige Projekte", "Weitere Projekte"]}
+        className="mt-4 justify-end"
+      />
     </>
   );
 };
+
+// Columns of the case-study track: the next card always peeks in, so it is obvious that
+// the row scrolls. Below lg the lists are as wide as their content (viewport-based
+// columns), so the right padding survives at the end of the scroll area.
+const TRACK_LIST =
+  "grid w-max grid-flow-col gap-4 pr-4 auto-cols-[78vw] sm:auto-cols-[42vw] lg:w-auto lg:gap-6 lg:pr-0 lg:auto-cols-[calc((100%-4.5rem)/3.2)] xl:auto-cols-[calc((100%-6rem)/4.25)]";
+
+const FactCard = ({ value, label, start }: LandingFacts["items"][number]) => (
+  <div className="flex flex-col-reverse justify-end rounded-2xl bg-[#FDF5FF] p-5 text-center">
+    <dt className="mt-1 text-sm text-[#556987]">
+      {label}
+      <span className="mt-1 block text-xs text-[#6B6B6B]">Gestartet bei {start}</span>
+    </dt>
+    <dd className="text-3xl font-bold text-[#8A1FD6] lg:text-4xl">{value}</dd>
+  </div>
+);
 
 interface Props {
   proof: LandingPageContent["proof"];
@@ -189,23 +233,30 @@ const LandingProof = ({ proof, caseStudies, facts }: Props) => {
   const logos = (proof.logos ?? []).flatMap((alt) =>
     companyLogos.filter((logo) => logo.alt === alt),
   );
-  // Five facts fill one row on desktop; on tablets the last one spans the second column.
   const factCols =
-    facts?.items.length === 4
-      ? "sm:grid-cols-2 lg:grid-cols-4"
-      : facts?.items.length === 5
-        ? "sm:grid-cols-2 sm:[&>div:last-child]:col-span-2 lg:grid-cols-5 lg:[&>div:last-child]:col-span-1"
-        : "sm:grid-cols-3";
+    facts?.items.length === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3";
 
-  // Five cards wrap as 3 + 2 on desktop with the second row centred; on tablets (two
-  // columns) the last card is centred as well, so no row ends with a gap.
   const gridClass = mixed
     ? total === 4
       ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4"
-      : total === 5
-        ? "grid-cols-1 sm:grid-cols-2 sm:max-lg:[&>li:last-child]:col-span-2 sm:max-lg:[&>li:last-child]:mx-auto sm:max-lg:[&>li:last-child]:w-[calc(50%-0.5rem)] lg:grid-cols-6 lg:[&>li]:col-span-2 lg:[&>li:nth-child(4)]:col-start-2"
-        : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
     : "grid-cols-2 lg:grid-cols-4";
+
+  // More than four case studies scroll sideways in one row instead of wrapping.
+  const tracked = mixed && total > 4;
+  const { ref: trackRef, ...trackArrows } = useTrack<HTMLDivElement>();
+  // In the track every case study carries its own follower number underneath, so the
+  // numbers follow the order of the cards and scroll with them.
+  const paired =
+    tracked && facts && references.length === 0
+      ? caseStudies.map((study) =>
+          facts.items.find((fact) => fact.account === study.account),
+        )
+      : [];
+  const trackFacts =
+    facts && paired.length === facts.items.length && paired.every((fact) => fact)
+      ? (paired as LandingFacts["items"])
+      : null;
 
   // A reference-only list with more than one row of tiles scrolls sideways instead of wrapping.
   const scrolls = !mixed && references.length > 4;
@@ -220,19 +271,49 @@ const LandingProof = ({ proof, caseStudies, facts }: Props) => {
       aria-labelledby="referenzen"
       className={`w-full pt-10 lg:pt-16 ${logos.length > 0 ? "pb-10 lg:pb-16" : ""}`}
     >
-      <div className="mb-8 max-w-3xl">
-        <h2
-          id="referenzen"
-          className="text-2xl font-bold text-[#000D36] lg:text-4xl"
-        >
-          {proof.title}
-        </h2>
-        <p className="mt-3 text-base leading-7 text-[#556987] lg:text-lg">
-          {proof.text}
-        </p>
+      <div className="mb-8 flex items-end justify-between gap-6">
+        <div className="max-w-3xl">
+          <h2
+            id="referenzen"
+            className="text-2xl font-bold text-[#000D36] lg:text-4xl"
+          >
+            {proof.title}
+          </h2>
+          <p className="mt-3 text-base leading-7 text-[#556987] lg:text-lg">
+            {proof.text}
+          </p>
+        </div>
+        {tracked && (
+          <TrackArrows
+            {...trackArrows}
+            labels={["Vorherige Case Studies", "Weitere Case Studies"]}
+            className="shrink-0"
+          />
+        )}
       </div>
 
-      {scrolls ? (
+      {tracked ? (
+        <div
+          ref={trackRef}
+          className="-mx-4 overflow-x-auto pb-2 pl-4 [scroll-padding-inline:1rem] [scroll-snap-type:x_mandatory] [scrollbar-width:none] lg:mx-0 lg:pl-0 lg:[scroll-padding-inline:0] [&::-webkit-scrollbar]:hidden"
+        >
+          <ul className={`${TRACK_LIST} [&>li]:[scroll-snap-align:start]`}>
+            {caseStudies.map((study) => (
+              <li key={study.slug}>
+                <CaseStudyCard study={study} />
+              </li>
+            ))}
+            {referenceItems}
+          </ul>
+          {trackFacts && (
+            <dl className={`mt-4 lg:mt-6 ${TRACK_LIST}`}>
+              {trackFacts.map((fact) => (
+                <FactCard key={fact.label} {...fact} />
+              ))}
+            </dl>
+          )}
+        </div>
+      ) : scrolls ? (
         <ReferenceTrack>{referenceItems}</ReferenceTrack>
       ) : (
         <ul className={`grid gap-4 lg:gap-6 ${gridClass}`}>
@@ -247,24 +328,13 @@ const LandingProof = ({ proof, caseStudies, facts }: Props) => {
 
       {facts && (
         <>
-          <dl className={`mt-8 grid grid-cols-1 gap-4 lg:gap-6 ${factCols}`}>
-            {facts.items.map(({ value, label, start }) => (
-              <div
-                key={label}
-                className="flex flex-col-reverse rounded-2xl bg-[#FDF5FF] p-5 text-center"
-              >
-                <dt className="mt-1 text-sm text-[#556987]">
-                  {label}
-                  <span className="mt-1 block text-xs text-[#6B6B6B]">
-                    Gestartet bei {start}
-                  </span>
-                </dt>
-                <dd className="text-3xl font-bold text-[#8A1FD6] lg:text-4xl">
-                  {value}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          {!trackFacts && (
+            <dl className={`mt-8 grid grid-cols-1 gap-4 lg:gap-6 ${factCols}`}>
+              {facts.items.map((fact) => (
+                <FactCard key={fact.label} {...fact} />
+              ))}
+            </dl>
+          )}
           <p className="mt-3 text-xs text-[#6B6B6B]">
             Öffentliche TikTok-Profile, Stand {facts.date} – wird täglich aktualisiert.
           </p>

@@ -136,10 +136,11 @@ export async function getFollowerSnapshot(): Promise<FollowerSnapshot> {
 export function resolveFacts(
   facts: { account: FollowerAccount; label: string }[] | undefined,
   snapshot: FollowerSnapshot,
-): { value: string; label: string; start: string }[] {
+): { account: FollowerAccount; value: string; label: string; start: string }[] {
   return [...(facts ?? [])]
     .sort((a, b) => snapshot.counts[b.account] - snapshot.counts[a.account])
     .map(({ account, label }) => ({
+      account,
       value: formatFollowers(snapshot.counts[account]),
       label,
       start: formatFollowers(FOLLOWER_ACCOUNTS[account].start),

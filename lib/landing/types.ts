@@ -127,12 +127,14 @@ export interface LandingCaseStudy {
   coverImage: string | null;
   coverImageAlt: string;
   fallbackImage: LandingImageKey;
+  /** TikTok channel of the case study; pairs the card with its follower number. */
+  account?: FollowerAccount;
 }
 
 /** Follower facts as rendered: formatted numbers plus the day they were read. */
 export interface LandingFacts {
   /** `start`: followers when Swibble took over the channel. */
-  items: { value: string; label: string; start: string }[];
+  items: { account: FollowerAccount; value: string; label: string; start: string }[];
   /** e.g. "19.09.2026" */
   date: string;
 }
